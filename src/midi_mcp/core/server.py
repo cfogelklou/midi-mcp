@@ -227,7 +227,7 @@ class MCPServer(MCPServerInterface):
         return self._running
 
 
-async def create_server(config: Optional[ServerConfig] = None) -> MCPServer:
+def create_server(config: Optional[ServerConfig] = None) -> MCPServer:
     """
     Factory function to create and initialize an MCP server.
     

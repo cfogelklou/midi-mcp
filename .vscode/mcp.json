@@ -2,7 +2,7 @@
   "servers": {
     "midi-mcp": {
       "command": "./venv/bin/python",
-      "args": ["-m", "midi_mcp"],
+      "args": ["-m", "midi_mcp", "--stdio"],
     },
     "duckduckgo": {
       "command": "docker",
