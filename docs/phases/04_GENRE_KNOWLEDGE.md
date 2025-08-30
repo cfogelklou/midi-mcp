@@ -1,475 +1,319 @@
-# Phase 4: Genre Knowledge Base Implementation
+# Phase 4: Genre Knowledge Base Implementation - REVISED DESIGN
 
 ## Overview
-Implement comprehensive genre-specific musical knowledge, enabling AI agents to create authentic music in various styles including Blues, Rock, Hip Hop, and Bluegrass. This phase transforms generic music theory into style-specific creation tools.
+Implement comprehensive genre-specific musical knowledge with **generic, parameterized tools** that can work with any genre. This scalable approach enables AI agents to create authentic music in various styles without cluttering the API with genre-specific functions.
 
 ## Goals
 - Build comprehensive genre knowledge databases
-- Implement genre-specific composition rules and patterns
+- Implement **generic composition tools** that take genre as a parameter
 - Create style-appropriate rhythm and instrumentation tools
 - Enable AI agents to create authentic genre-based music
+- **Maximize reusability and minimize API surface area**
 
-## Duration: Week 4 (5 days)
+## Design Philosophy: Generic Tools + Genre Data
 
-## Prerequisites
-- Phases 1-3 completed and tested
-- Working music theory system with scales, chords, and progressions
-- MIDI file creation and editing capabilities
-
-## Day-by-Day Implementation
-
-### Day 1: Genre Knowledge Base Architecture
-**Morning (3-4 hours):**
-- Design genre knowledge data structures
-- Implement genre profile loading system
-- Create genre characteristic validation
-- Build genre inheritance and fusion capabilities
-
-**Code Framework**:
+### ✅ **APPROACH**: Generic Functions + Genre Parameter
 ```python
-@mcp.tool()
-def get_genre_characteristics(genre: str) -> dict:
-    """
-    Get comprehensive characteristics for a musical genre.
-    
-    Args:
-        genre: Genre name (blues, rock, jazz, hip_hop, bluegrass, country, etc.)
-        
-    Returns:
-        Genre profile including tempo ranges, typical progressions,
-        instrumentation, rhythmic patterns, and style characteristics
-    """
+create_progression(genre="blues")
+create_progression(genre="rock")
+create_beat(genre="hip_hop")
+create_arrangement(genre="bluegrass")
+```
 
+## Revised Tool Set (12 Generic Tools)
+
+### **Genre Discovery Tools**
+```python
 @mcp.tool()
 def list_available_genres() -> dict:
-    """
-    List all available genres in the knowledge base.
-    
-    Returns:
-        Categorized list of genres with brief descriptions
-    """
+    """List all available genres with categories and descriptions."""
 
 @mcp.tool()
+def get_genre_characteristics(genre: str) -> dict:
+    """Get comprehensive characteristics for any musical genre."""
+
+@mcp.tool() 
 def compare_genres(genre1: str, genre2: str) -> dict:
-    """
-    Compare characteristics between two genres.
-    
-    Args:
-        genre1: First genre to compare
-        genre2: Second genre to compare
-        
-    Returns:
-        Similarities, differences, and fusion possibilities
-    """
+    """Compare characteristics between two genres."""
 ```
 
-**Afternoon (2-3 hours):**
-- Load initial genre data (Blues, Rock, Hip Hop, Bluegrass)
-- Test genre profile retrieval and validation
-- Create genre hierarchy and relationships
-- Add genre tagging and categorization system
-
-**HIL Test**: "Ask AI to describe the characteristics of blues music and compare it to rock"
-
-### Day 2: Blues Knowledge Implementation
-**Morning (3-4 hours):**
-- Implement comprehensive blues knowledge base
-- Add 12-bar blues progression variations
-- Create blues scale and harmonic patterns
-- Add blues-specific rhythmic feel (shuffle, swing)
-
-**Code Framework**:
+### **Generic Composition Tools**
 ```python
 @mcp.tool()
-def create_blues_progression(key: str, variation: str = "standard", 
-                           bars: int = 12) -> dict:
-    """
-    Create an authentic blues chord progression.
-    
-    Args:
-        key: Key signature (works best with E, A, G, D, B)
-        variation: Blues variation (standard, quick_change, minor_blues)
-        bars: Number of bars (12, 8, or 16)
-        
-    Returns:
-        Blues progression with appropriate chord voicings and timing
-    """
+def create_progression(genre: str, key: str, variation: str = "standard", 
+                      bars: int = None) -> dict:
+    """Create authentic chord progression for any genre."""
 
 @mcp.tool()
-def add_blues_feel(midi_file_id: str, shuffle_intensity: float = 0.67) -> dict:
-    """
-    Apply authentic blues feel to existing MIDI data.
-    
-    Args:
-        midi_file_id: MIDI file to modify
-        shuffle_intensity: Swing ratio (0.5=straight, 0.67=medium shuffle, 0.75=heavy shuffle)
-        
-    Returns:
-        Modified MIDI with blues timing feel
-    """
+def create_melody(genre: str, key: str, progression: dict, 
+                 style: str = "typical") -> dict:
+    """Generate authentic melody for any genre."""
 
 @mcp.tool()
-def create_blues_melody(key: str, progression: dict, style: str = "traditional") -> dict:
-    """
-    Generate an authentic blues melody.
-    
-    Args:
-        key: Key of the blues
-        progression: Chord progression to follow
-        style: Blues style (traditional, chicago, delta, electric)
-        
-    Returns:
-        Blues melody with appropriate scales, bends, and phrasing
-    """
+def create_beat(genre: str, tempo: int, complexity: str = "medium",
+               variation: str = "standard") -> dict:
+    """Create authentic drum patterns for any genre."""
+
+@mcp.tool()
+def create_bass_line(genre: str, progression: dict, style: str = "typical") -> dict:
+    """Generate authentic bass lines for any genre."""
+
+@mcp.tool()
+def create_arrangement(genre: str, song_structure: dict, 
+                      instrumentation: str = "standard") -> dict:
+    """Create full band arrangement for any genre."""
 ```
 
-**Afternoon (2-3 hours):**
-- Add blues turnaround patterns
-- Implement call-and-response structures
-- Create blues-specific instrumentation templates
-- Add blue note handling and microtonal bends
-
-**HIL Test**: "Ask AI to create a 12-bar blues in E with authentic shuffle feel and a simple melody"
-
-### Day 3: Rock Knowledge Implementation
-**Morning (3-4 hours):**
-- Build comprehensive rock music knowledge base
-- Implement power chord progressions and voicings
-- Add rock-specific song structures (verse-chorus-bridge)
-- Create rock rhythmic patterns and drum beats
-
-**Code Framework**:
+### **Style Application Tools**
 ```python
 @mcp.tool()
-def create_rock_progression(key: str, style: str = "classic_rock", 
-                          complexity: str = "medium") -> dict:
-    """
-    Create an authentic rock chord progression.
-    
-    Args:
-        key: Key signature (E, A, D, G work well for rock)
-        style: Rock style (classic_rock, hard_rock, pop_rock, punk, metal)
-        complexity: Harmonic complexity (simple, medium, complex)
-        
-    Returns:
-        Rock progression with power chords and full chord options
-    """
+def apply_genre_feel(midi_file_id: str, genre: str, 
+                    intensity: float = 0.8) -> dict:
+    """Apply genre-specific timing, articulation, and feel to existing MIDI."""
 
 @mcp.tool()
-def add_rock_arrangement(midi_file_id: str, lineup: str = "standard") -> dict:
-    """
-    Arrange existing music for a rock band.
-    
-    Args:
-        midi_file_id: Base musical material
-        lineup: Band configuration (standard, power_trio, extended)
-        
-    Returns:
-        Full rock arrangement with appropriate parts for each instrument
-    """
+def create_genre_template(genre: str, song_type: str, key: str, 
+                         tempo: int) -> dict:
+    """Create complete song template for any genre."""
 
 @mcp.tool()
-def create_rock_drum_pattern(style: str = "basic_rock", tempo: int = 120,
-                           complexity: str = "medium") -> dict:
-    """
-    Create authentic rock drum patterns.
-    
-    Args:
-        style: Drum style (basic_rock, shuffle_rock, punk, metal)
-        tempo: Tempo in BPM
-        complexity: Pattern complexity (simple, medium, complex)
-        
-    Returns:
-        Complete drum pattern with kick, snare, hi-hat, and fills
-    """
-```
-
-**Afternoon (2-3 hours):**
-- Add rock guitar techniques (power chords, palm muting, etc.)
-- Implement rock song form templates
-- Create rock bass line patterns
-- Add distortion and dynamics simulation
-
-**HIL Test**: "Ask AI to create a classic rock song structure with power chord progression and driving drum beat"
-
-### Day 4: Hip Hop and Bluegrass Implementation
-**Morning (3-4 hours) - Hip Hop:**
-- Build hip hop production knowledge base
-- Implement trap and boom-bap rhythm patterns
-- Add hip hop chord progression tendencies
-- Create sampling and loop-based composition tools
-
-**Code Framework**:
-```python
-@mcp.tool()
-def create_hip_hop_beat(style: str = "boom_bap", tempo: int = 90,
-                       complexity: str = "medium") -> dict:
-    """
-    Create authentic hip hop drum patterns.
-    
-    Args:
-        style: Hip hop style (boom_bap, trap, lo_fi, drill, old_school)
-        tempo: Tempo in BPM (typically 70-140)
-        complexity: Beat complexity (simple, medium, complex)
-        
-    Returns:
-        Hip hop drum pattern with appropriate samples and programming
-    """
-
-@mcp.tool()
-def create_hip_hop_chord_loop(key: str, mood: str = "dark", 
-                            duration: int = 4) -> dict:
-    """
-    Create chord progression suitable for hip hop production.
-    
-    Args:
-        key: Key signature
-        mood: Overall mood (dark, uplifting, mysterious, aggressive)
-        duration: Loop length in bars
-        
-    Returns:
-        Hip hop chord progression with appropriate voicings and rhythm
-    """
-```
-
-**Afternoon (2-3 hours) - Bluegrass:**
-- Build bluegrass tradition knowledge base
-- Implement bluegrass picking patterns and techniques
-- Add bluegrass song forms and structures
-- Create authentic bluegrass instrumentation
-
-**Code Framework**:
-```python
-@mcp.tool()
-def create_bluegrass_arrangement(song_structure: dict, key: str = "G") -> dict:
-    """
-    Create full bluegrass band arrangement.
-    
-    Args:
-        song_structure: Basic melody and chord progression
-        key: Key signature (G, D, A, C, F work well)
-        
-    Returns:
-        Full arrangement with banjo, fiddle, guitar, mandolin, bass parts
-    """
-
-@mcp.tool()
-def add_bluegrass_picking_pattern(instrument: str, chord_progression: dict) -> dict:
-    """
-    Add authentic picking patterns for bluegrass instruments.
-    
-    Args:
-        instrument: Target instrument (banjo, guitar, mandolin)
-        chord_progression: Chord progression to follow
-        
-    Returns:
-        Picking pattern appropriate to instrument and style
-    """
-```
-
-**HIL Test**: "Ask AI to create a lo-fi hip hop beat and a bluegrass fiddle tune"
-
-### Day 5: Integration and Style Fusion
-**Morning (3-4 hours):**
-- Create genre fusion and crossover capabilities
-- Implement style intensity controls (how strictly to follow genre rules)
-- Add genre evolution and modern variations
-- Build genre-appropriate song structure templates
-
-**Code Framework**:
-```python
-@mcp.tool()
-def create_fusion_style(primary_genre: str, secondary_genre: str, 
+def create_fusion_style(primary_genre: str, secondary_genre: str,
                        balance: float = 0.5) -> dict:
-    """
-    Create a fusion of two musical genres.
-    
-    Args:
-        primary_genre: Dominant genre (provides main structure)
-        secondary_genre: Secondary genre (provides flavor elements)
-        balance: Balance between genres (0.0=all primary, 1.0=all secondary)
-        
-    Returns:
-        Fusion style profile with blended characteristics
-    """
+    """Create fusion of two genres with adjustable balance."""
 
 @mcp.tool()
-def apply_genre_style(midi_file_id: str, target_genre: str,
-                     intensity: float = 0.8) -> dict:
-    """
-    Apply genre-specific styling to existing musical material.
-    
-    Args:
-        midi_file_id: Source musical material
-        target_genre: Genre style to apply
-        intensity: How strongly to apply genre characteristics (0.0-1.0)
-        
-    Returns:
-        Restyled musical material with genre characteristics
-    """
-
-@mcp.tool()
-def create_song_from_genre_template(genre: str, song_type: str,
-                                  key: str, tempo: int) -> dict:
-    """
-    Create complete song from genre-specific template.
-    
-    Args:
-        genre: Target musical genre
-        song_type: Type of song (ballad, uptempo, dance, etc.)
-        key: Key signature
-        tempo: Tempo in BPM
-        
-    Returns:
-        Complete song structure with all sections and arrangements
-    """
+def validate_genre_authenticity(midi_file_id: str, target_genre: str) -> dict:
+    """Analyze how well music matches genre characteristics."""
 ```
 
-**Afternoon (2-3 hours):**
-- Complete comprehensive testing of all genre tools
-- Create genre-specific validation and quality assessment
-- Add genre recommendation system
-- Prepare documentation and examples
+## Genre Knowledge Architecture
 
-**HIL Test**: "Ask AI to create a blues-rock fusion song, then apply hip hop production techniques to a bluegrass melody"
-
-## File Structure After Phase 4
-```
-midi-mcp/
-├── src/
-│   ├── server.py
-│   ├── midi/ [existing files]
-│   ├── theory/ [existing files]
-│   ├── genres/
-│   │   ├── __init__.py
-│   │   ├── genre_manager.py      # Genre loading and management
-│   │   ├── blues.py              # Blues-specific implementations
-│   │   ├── rock.py               # Rock-specific implementations  
-│   │   ├── hip_hop.py            # Hip hop-specific implementations
-│   │   ├── bluegrass.py          # Bluegrass-specific implementations
-│   │   ├── fusion.py             # Genre fusion capabilities
-│   │   └── validator.py          # Genre authenticity validation
-│   ├── models/
-│   │   ├── genre_models.py       # Genre-specific data models
-│   │   └── [existing files]
-│   └── [existing directories]
-├── data/
-│   ├── genres/
-│   │   ├── blues.json            # Blues knowledge base
-│   │   ├── rock.json             # Rock knowledge base
-│   │   ├── hip_hop.json          # Hip hop knowledge base
-│   │   ├── bluegrass.json        # Bluegrass knowledge base
-│   │   └── genre_relationships.json # Inter-genre relationships
-│   ├── patterns/
-│   │   ├── drum_patterns/        # Genre-specific drum patterns
-│   │   ├── bass_patterns/        # Genre-specific bass patterns
-│   │   └── chord_voicings/       # Genre-specific chord voicings
-│   └── [existing files]
-├── tests/
-│   ├── test_genres.py
-│   ├── test_blues.py
-│   ├── test_rock.py
-│   ├── test_hip_hop.py
-│   ├── test_bluegrass.py
-│   └── [existing test files]
-└── [existing directories]
-```
-
-## Genre Knowledge Database Structure
-
-### Blues Knowledge Base
+### **Hierarchical Genre System**
 ```json
 {
-  "blues": {
-    "characteristics": {
-      "tempo_range": [60, 120],
-      "time_signatures": ["4/4", "12/8"],
-      "typical_keys": ["E", "A", "G", "D", "B"],
-      "mood_descriptors": ["melancholy", "soulful", "gritty", "emotional"]
+  "genres": {
+    "blues": {
+      "parent": null,
+      "subgenres": ["chicago_blues", "delta_blues", "electric_blues"],
+      "related": ["rock", "jazz", "r_and_b"]
     },
-    "harmonic_patterns": {
-      "progressions": {
-        "standard_12_bar": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
-        "quick_change": ["I7", "IV7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"]
-      },
-      "turnarounds": ["I-VI-ii-V", "I-#idim-ii-V"]
+    "rock": {
+      "parent": null, 
+      "subgenres": ["classic_rock", "hard_rock", "punk", "metal"],
+      "related": ["blues", "pop", "country"]
     },
-    "scales": {
-      "primary": ["blues_scale", "minor_pentatonic"],
-      "secondary": ["mixolydian", "dorian"]
+    "hip_hop": {
+      "parent": null,
+      "subgenres": ["boom_bap", "trap", "lo_fi", "drill", "old_school"],
+      "related": ["r_and_b", "funk", "jazz"]
     },
-    "instrumentation": {
-      "essential": ["guitar", "vocals", "harmonica"],
-      "common": ["bass", "drums", "piano"]
+    "trance": {
+      "parent": "electronic",
+      "subgenres": ["progressive_trance", "uplifting_trance", "psytrance", "tech_trance"],
+      "related": ["house", "techno", "ambient"]
+    },
+    "pop": {
+      "parent": null,
+      "subgenres": ["dance_pop", "indie_pop", "electropop", "synth_pop"],
+      "related": ["rock", "r_and_b", "electronic"]
+    },
+    "ambient": {
+      "parent": "electronic",
+      "subgenres": ["dark_ambient", "drone", "new_age", "space_ambient"],
+      "related": ["trance", "downtempo", "experimental"]
+    },
+    "k_pop": {
+      "parent": "pop",
+      "subgenres": ["k_pop_ballad", "k_pop_dance", "k_pop_rap", "k_pop_r&b"],
+      "related": ["pop", "hip_hop", "r_and_b", "electronic"]
     }
   }
 }
 ```
 
-## HIL Testing Scenarios
-
-### Scenario 1: Blues Authenticity
-```
-Human: "Create an authentic 12-bar blues in A with shuffle feel"
-Expected: AI creates proper 12-bar form (A7-A7-A7-A7-D7-D7-A7-A7-E7-D7-A7-E7) with shuffle timing
-Result: Blues that would be recognizable to blues musicians
-```
-
-### Scenario 2: Rock Power and Drive
-```
-Human: "Create a driving rock song with power chords and a strong backbeat"
-Expected: AI uses power chord voicings, emphasizes beats 2 and 4, creates energy
-Result: Rock song that sounds powerful and energetic
-```
-
-### Scenario 3: Hip Hop Production Feel
-```
-Human: "Create a lo-fi hip hop beat with a dark, moody chord progression"
-Expected: AI creates appropriate drum programming with vinyl crackle feel, minor chord progressions
-Result: Beat that sounds like contemporary hip hop production
-```
-
-### Scenario 4: Bluegrass Tradition
-```
-Human: "Create a bluegrass tune with banjo rolls and fiddle melody"
-Expected: AI creates appropriate picking patterns, fast tempo, traditional harmony
-Result: Tune that sounds authentically bluegrass
+### **Generic Pattern Structure**
+```json
+{
+  "blues": {
+    "progressions": {
+      "standard": {
+        "pattern": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
+        "bars": 12,
+        "variations": ["quick_change", "minor_blues", "jazz_blues"]
+      }
+    },
+    "rhythms": {
+      "standard": {
+        "feel": "shuffle",
+        "emphasis": [1, 3],
+        "subdivision": "triplet"
+      }
+    },
+    "scales": ["blues_scale", "minor_pentatonic", "mixolydian"],
+    "instrumentation": {
+      "essential": ["guitar", "vocals"],
+      "typical": ["harmonica", "bass", "drums"],
+      "optional": ["piano", "saxophone"]
+    }
+  }
+}
 ```
 
-### Scenario 5: Genre Fusion
+## Implementation Plan
+
+### **Day 1: Generic Architecture + Genre Data System**
+```python
+# Core genre manager
+class GenreManager:
+    def get_genre_data(self, genre: str) -> dict
+    def get_progression_patterns(self, genre: str) -> dict
+    def get_rhythm_patterns(self, genre: str) -> dict
+    def get_instrumentation(self, genre: str) -> dict
+
+# Generic composition engine
+class GenericComposer:
+    def create_progression(self, genre: str, **kwargs) -> dict
+    def create_melody(self, genre: str, **kwargs) -> dict
+    def create_arrangement(self, genre: str, **kwargs) -> dict
 ```
-Human: "Combine blues and hip hop to create something unique"
-Expected: AI blends blues harmony/melody with hip hop rhythms and production
-Result: Creative fusion that maintains elements of both genres
+
+### **Day 2-4: Genre Data Implementation**
+- **Load comprehensive genre databases** (blues, rock, hip_hop, bluegrass, jazz, country, trance, pop, ambient, k_pop)
+- **Pattern libraries**: Progressions, rhythms, melodies for each genre
+- **Instrumentation templates**: Standard lineups for each style
+- **Style characteristics**: Tempo, feel, harmony, structure
+
+### **Day 5: Integration + Advanced Features**
+- **Genre fusion engine**: Blend characteristics from multiple genres
+- **Authenticity validation**: Score how well music matches genre
+- **Style evolution**: Modern vs traditional variations
+
+## Revised File Structure
+```
+midi-mcp/
+├── src/midi_mcp/
+│   ├── genres/
+│   │   ├── __init__.py
+│   │   ├── genre_manager.py      # Generic genre management
+│   │   ├── composition_engine.py # Generic composition tools
+│   │   ├── pattern_library.py    # Pattern storage and retrieval
+│   │   ├── fusion_engine.py      # Genre fusion capabilities
+│   │   └── validator.py          # Authenticity validation
+│   └── tools/
+│       └── genre_tools.py        # Generic MCP tools
+├── data/
+│   ├── genres/
+│   │   ├── genre_hierarchy.json  # Genre relationships
+│   │   ├── blues.json           # Blues patterns and characteristics
+│   │   ├── rock.json            # Rock patterns and characteristics
+│   │   ├── hip_hop.json         # Hip hop patterns and characteristics
+│   │   ├── bluegrass.json       # Bluegrass patterns and characteristics
+│   │   ├── trance.json          # Trance patterns and characteristics
+│   │   ├── pop.json             # Pop patterns and characteristics
+│   │   ├── ambient.json         # Ambient patterns and characteristics
+│   │   ├── k_pop.json           # K-pop patterns and characteristics
+│   │   └── fusion_rules.json    # Genre fusion compatibility
+│   └── patterns/
+│       ├── progressions/        # Chord progression libraries
+│       ├── rhythms/            # Rhythm pattern libraries
+│       ├── melodies/           # Melodic phrase libraries
+│       └── arrangements/       # Instrumentation templates
+```
+
+## Example Usage
+
+### **Example Usage:**
+```python
+# Generic functions handle all genres with clean parameters
+create_progression(genre="blues", key="E", variation="quick_change")
+create_progression(genre="rock", key="A", variation="classic_rock")  
+create_beat(genre="hip_hop", tempo=90, variation="boom_bap")
+create_beat(genre="trance", tempo=130, variation="progressive")
+create_melody(genre="pop", key="C", style="catchy")
+create_melody(genre="ambient", key="Am", style="ethereal")
+create_arrangement(genre="bluegrass", song_structure=data)
+create_arrangement(genre="k_pop", song_structure=data, instrumentation="full")
+```
+
+## Benefits of This Approach
+
+### ✅ **Scalability**
+- Adding new genres requires only **data**, not new functions
+- API remains clean and consistent
+- Easy to add subgenres and variations
+
+### ✅ **Maintainability**  
+- Single codebase handles all genres
+- Consistent parameter patterns
+- Centralized genre logic
+
+### ✅ **Flexibility**
+- Easy to add new genre characteristics
+- Simple to implement genre fusion
+- Parameter validation in one place
+
+### ✅ **User Experience**
+- Consistent interface across all genres
+- Easy to discover available genres
+- Natural parameter progression
+
+## HIL Testing Scenarios (Revised)
+
+### Scenario 1: Genre Discovery
+```
+Human: "What genres are available?"
+AI: Uses list_available_genres() → Returns blues, rock, hip_hop, bluegrass, jazz, trance, pop, ambient, k_pop, etc.
+```
+
+### Scenario 2: Generic Blues Creation
+```
+Human: "Create a 12-bar blues in E"
+AI: Uses create_progression(genre="blues", key="E", bars=12)
+Result: Authentic E7-A7-B7 blues progression
+```
+
+### Scenario 3: Rock Arrangement
+```
+Human: "Create a rock arrangement for this melody"
+AI: Uses create_arrangement(genre="rock", song_structure=melody_data)
+Result: Full band arrangement with guitar, bass, drums
+```
+
+### Scenario 4: Genre Fusion
+```
+Human: "Combine blues and hip hop"
+AI: Uses create_fusion_style(primary_genre="blues", secondary_genre="hip_hop")
+Result: Blues harmony with hip hop beats and production
+```
+
+### Scenario 5: Style Application
+```
+Human: "Make this MIDI file sound more like jazz"
+AI: Uses apply_genre_feel(midi_file_id="123", genre="jazz")
+Result: Swing timing, jazz chord voicings, appropriate articulation
 ```
 
 ## Success Criteria
-- [ ] All genre knowledge bases contain accurate information
-- [ ] AI agents create recognizable genre-specific music
-- [ ] Musical output passes authenticity tests by genre experts
-- [ ] Genre fusion produces creative and musical results
-- [ ] System handles genre requests consistently
-- [ ] Performance remains acceptable with expanded knowledge base
-- [ ] All HIL test scenarios demonstrate genre accuracy
-
-## Musical Authenticity Validation
-Each genre implementation includes validation criteria:
-- **Harmonic Authenticity**: Chord progressions match genre conventions
-- **Rhythmic Accuracy**: Time feel and rhythmic patterns are genre-appropriate
-- **Structural Correctness**: Song forms follow genre traditions
-- **Instrumental Appropriateness**: Instrumentation matches genre expectations
-- **Style Consistency**: Overall feel aligns with genre characteristics
-
-## Integration with Previous Phases
-- Genre knowledge enhances music theory applications (Phase 3)
-- Genre-specific MIDI files can be created and edited (Phase 2)
-- Real-time performance uses genre-appropriate patterns (Phase 1)
-- All existing functionality works within genre contexts
+- [ ] Single generic function handles multiple genres correctly
+- [ ] New genres can be added via data files only
+- [ ] Genre characteristics are accurately represented
+- [ ] Fusion between genres produces musical results
+- [ ] API remains clean with 12 total tools instead of 40+
+- [ ] All original Phase 4 functionality preserved
+- [ ] Performance scales well with new genres
 
 ## Next Phase Preparation
-- Verify genre authenticity with musical experts
-- Test genre knowledge with complex composition scenarios
-- Prepare advanced composition tools for Phase 5
-- Review specialized agent requirements
+This generic architecture sets up perfectly for Phase 5 (Advanced Composition) by providing:
+- **Scalable pattern library** for advanced composition
+- **Generic tools** that can be enhanced with AI generation
+- **Clean architecture** for adding specialized agents
+- **Rich genre knowledge** for style-appropriate composition
 
-Phase 4 transforms the MIDI MCP server from a general music tool into a genre-aware composition system that can create authentic music in specific styles. This cultural and stylistic knowledge enables AI agents to create music that resonates with listeners familiar with these genres.
+## Migration Strategy
+The revised approach reduces complexity while increasing capability:
+- **From 40+ genre-specific tools** → **12 generic tools**
+- **From hardcoded genre logic** → **Data-driven genre system**
+- **From scattered implementations** → **Unified composition engine**
+- **From difficult maintenance** → **Easy extensibility**
+
+This approach transforms Phase 4 from a maintenance nightmare into an elegant, scalable system that can grow with new genres and styles while maintaining a clean, intuitive API.
