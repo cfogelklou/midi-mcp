@@ -18,3 +18,8 @@ My primary purpose is to assist in the implementation of this project. I can hel
 *   **Documentation:** I can help create and maintain documentation.
 
 I will follow the project's conventions and ask for clarification when needed. Let's get started!
+
+
+## AI Agent Instructions
+
+Please follow the instructions outlined in the `AI-INSTRUCTIONS.md` file for all contributions to this codebase.
