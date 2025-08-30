@@ -226,6 +226,16 @@ class MidiDeviceInterface(ABC):
     async def send_control_change(self, controller: int, value: int, channel: int = 0) -> None:
         """Send a Control Change message."""
         pass
+    
+    @abstractmethod
+    async def send_program_change(self, program: int, channel: int = 0) -> None:
+        """Send a Program Change message."""
+        pass
+    
+    @abstractmethod
+    async def send_pitch_bend(self, value: int, channel: int = 0) -> None:
+        """Send a Pitch Bend message."""
+        pass
 
 
 class MidiManagerInterface(ABC):

@@ -202,6 +202,9 @@ class MidiFilePlayer:
         try:
             self.logger.info(f"Starting playback loop for {playback_id}")
             
+            # Send initial setup messages (program changes, etc.)
+            await self._send_initial_setup(device, midi_file)
+            
             # Get total file duration
             total_duration = midi_file.length
             
@@ -311,6 +314,51 @@ class MidiFilePlayer:
             
         except Exception as e:
             self.logger.error(f"Failed to send all notes off: {e}")
+    
+    async def _send_initial_setup(self, device: MidiDeviceInterface, midi_file) -> None:
+        """
+        Send initial setup messages (program changes, controllers, etc.) to prepare for playback.
+        
+        Args:
+            device: MIDI device interface
+            midi_file: MIDI file to extract setup from
+        """
+        try:
+            # Extract the first program change for each channel
+            channel_programs = {}
+            channel_volumes = {}
+            channel_pans = {}
+            
+            for track in midi_file.tracks:
+                for msg in track:
+                    if hasattr(msg, 'type') and hasattr(msg, 'channel'):
+                        if msg.type == 'program_change':
+                            if msg.channel not in channel_programs:
+                                channel_programs[msg.channel] = msg.program
+                        elif msg.type == 'control_change':
+                            if msg.control == 7 and msg.channel not in channel_volumes:  # Volume
+                                channel_volumes[msg.channel] = msg.value
+                            elif msg.control == 10 and msg.channel not in channel_pans:  # Pan
+                                channel_pans[msg.channel] = msg.value
+            
+            # Send program changes
+            for channel, program in channel_programs.items():
+                await device.send_program_change(program, channel)
+            
+            # Send volume settings
+            for channel, volume in channel_volumes.items():
+                await device.send_control_change(7, volume, channel)
+            
+            # Send pan settings  
+            for channel, pan in channel_pans.items():
+                await device.send_control_change(10, pan, channel)
+            
+            setup_count = len(channel_programs) + len(channel_volumes) + len(channel_pans)
+            if setup_count > 0:
+                self.logger.info(f"Sent initial setup: {len(channel_programs)} programs, {len(channel_volumes)} volumes, {len(channel_pans)} pans")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to send initial setup: {e}")
 
 
 class PlaybackProgressTracker:

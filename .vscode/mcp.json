@@ -3,6 +3,15 @@
     "midi-mcp": {
       "command": "/Users/chris/dev/midi-mcp/venv/bin/python",
       "args": ["-m", "midi_mcp"],
-    }
+    },
+    "duckduckgo": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp/duckduckgo"
+      ]
+    },
   }
 }

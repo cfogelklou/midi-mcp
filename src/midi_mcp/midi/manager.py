@@ -106,6 +106,14 @@ class MockMidiDevice(MidiDeviceInterface):
         """Send mock Control Change message."""
         message = ControlChangeMessage(controller=controller, value=value, channel=channel)
         await self.send_message(message)
+    
+    async def send_program_change(self, program: int, channel: int = 0) -> None:
+        """Send mock Program Change message."""
+        self.logger.debug(f"Mock Program Change: program={program}, channel={channel}")
+    
+    async def send_pitch_bend(self, value: int, channel: int = 0) -> None:
+        """Send mock Pitch Bend message."""
+        self.logger.debug(f"Mock Pitch Bend: value={value}, channel={channel}")
 
 
 class MidoMidiDevice(MidiDeviceInterface):
@@ -215,6 +223,30 @@ class MidoMidiDevice(MidiDeviceInterface):
         """Send Control Change message."""
         message = ControlChangeMessage(controller=controller, value=value, channel=channel)
         await self.send_message(message)
+    
+    async def send_program_change(self, program: int, channel: int = 0) -> None:
+        """Send Program Change message."""
+        if not self._connected or not self._port:
+            raise MessageSendError("Device not connected")
+        
+        try:
+            msg = mido.Message('program_change', channel=channel, program=program)
+            self._port.send(msg)
+            self.logger.debug(f"Sent program change: program={program}, channel={channel}")
+        except Exception as e:
+            raise MessageSendError(f"Failed to send program change: {str(e)}")
+    
+    async def send_pitch_bend(self, value: int, channel: int = 0) -> None:
+        """Send Pitch Bend message."""
+        if not self._connected or not self._port:
+            raise MessageSendError("Device not connected")
+        
+        try:
+            msg = mido.Message('pitchwheel', channel=channel, pitch=value)
+            self._port.send(msg)
+            self.logger.debug(f"Sent pitch bend: value={value}, channel={channel}")
+        except Exception as e:
+            raise MessageSendError(f"Failed to send pitch bend: {str(e)}")
 
 
 class RtMidiDevice(MidiDeviceInterface):
@@ -337,6 +369,35 @@ class RtMidiDevice(MidiDeviceInterface):
         """Send Control Change message."""
         message = ControlChangeMessage(controller=controller, value=value, channel=channel)
         await self.send_message(message)
+    
+    async def send_program_change(self, program: int, channel: int = 0) -> None:
+        """Send Program Change message."""
+        if not self._connected or not self._midi_out:
+            raise MessageSendError("Device not connected")
+        
+        try:
+            # Program change: [0xC0 + channel, program]
+            midi_bytes = [0xC0 + channel, program]
+            self._midi_out.send_message(midi_bytes)
+            self.logger.debug(f"Sent program change: program={program}, channel={channel}")
+        except Exception as e:
+            raise MessageSendError(f"Failed to send program change: {str(e)}")
+    
+    async def send_pitch_bend(self, value: int, channel: int = 0) -> None:
+        """Send Pitch Bend message."""
+        if not self._connected or not self._midi_out:
+            raise MessageSendError("Device not connected")
+        
+        try:
+            # Pitch bend: [0xE0 + channel, LSB, MSB]
+            # Value should be 14-bit (0-16383), center is 8192
+            lsb = value & 0x7F
+            msb = (value >> 7) & 0x7F
+            midi_bytes = [0xE0 + channel, lsb, msb]
+            self._midi_out.send_message(midi_bytes)
+            self.logger.debug(f"Sent pitch bend: value={value}, channel={channel}")
+        except Exception as e:
+            raise MessageSendError(f"Failed to send pitch bend: {str(e)}")
 
 
 class MidiManager(MidiManagerInterface):
