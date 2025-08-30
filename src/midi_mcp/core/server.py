@@ -27,7 +27,11 @@ from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 from ..config.settings import ServerConfig
 from ..tools.registry import ToolRegistry
 from ..tools.midi_tools import register_midi_tools
+from ..tools.file_tools import register_midi_file_tools
 from ..midi.manager import MidiManager
+from ..midi.file_ops import MidiFileManager
+from ..midi.player import MidiFilePlayer
+from ..midi.analyzer import MidiAnalyzer
 from ..utils.logger import setup_logging
 
 
@@ -76,7 +80,12 @@ class MCPServer(MCPServerInterface):
         # Initialize MIDI manager
         self.midi_manager = MidiManager(self.config.midi_config)
         
-        self.logger.info("MIDI MCP Server initialized")
+        # Initialize Phase 2 components (file operations, playback, analysis)
+        self.file_manager = MidiFileManager()
+        self.player = MidiFilePlayer()
+        self.analyzer = MidiAnalyzer()
+        
+        self.logger.info("MIDI MCP Server initialized with Phase 2 capabilities")
         
         # Register core server info handlers
         self._setup_server_info()
@@ -123,6 +132,14 @@ class MCPServer(MCPServerInterface):
                 # Add connected devices count
                 connected_devices = self.midi_manager.get_connected_devices()
                 status["connected_devices"] = len(connected_devices)
+                
+                # Add file manager status
+                midi_files = self.file_manager.list_midi_files()
+                status["loaded_midi_files"] = len(midi_files)
+                
+                # Add player status
+                active_playbacks = self.player.list_active_playbacks()
+                status["active_playbacks"] = len(active_playbacks)
             
             return [TextContent(
                 type="text",
@@ -135,8 +152,20 @@ class MCPServer(MCPServerInterface):
     def _register_midi_tools(self) -> None:
         """Register MIDI-specific tools."""
         if self.config.enable_midi:
+            # Register Phase 1 tools (basic MIDI operations)
             register_midi_tools(self.app, self.tool_registry, self.midi_manager)
-            self.logger.debug("Registered MIDI tools")
+            
+            # Register Phase 2 tools (file operations, playback, analysis)
+            register_midi_file_tools(
+                self.app, 
+                self.tool_registry, 
+                self.midi_manager,
+                self.file_manager,
+                self.player,
+                self.analyzer
+            )
+            
+            self.logger.debug("Registered MIDI tools (Phase 1 & Phase 2)")
         else:
             self.logger.info("MIDI tools disabled in configuration")
     
@@ -191,6 +220,10 @@ class MCPServer(MCPServerInterface):
     async def _cleanup(self) -> None:
         """Clean up server resources."""
         try:
+            # Stop all MIDI playback
+            if hasattr(self, 'player'):
+                await self.player.stop_all_playback()
+            
             # Clean up MIDI manager
             if hasattr(self, 'midi_manager'):
                 await self.midi_manager.cleanup()

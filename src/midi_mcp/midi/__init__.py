@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-MIDI operations and device management.
+MIDI operations package.
 
-Provides MIDI device discovery, connection management, message sending,
-and musical operations with cross-platform compatibility.
+Provides interfaces and implementations for MIDI device management,
+note operations, file I/O, playback, and cross-platform compatibility.
 """
 #
 #   __author__ = "Chris Fogelklou"
@@ -11,35 +11,51 @@ and musical operations with cross-platform compatibility.
 #   __copyright__ = "Copyright 2025"
 #   __license__ = "MIT"
 #
-#   (with lots of help from AI agents)
-#
 
 from .interfaces import (
-    MidiDeviceInterface,
     MidiManagerInterface,
+    MidiDeviceInterface,
+    DeviceInfo,
     MidiMessage,
     NoteOnMessage,
     NoteOffMessage,
-    ControlChangeMessage
+    ControlChangeMessage,
+    note_name_to_number,
+    note_number_to_name
 )
+
 from .manager import MidiManager
+from .file_ops import MidiFileManager, MidiFileSession
+from .player import MidiFilePlayer, PlaybackState, PlaybackProgressTracker
+from .analyzer import MidiAnalyzer
 from .exceptions import (
     MidiError,
     DeviceNotFoundError,
     DeviceConnectionError,
+    BackendNotAvailableError,
     MessageSendError
 )
 
 __all__ = [
+    'MidiManagerInterface',
     'MidiDeviceInterface',
-    'MidiManagerInterface', 
+    'DeviceInfo',
     'MidiMessage',
     'NoteOnMessage',
     'NoteOffMessage',
     'ControlChangeMessage',
     'MidiManager',
+    'MidiFileManager',
+    'MidiFileSession',
+    'MidiFilePlayer',
+    'PlaybackState',
+    'PlaybackProgressTracker',
+    'MidiAnalyzer',
     'MidiError',
     'DeviceNotFoundError',
     'DeviceConnectionError',
-    'MessageSendError'
+    'BackendNotAvailableError',
+    'MessageSendError',
+    'note_name_to_number',
+    'note_number_to_name'
 ]
