@@ -37,35 +37,50 @@ Transform AI agents into professional musicians and producers with comprehensive
 git clone https://github.com/your-org/midi-mcp.git
 cd midi-mcp
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# ⚠️ IMPORTANT: Always activate virtual environment before running commands
+source venv/bin/activate  # macOS/Linux
+# OR
+venv\Scripts\activate     # Windows
+
 pip install -r requirements.txt
 
-# 2. Start server
-python src/server.py
+# 2. Test MIDI device discovery
+python test_device_discovery.py
 
-# 3. Connect AI agent (Claude Desktop config):
+# 3. Start server
+python -m midi_mcp
+
+# 4. Connect AI agent (Claude Desktop config):
 # Add to ~/.config/claude-desktop/config.json:
 {
   "mcpServers": {
     "midi-mcp": {
       "command": "python",
-      "args": ["/absolute/path/to/midi-mcp/src/server.py"]
+      "args": ["/absolute/path/to/midi-mcp/venv/bin/python", "-m", "midi_mcp"]
     }
   }
 }
 
-# 4. Test with AI agent:
+# 5. Test with AI agent:
 "List MIDI devices and play middle C"
 ```
 
 ### Full Setup
-1. **Install Dependencies**: Run the commands above
-2. **Configure MIDI Output**: 
-   - **Mac**: Enable IAC Driver in Audio MIDI Setup
+1. **Install Dependencies**: 
+   ```bash
+   cd midi-mcp
+   python -m venv venv
+   source venv/bin/activate  # Always activate first!
+   pip install -r requirements.txt
+   ```
+2. **Test MIDI Setup**: `python test_device_discovery.py`
+3. **Configure MIDI Output**: 
+   - **macOS**: Enable IAC Driver in Audio MIDI Setup → "Create Multi-Output Device"
    - **Windows**: Install loopMIDI virtual MIDI driver
    - **Linux**: `sudo modprobe snd-virmidi`
-3. **Connect AI Agent**: Add server path to your AI agent configuration
-4. **Verify**: Ask your AI agent to "play middle C for 2 seconds"
+4. **Connect AI Agent**: Add server path to your AI agent configuration (use full path to venv python)
+5. **Verify**: Ask your AI agent to "discover MIDI devices and show backend status"
 
 ### Your First Composition
 ```python

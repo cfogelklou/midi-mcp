@@ -13,10 +13,15 @@ Allows the package to be run with `python -m midi_mcp`.
 #   (with lots of help from AI agents)
 #
 
-import asyncio
 import sys
 
-from .core.server import main
+from .core.server import MCPServer
+from .config.settings import ServerConfig
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # FastMCP servers run via stdio for MCP protocol communication
+    config = ServerConfig()
+    server = MCPServer(config)
+    
+    # Run the FastMCP server (handles stdio communication)
+    server.app.run()
