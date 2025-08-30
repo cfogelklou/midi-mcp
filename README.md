@@ -101,7 +101,121 @@ python -m midi_mcp
 "Now analyze the file and show me the details"
 ```
 
-## 🎼 What You Can Create
+## �️ MIDI Setup for Quality Playback
+
+### **macOS Setup for Multi-Channel MIDI**
+
+The MIDI MCP server sends different instruments on different MIDI channels, which requires proper setup for quality playback.
+
+#### **FluidSynth Setup (Recommended)**
+FluidSynth provides professional-grade multi-channel MIDI synthesis with excellent sound quality:
+
+**Quick Setup**: Run the automated setup script:
+```bash
+./setup_fluidsynth.sh
+```
+
+**Manual Setup**:
+
+1. **Install FluidSynth and SoundFont**:
+   ```bash
+   # Install FluidSynth via Homebrew
+   brew install fluidsynth
+   
+   # Create soundfonts directory
+   mkdir -p ~/soundfonts
+   
+   # Download GeneralUser GS SoundFont (high quality, 30MB)
+   curl -L -o ~/soundfonts/GeneralUser_GS.sf2 \
+     "https://musical-artifacts.com/artifacts/1176/GeneralUser_GS_v1.471.sf2"
+   ```
+
+2. **Launch FluidSynth**:
+   ```bash
+   # Basic launch with CoreAudio
+   fluidsynth -a coreaudio -g 0.5 ~/soundfonts/GeneralUser_GS.sf2
+   
+   # Advanced multi-channel setup
+   fluidsynth -a coreaudio -o audio.output-channels=32 \
+     -o synth.audio-groups=16 -g 0.5 ~/soundfonts/GeneralUser_GS.sf2
+   ```
+
+3. **Test Setup**: With FluidSynth running, test the MIDI MCP server:
+   ```bash
+   # In another terminal
+   python demo_phase_2_mcp.py
+   # Then play: examples/mission-impossible.mid
+   ```
+
+#### **Audio MIDI Setup Configuration**
+
+1. **Open Audio MIDI Setup**: Applications → Utilities → Audio MIDI Setup
+2. **Enable IAC Driver**:
+   - Double-click "IAC Driver"
+   - Check "Device is online"
+   - Set "Ports: 1" (or more if needed)
+3. **Create Multi-Output Device** (if using multiple outputs):
+   - Click "+" → "Create Multi-Output Device"
+   - Check the boxes for your desired outputs
+
+#### **⚠️ GarageBand Limitations**
+
+**Important**: GarageBand has significant limitations for multi-channel MIDI playback:
+
+- **Problem**: GarageBand listens to all MIDI channels simultaneously but only plays the instrument assigned to each track
+- **Result**: All channels sound like the same instrument (usually piano)
+- **Workaround Options**:
+  1. **Use FluidSynth instead** (recommended - provides professional multi-timbral synthesis)
+  2. **Manual GarageBand Setup**:
+     - Create separate tracks for each MIDI channel (1-16)
+     - Assign different instruments to each track
+     - Set each track to listen to a specific MIDI channel
+     - Note: This is time-consuming and not ideal for automatic playback
+
+#### **Testing Your Setup**
+
+1. **Run the test file**:
+   ```bash
+   python test_device_discovery.py
+   ```
+
+2. **Test with Mission Impossible**:
+   ```bash
+   python demo_phase_2_mcp.py
+   # Then use: play examples/mission-impossible.mid
+   ```
+
+3. **Expected Results**:
+   - **With FluidSynth**: Different instruments playing on different channels with rich, realistic sound
+   - **With GarageBand**: All instruments sound the same (limitation - not recommended)
+
+### **Windows Setup**
+
+1. **Install loopMIDI**: https://www.tobias-erichsen.de/software/loopmidi.html
+2. **Create Virtual MIDI Port**: Launch loopMIDI and create "MIDI MCP Port"
+3. **Install Virtual Synthesizer**:
+   - **VirtualMIDISynth**: https://coolsoft.altervista.org/en/virtualmidisynth
+   - **FluidSynth Windows**: https://github.com/FluidSynth/fluidsynth/releases
+
+### **Linux Setup**
+
+1. **Install FluidSynth**:
+   ```bash
+   sudo apt install fluidsynth  # Ubuntu/Debian
+   sudo pacman -S fluidsynth    # Arch Linux
+   ```
+
+2. **Enable Virtual MIDI**:
+   ```bash
+   sudo modprobe snd-virmidi
+   ```
+
+3. **Launch with ALSA**:
+   ```bash
+   fluidsynth -a alsa -g 0.5 path/to/soundfont.sf2
+   ```
+
+## �🎼 What You Can Create
 
 ### **For Musicians & Composers**
 - Generate chord progressions in any genre
