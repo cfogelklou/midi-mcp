@@ -17,6 +17,15 @@ This document provides guidelines for all AI agents contributing to this codebas
 *   **Imports:** Import modules at the top of the file, one per line.
 *   **Error Handling:** Use exceptions for error handling. Avoid returning error codes.
 
+## Development Environment
+
+*   **Virtual Environment:** This project uses a Python virtual environment located in the `venv` directory.
+*   **Activating the Environment:** Before running any Python or pip commands, you must activate the virtual environment. This should be the first step in any new terminal session.
+    ```bash
+    source venv/bin/activate
+    ```
+*   **Command Failures:** If you encounter an error with a `python` or `pip` command, your first step should be to ensure the virtual environment is active by running `source venv/bin/activate` and then retrying the command.
+
 ## File Structure
 
 *   **One Feature Per File:** Each distinct piece of functionality should reside in its own Python file. Do not combine multiple features into a single monolithic file.

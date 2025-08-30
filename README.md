@@ -31,19 +31,41 @@ Transform AI agents into professional musicians and producers with comprehensive
 
 ## 🚀 Quick Start
 
-### Installation
+### TL;DR - Install & Run
 ```bash
+# 1. Setup
 git clone https://github.com/your-org/midi-mcp.git
 cd midi-mcp
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# 2. Start server
+python src/server.py
+
+# 3. Connect AI agent (Claude Desktop config):
+# Add to ~/.config/claude-desktop/config.json:
+{
+  "mcpServers": {
+    "midi-mcp": {
+      "command": "python",
+      "args": ["/absolute/path/to/midi-mcp/src/server.py"]
+    }
+  }
+}
+
+# 4. Test with AI agent:
+"List MIDI devices and play middle C"
 ```
 
-### Basic Setup
-1. **Configure MIDI Output**: Set up virtual MIDI routing (IAC Driver on Mac, loopMIDI on Windows)
-2. **Connect Your DAW**: Route MIDI to your favorite music software
-3. **Configure AI Agent**: Add server to GitHub Copilot or Claude Desktop
+### Full Setup
+1. **Install Dependencies**: Run the commands above
+2. **Configure MIDI Output**: 
+   - **Mac**: Enable IAC Driver in Audio MIDI Setup
+   - **Windows**: Install loopMIDI virtual MIDI driver
+   - **Linux**: `sudo modprobe snd-virmidi`
+3. **Connect AI Agent**: Add server path to your AI agent configuration
+4. **Verify**: Ask your AI agent to "play middle C for 2 seconds"
 
 ### Your First Composition
 ```python

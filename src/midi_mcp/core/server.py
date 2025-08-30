@@ -1,0 +1,220 @@
+# -*- coding: utf-8 -*-
+"""
+Core MCP server implementation for MIDI operations.
+
+Provides the main MCP server class with protocol handling, tool registration,
+and async event loop management for MIDI operations.
+"""
+#
+#   __author__ = "Chris Fogelklou"
+#   __email__ = "chris.fogelklou@gmail.com"
+#   __copyright__ = "Copyright 2025"
+#   __license__ = "MIT"
+#
+#   (with lots of help from AI agents)
+#
+
+import asyncio
+import logging
+import sys
+from typing import Any, Dict, List, Optional, Callable, Awaitable
+from abc import ABC, abstractmethod
+
+from mcp.server.fastmcp import FastMCP
+from mcp.server.models import InitializationOptions
+from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
+
+from ..config.settings import ServerConfig
+from ..tools.registry import ToolRegistry
+from ..tools.midi_tools import register_midi_tools
+from ..midi.manager import MidiManager
+from ..utils.logger import setup_logging
+
+
+class MCPServerInterface(ABC):
+    """Abstract interface for MCP server implementations."""
+    
+    @abstractmethod
+    async def start(self) -> None:
+        """Start the MCP server."""
+        pass
+    
+    @abstractmethod
+    async def stop(self) -> None:
+        """Stop the MCP server."""
+        pass
+    
+    @abstractmethod
+    def register_tool(self, tool: Tool, handler: Callable) -> None:
+        """Register a tool with its handler."""
+        pass
+
+
+class MCPServer(MCPServerInterface):
+    """
+    Main MCP server implementation for MIDI operations.
+    
+    Handles MCP protocol communication, tool registration, and provides
+    the foundation for MIDI device management and musical operations.
+    """
+    
+    def __init__(self, config: Optional[ServerConfig] = None) -> None:
+        """
+        Initialize the MCP server.
+        
+        Args:
+            config: Server configuration. If None, uses default configuration.
+        """
+        self.config = config or ServerConfig()
+        self.logger = setup_logging(self.config.log_level, self.config.log_file)
+        
+        # Initialize FastMCP server
+        self.app = FastMCP("MIDI MCP Server")
+        self.tool_registry = ToolRegistry()
+        self._running = False
+        
+        # Initialize MIDI manager
+        self.midi_manager = MidiManager(self.config.midi_config)
+        
+        self.logger.info("MIDI MCP Server initialized")
+        
+        # Register core server info handlers
+        self._setup_server_info()
+        self._register_default_tools()
+        self._register_midi_tools()
+    
+    def _setup_server_info(self) -> None:
+        """Set up server information and capabilities."""
+        # FastMCP handles server info automatically, so we just need to ensure
+        # our app is properly configured with name and description
+        self.logger.debug("Server info configured via FastMCP initialization")
+    
+    def _register_default_tools(self) -> None:
+        """Register default tools for basic server functionality."""
+        
+        # Server status tool
+        status_tool = Tool(
+            name="server_status",
+            description="Get the current status of the MIDI MCP server",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        )
+        
+        @self.app.tool(name="server_status")
+        async def server_status() -> List[TextContent]:
+            """Get server status information."""
+            status = {
+                "running": self._running,
+                "tools_registered": len(self.tool_registry.tools),
+                "config": {
+                    "log_level": self.config.log_level,
+                    "debug_mode": self.config.debug_mode
+                }
+            }
+            
+            return [TextContent(
+                type="text",
+                text=f"MIDI MCP Server Status:\n{status}"
+            )]
+        
+        self.tool_registry.register("server_status", status_tool, server_status)
+        self.logger.debug("Registered default tools")
+    
+    def _register_midi_tools(self) -> None:
+        """Register MIDI-specific tools."""
+        if self.config.enable_midi:
+            register_midi_tools(self.app, self.tool_registry, self.midi_manager)
+            self.logger.debug("Registered MIDI tools")
+        else:
+            self.logger.info("MIDI tools disabled in configuration")
+    
+    def register_tool(self, tool: Tool, handler: Callable) -> None:
+        """
+        Register a tool with the server.
+        
+        Args:
+            tool: The MCP tool definition
+            handler: Async function to handle the tool call
+        """
+        self.tool_registry.register(tool.name, tool, handler)
+        
+        # Register with FastMCP
+        self.app.tool(name=tool.name)(handler)
+        
+        self.logger.info(f"Registered tool: {tool.name}")
+    
+    async def start(self) -> None:
+        """Start the MCP server."""
+        try:
+            self._running = True
+            self.logger.info("Starting MIDI MCP Server")
+            
+            # Run the FastMCP server
+            await self.app.run()
+            
+        except Exception as e:
+            self.logger.error(f"Error starting server: {e}")
+            self._running = False
+            raise
+    
+    async def stop(self) -> None:
+        """Stop the MCP server."""
+        self.logger.info("Stopping MIDI MCP Server")
+        self._running = False
+        
+        # Clean up any resources
+        await self._cleanup()
+    
+    async def _cleanup(self) -> None:
+        """Clean up server resources."""
+        try:
+            # Clean up MIDI manager
+            if hasattr(self, 'midi_manager'):
+                await self.midi_manager.cleanup()
+            
+            self.logger.debug("Server cleanup completed")
+        except Exception as e:
+            self.logger.error(f"Error during cleanup: {e}")
+    
+    def get_registered_tools(self) -> List[Tool]:
+        """Get list of all registered tools."""
+        return list(self.tool_registry.tools.values())
+    
+    @property
+    def is_running(self) -> bool:
+        """Check if the server is currently running."""
+        return self._running
+
+
+async def create_server(config: Optional[ServerConfig] = None) -> MCPServer:
+    """
+    Factory function to create and initialize an MCP server.
+    
+    Args:
+        config: Server configuration
+        
+    Returns:
+        Initialized MCP server instance
+    """
+    server = MCPServer(config)
+    return server
+
+
+async def main() -> None:
+    """Main entry point for running the server directly."""
+    try:
+        config = ServerConfig()
+        server = await create_server(config)
+        await server.start()
+    except KeyboardInterrupt:
+        logging.getLogger(__name__).info("Server shutdown requested")
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Server error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
