@@ -8,6 +8,7 @@ This phase focuses on the core capabilities of creating, saving, loading, and pl
 - Add multi-track MIDI composition tools
 - Dynamically play MIDI files in real-time through an attached MIDI device
 - Establish a file-based workflow for AI agents
+- **Set up a CI/CD pipeline with GitHub Actions for automated testing.**
 
 ## Duration: Week 2 (3 days)
 
@@ -213,6 +214,20 @@ Expected: AI loads, analyzes, and plays the file through the connected MIDI devi
 Result: The MIDI file is heard playing in real-time.
 ```
 
+## CI/CD and Automated Testing
+To ensure code quality and stability, a Continuous Integration (CI) pipeline will be established using GitHub Actions. This will automate the testing process for every commit and pull request.
+
+### Testing Strategy
+The CI pipeline will execute the following tests:
+
+1.  **Unit & Core Logic Tests:** These tests run on every commit and validate the fundamental building blocks of the server without requiring special environments.
+    *   **Server Initialization:** Verifies that the MCP server and its configurations start correctly (`tests/test_server_basic.py`).
+    *   **MIDI File Operations:** Ensures that creating, saving, loading, and analyzing MIDI files works as expected (`test_phase_2.py`).
+
+2.  **System Tests with Virtual MIDI (Future Step):** A separate job will be configured to handle tests requiring MIDI I/O.
+    *   **Virtual MIDI Environment:** The test runner will use `snd-virmidi` (ALSA) or a software synthesizer like FluidSynth to simulate MIDI devices.
+    *   **Device Discovery & I/O:** Tests like `test_device_discovery.py` will be run in this environment to validate real-time MIDI messaging.
+
 ## Success Criteria
 - [ ] Complete MIDI file I/O functionality (create, save, load) works reliably.
 - [ ] Real-time playback of MIDI files is accurate and synchronized.
@@ -221,6 +236,7 @@ Result: The MIDI file is heard playing in real-time.
 - [ ] AI agents can chain operations logically.
 - [ ] All HIL test scenarios pass consistently.
 - [ ] Files are compatible with major DAWs (Logic, Pro Tools, Ableton).
+- [ ] The CI pipeline passes for all unit and core logic tests.
 
 ## Performance Considerations
 - Load times under 1 second for files up to 1MB
