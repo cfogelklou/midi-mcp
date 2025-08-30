@@ -186,28 +186,13 @@ class MCPServer(MCPServerInterface):
     
     async def start(self) -> None:
         """Start the MCP server."""
-        try:
-            self._running = True
-            self.logger.info("Starting MIDI MCP Server")
-            
-            # FastMCP servers run via stdin/stdout, not as async servers
-            # For standalone testing, we just mark as running and wait
-            self.logger.info("Server ready for MCP connections via stdio")
-            self.logger.info(f"Registered {len(self.tool_registry.tools)} tools")
-            
-            # In a real MCP environment, the host will connect via stdio
-            # For testing, we can just keep the server alive
-            try:
-                while self._running:
-                    await asyncio.sleep(1)
-            except KeyboardInterrupt:
-                self.logger.info("Server shutdown requested")
-                self._running = False
-            
-        except Exception as e:
-            self.logger.error(f"Error starting server: {e}")
-            self._running = False
-            raise
+        self._running = True
+        self.logger.info("Starting MIDI MCP Server")
+        self.logger.info(f"Registered {len(self.tool_registry.tools)} tools")
+        # In a real MCP environment, the host will connect via stdio
+        # or a port, depending on the configuration.
+        # The actual server (e.g., uvicorn) is started in __main__.py.
+        self.logger.info("Server is ready.")
     
     async def stop(self) -> None:
         """Stop the MCP server."""
@@ -256,18 +241,3 @@ async def create_server(config: Optional[ServerConfig] = None) -> MCPServer:
     return server
 
 
-async def main() -> None:
-    """Main entry point for running the server directly."""
-    try:
-        config = ServerConfig()
-        server = await create_server(config)
-        await server.start()
-    except KeyboardInterrupt:
-        logging.getLogger(__name__).info("Server shutdown requested")
-    except Exception as e:
-        logging.getLogger(__name__).error(f"Server error: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

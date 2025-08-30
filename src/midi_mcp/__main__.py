@@ -13,15 +13,24 @@ Allows the package to be run with `python -m midi_mcp`.
 #   (with lots of help from AI agents)
 #
 
-import sys
+import asyncio
+import uvicorn
+from .core.server import create_server
+from .config.settings import get_default_config
 
-from .core.server import MCPServer
-from .config.settings import ServerConfig
+async def main():
+    """Main entry point for running the server."""
+    config = get_default_config()
+    server = await create_server(config)
+    
+    uvicorn_config = uvicorn.Config(
+        server.app,
+        host=config.host,
+        port=config.port,
+        log_level=config.log_level.lower(),
+    )
+    uvicorn_server = uvicorn.Server(uvicorn_config)
+    await uvicorn_server.serve()
 
 if __name__ == "__main__":
-    # FastMCP servers run via stdio for MCP protocol communication
-    config = ServerConfig()
-    server = MCPServer(config)
-    
-    # Run the FastMCP server (handles stdio communication)
-    server.app.run()
+    asyncio.run(main())
