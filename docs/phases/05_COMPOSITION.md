@@ -14,7 +14,7 @@ Develop sophisticated composition tools that enable AI agents to create complete
 ## Prerequisites
 - Phases 1-4 completed and tested
 - Working genre knowledge system
-- Complete music theory and MIDI manipulation capabilities
+- Complete music theory and MIDI I/O capabilities
 
 ## Day-by-Day Implementation
 

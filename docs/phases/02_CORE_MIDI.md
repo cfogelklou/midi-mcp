@@ -1,15 +1,15 @@
-# Phase 2: Core MIDI Operations Implementation
+# Phase 2: Core MIDI I/O and Playback
 
 ## Overview
-Build comprehensive MIDI file creation, manipulation, and management capabilities. This phase transforms the basic note-playing system into a full MIDI production environment.
+This phase focuses on the core capabilities of creating, saving, loading, and playing MIDI files. The goal is to enable AI agents to work with MIDI data and hear their creations in real-time. This phase transforms the basic note-playing system into a foundational MIDI production environment.
 
 ## Goals
-- Implement complete MIDI file I/O operations
+- Implement complete MIDI file I/O operations (create, save, load)
 - Add multi-track MIDI composition tools
-- Create MIDI editing and manipulation functions
-- Establish file-based workflow for AI agents
+- Dynamically play MIDI files in real-time through an attached MIDI device
+- Establish a file-based workflow for AI agents
 
-## Duration: Week 2 (5 days)
+## Duration: Week 2 (3 days)
 
 ## Prerequisites
 - Phase 1 completed and tested
@@ -76,12 +76,11 @@ def save_midi_file(midi_file_id: str, filename: str) -> dict:
 
 **HIL Test**: "Ask AI to create a new MIDI file with piano and drum tracks, then save it"
 
-### Day 2: MIDI File Loading and Analysis
+### Day 2: MIDI File Loading and Real-time Playback
 **Morning (3-4 hours):**
 - Implement MIDI file loading from disk
 - Create MIDI file analysis tools (track info, note count, duration)
-- Add MIDI file structure inspection
-- Implement track extraction and isolation
+- Implement real-time playback of a loaded MIDI file through a connected device
 
 **Code Framework**:
 ```python
@@ -98,6 +97,16 @@ def load_midi_file(filename: str) -> dict:
     """
 
 @mcp.tool()
+def play_midi_file(midi_file_id: str, device_id: str) -> dict:
+    """
+    Play a loaded MIDI file in real-time through a specified MIDI device.
+    
+    Args:
+        midi_file_id: ID of the MIDI file to play
+        device_id: ID of the connected MIDI output device
+    """
+
+@mcp.tool()
 def analyze_midi_file(midi_file_id: str) -> dict:
     """
     Analyze a loaded MIDI file.
@@ -111,147 +120,21 @@ def analyze_midi_file(midi_file_id: str) -> dict:
         - Note range and density
         - Instrument list
     """
-
-@mcp.tool()
-def get_track_info(midi_file_id: str, track_number: int) -> dict:
-    """
-    Get detailed information about a specific track.
-    
-    Args:
-        midi_file_id: ID of the MIDI file
-        track_number: Track number to analyze
-        
-    Returns:
-        Track details including notes, timing, program changes
-    """
 ```
 
 **Afternoon (2-3 hours):**
 - Test with various MIDI file formats
 - Add support for different MIDI file types (Type 0, 1, 2)
-- Create track comparison and similarity tools
+- Test playback synchronization and timing
 - Test analysis accuracy with known files
 
-**HIL Test**: "Ask AI to load a MIDI file and analyze its structure"
+**HIL Test**: "Ask AI to load a MIDI file, analyze its structure, and then play it."
 
-### Day 3: MIDI Editing and Manipulation
-**Morning (3-4 hours):**
-- Implement note editing (add, remove, modify notes)
-- Add timing manipulation (quantization, swing, tempo changes)
-- Create velocity and dynamics editing
-- Add track merging and splitting
-
-**Code Framework**:
-```python
-@mcp.tool()
-def add_note_to_track(midi_file_id: str, track_number: int, note: int,
-                     start_time: float, duration: float, velocity: int = 64) -> dict:
-    """
-    Add a note to a specific track.
-    
-    Args:
-        midi_file_id: ID of the MIDI file
-        track_number: Target track number
-        note: MIDI note number (0-127)
-        start_time: Start time in beats
-        duration: Note duration in beats
-        velocity: Note velocity (0-127)
-    """
-
-@mcp.tool()
-def quantize_track(midi_file_id: str, track_number: int, 
-                  grid_size: float = 0.25) -> dict:
-    """
-    Quantize timing of notes in a track.
-    
-    Args:
-        midi_file_id: ID of the MIDI file
-        track_number: Track to quantize
-        grid_size: Quantization grid in beats (0.25 = 16th notes)
-    """
-
-@mcp.tool()
-def transpose_track(midi_file_id: str, track_number: int, 
-                   semitones: int) -> dict:
-    """
-    Transpose all notes in a track by semitones.
-    
-    Args:
-        midi_file_id: ID of the MIDI file
-        track_number: Track to transpose
-        semitones: Number of semitones to transpose (positive = up)
-    """
-```
-
-**Afternoon (2-3 hours):**
-- Add batch editing operations
-- Implement undo/redo functionality for edits
-- Create track copying and pasting
-- Test editing operations thoroughly
-
-**HIL Test**: "Ask AI to load a MIDI file, transpose the melody up an octave, and quantize the drums"
-
-### Day 4: Advanced MIDI Operations
-**Morning (3-4 hours):**
-- Implement MIDI file merging and combining
-- Add tempo and time signature modification
-- Create advanced timing operations (groove templates, humanization)
-- Add MIDI effect application (echo, delay, arpeggiation)
-
-**Code Framework**:
-```python
-@mcp.tool()
-def merge_midi_files(file_ids: List[str], output_filename: str) -> dict:
-    """
-    Merge multiple MIDI files into one.
-    
-    Args:
-        file_ids: List of MIDI file IDs to merge
-        output_filename: Name for the merged file
-    """
-
-@mcp.tool()
-def apply_groove_template(midi_file_id: str, track_number: int,
-                         groove_type: str = "swing", intensity: float = 0.5) -> dict:
-    """
-    Apply a groove template to a track.
-    
-    Args:
-        midi_file_id: ID of the MIDI file
-        track_number: Track to apply groove to
-        groove_type: Type of groove (swing, shuffle, latin, etc.)
-        intensity: Groove intensity (0.0-1.0)
-    """
-
-@mcp.tool()
-def humanize_track(midi_file_id: str, track_number: int,
-                  timing_variation: float = 0.05, 
-                  velocity_variation: float = 0.1) -> dict:
-    """
-    Add human-like variations to perfect MIDI timing and velocity.
-    
-    Args:
-        midi_file_id: ID of the MIDI file
-        track_number: Track to humanize
-        timing_variation: Amount of timing variation (0.0-1.0)
-        velocity_variation: Amount of velocity variation (0.0-1.0)
-    """
-```
-
-**Afternoon (2-3 hours):**
-- Test advanced operations with complex MIDI files
-- Add batch processing capabilities
-- Create preset management for common operations
-- Optimize performance for large MIDI files
-
-**HIL Test**: "Ask AI to merge two MIDI files, apply swing groove to drums, and humanize the piano track"
-
-### Day 5: Integration and File Management
+### Day 3: Integration and File Management
 **Morning (3-4 hours):**
 - Implement MIDI file session management
-- Add automatic backup and versioning
 - Create file organization and tagging system
-- Add batch file operations
+- Add batch file operations for loading and saving
 
 **Code Framework**:
 ```python
@@ -265,33 +148,23 @@ def list_midi_files() -> dict:
     """
 
 @mcp.tool()
-def create_file_backup(midi_file_id: str, backup_name: str = None) -> dict:
-    """
-    Create a backup copy of a MIDI file.
-    
-    Args:
-        midi_file_id: ID of file to backup
-        backup_name: Optional name for backup (auto-generated if None)
-    """
-
-@mcp.tool()
 def batch_process_files(file_ids: List[str], operations: List[dict]) -> dict:
     """
     Apply a series of operations to multiple files.
     
     Args:
         file_ids: List of MIDI file IDs to process
-        operations: List of operations to apply in order
+        operations: List of operations to apply in order (e.g., save, analyze)
     """
 ```
 
 **Afternoon (2-3 hours):**
-- Complete testing of all MIDI file operations
+- Complete testing of all MIDI file I/O and playback operations
 - Create comprehensive examples and documentation
 - Prepare integration tests with Phase 1 functionality
 - Set up for Phase 3 development
 
-**HIL Test**: "Ask AI to create a workflow that loads multiple MIDI files, processes them differently, and saves organized results"
+**HIL Test**: "Ask AI to create a workflow that loads multiple MIDI files, analyzes them, and saves them to an organized directory."
 
 ## File Structure After Phase 2
 ```
@@ -301,9 +174,8 @@ midi-mcp/
 │   ├── midi/
 │   │   ├── __init__.py
 │   │   ├── connection.py
-│   │   ├── player.py
-│   │   ├── file_ops.py         # MIDI file operations
-│   │   ├── editor.py           # MIDI editing functions
+│   │   ├── player.py           # Real-time MIDI playback
+│   │   ├── file_ops.py         # MIDI file I/O operations
 │   │   ├── analyzer.py         # MIDI analysis tools
 │   │   └── utils.py
 │   ├── models/
@@ -315,7 +187,7 @@ midi-mcp/
 │       └── session_manager.py  # File session management
 ├── tests/
 │   ├── test_file_ops.py
-│   ├── test_editor.py
+│   ├── test_player.py
 │   ├── test_analyzer.py
 │   └── test_sessions.py
 ├── sample_files/                # Test MIDI files
@@ -330,56 +202,42 @@ midi-mcp/
 ### Scenario 1: File Creation Workflow
 ```
 Human: "Create a new MIDI file with piano, bass, and drum tracks"
-Expected: AI creates file, adds three tracks with appropriate programs
-Result: Playable MIDI file with proper track structure
+Expected: AI creates file, adds three tracks with appropriate programs, and saves it.
+Result: Playable MIDI file with proper track structure is created on disk.
 ```
 
-### Scenario 2: File Analysis and Modification
+### Scenario 2: File Analysis and Playback
 ```  
-Human: "Load this MIDI file, analyze it, then transpose the melody up 5 semitones"
-Expected: AI loads, analyzes, identifies melody track, transposes correctly
-Result: Modified file plays with transposed melody
-```
-
-### Scenario 3: Complex File Operations
-```
-Human: "Merge these three MIDI files, quantize all tracks, and apply swing to drums"
-Expected: AI performs all operations in logical order
-Result: Merged file with quantized timing and swung drums
-```
-
-### Scenario 4: Batch Processing
-```
-Human: "Process all MIDI files in the folder: humanize timing and normalize velocities"
-Expected: AI identifies files, applies operations consistently
-Result: All files processed with subtle humanization
+Human: "Load this MIDI file, analyze it, and then play it for me."
+Expected: AI loads, analyzes, and plays the file through the connected MIDI device.
+Result: The MIDI file is heard playing in real-time.
 ```
 
 ## Success Criteria
-- [ ] Complete MIDI file I/O functionality works reliably
-- [ ] All editing operations produce musically correct results
-- [ ] File management handles complex workflows smoothly
-- [ ] Performance is acceptable for typical file sizes (< 2MB)
-- [ ] AI agents can chain operations logically
-- [ ] All HIL test scenarios pass consistently
-- [ ] Files are compatible with major DAWs (Logic, Pro Tools, Ableton)
+- [ ] Complete MIDI file I/O functionality (create, save, load) works reliably.
+- [ ] Real-time playback of MIDI files is accurate and synchronized.
+- [ ] File management handles complex workflows smoothly.
+- [ ] Performance is acceptable for typical file sizes (< 2MB).
+- [ ] AI agents can chain operations logically.
+- [ ] All HIL test scenarios pass consistently.
+- [ ] Files are compatible with major DAWs (Logic, Pro Tools, Ableton).
 
 ## Performance Considerations
 - Load times under 1 second for files up to 1MB
-- Editing operations complete in real-time
-- Memory usage scales linearly with file size
-- Concurrent file operations supported
+- Real-time playback should have low latency.
+- Memory usage scales linearly with file size.
+- Concurrent file operations supported.
 
 ## Integration Notes
-- All Phase 1 functionality remains available
-- Real-time playback works with loaded MIDI files
-- File operations can be combined with live performance
-- Session state persists across server restarts
+- All Phase 1 functionality remains available.
+- Real-time playback works with loaded MIDI files.
+- File operations can be combined with live performance.
+- Session state persists across server restarts.
 
 ## Next Phase Preparation
-- Verify all file operations work correctly
-- Test integration with Phase 1 real-time capabilities  
-- Confirm compatibility with various MIDI file sources
-- Review music theory requirements for Phase 3
+- Verify all file operations and playback work correctly.
+- Test integration with Phase 1 real-time capabilities.
+- Confirm compatibility with various MIDI file sources.
+- Review music theory requirements for Phase 3.
 
-Phase 2 establishes professional-grade MIDI file handling capabilities. The focus shifts from basic playback to comprehensive composition and editing tools that enable sophisticated musical workflows.
+This updated Phase 2 focuses on the core of MIDI creation and playback, setting a strong foundation for the more advanced composition and music theory phases to come.

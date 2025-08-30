@@ -18,10 +18,10 @@ This document outlines the complete implementation plan for building a Model Con
 **Test**: AI agent can play individual notes through MIDI
 **Files**: `01_FOUNDATION.md`
 
-### Phase 2: Core MIDI Operations (Week 2)  
-**Goal**: Complete MIDI file creation and manipulation
-**Deliverable**: Full MIDI file operations via MCP tools
-**Test**: AI agent can create, save, load, and modify MIDI files
+### Phase 2: Core MIDI I/O and Playback (Week 2)  
+**Goal**: Create, save, load, and play MIDI files
+**Deliverable**: Full MIDI file I/O and real-time playback via MCP tools
+**Test**: AI agent can create, save, load, and play MIDI files
 **Files**: `02_CORE_MIDI.md`
 
 ### Phase 3: Basic Music Theory (Week 3)

@@ -13,7 +13,7 @@ Integrate comprehensive music theory knowledge into the MCP server, enabling AI 
 
 ## Prerequisites
 - Phases 1 and 2 completed and tested
-- Working MIDI file creation and editing system
+- Working MIDI file creation and playback system
 - Basic understanding of music theory concepts
 
 ## Day-by-Day Implementation

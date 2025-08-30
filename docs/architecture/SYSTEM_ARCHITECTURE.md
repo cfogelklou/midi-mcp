@@ -101,9 +101,9 @@ This document describes the complete system architecture for the MIDI MCP (Model
 
 #### MIDI Tools (Phases 1-2)
 - Real-time MIDI playback and device management
-- MIDI file creation, editing, and manipulation
+- MIDI file creation, saving, and loading
 - Multi-track composition and arrangement
-- Timing, quantization, and groove processing
+- Real-time playback of MIDI files
 
 #### Music Theory Tools (Phase 3)
 - Scale and chord generation and analysis
