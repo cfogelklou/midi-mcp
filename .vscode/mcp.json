@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "midi-mcp": {
+      "command": "/Users/chris/dev/midi-mcp/venv/bin/python",
+      "args": ["-m", "midi_mcp"],
+    }
+  }
+}

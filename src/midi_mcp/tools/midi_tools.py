@@ -63,7 +63,7 @@ def register_midi_tools(app: FastMCP, registry: ToolRegistry, midi_manager: Midi
             
             device_list = []
             for device in devices:
-                device_list.append(f"- {device}")
+                device_list.append(f"- {device} (ID: {device.device_id})")
             
             result = f"Found {len(devices)} MIDI devices:\n" + "\n".join(device_list)
             
@@ -98,11 +98,31 @@ def register_midi_tools(app: FastMCP, registry: ToolRegistry, midi_manager: Midi
     async def connect_midi_device(device_id: str) -> List[TextContent]:
         """Connect to a MIDI device."""
         try:
-            device = await midi_manager.connect_device(device_id)
-            return [TextContent(
-                type="text",
-                text=f"Successfully connected to MIDI device: {device.device_info.name}"
-            )]
+            # First try to connect with the provided device_id
+            try:
+                device = await midi_manager.connect_device(device_id)
+                return [TextContent(
+                    type="text",
+                    text=f"Successfully connected to MIDI device: {device.device_info.name}"
+                )]
+            except Exception:
+                # If that fails, try to find device by name
+                devices = await midi_manager.discover_devices()
+                matching_device = None
+                
+                for dev in devices:
+                    if dev.name == device_id:
+                        matching_device = dev
+                        break
+                
+                if matching_device:
+                    device = await midi_manager.connect_device(matching_device.device_id)
+                    return [TextContent(
+                        type="text",
+                        text=f"Successfully connected to MIDI device: {device.device_info.name} (using name lookup)"
+                    )]
+                else:
+                    raise Exception(f"MIDI device not found: {device_id}")
             
         except MidiError as e:
             logger.error(f"MIDI connection error: {e}")
