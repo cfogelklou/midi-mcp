@@ -1,0 +1,36 @@
+{
+  "name": "ambient",
+  "description": "Atmospheric music focused on texture, mood, and environmental sound",
+  "tempo_range": [60, 100],
+  "key_preferences": ["minor", "major"],
+  "common_keys": ["D", "A", "E", "G"],
+  
+  "progressions": {
+    "standard": {
+      "pattern": ["i", "VII", "VI", "VII"],
+      "bars": 8,
+      "description": "Extended ambient progression"
+    }
+  },
+  
+  "rhythms": {
+    "standard": {
+      "feel": "floating",
+      "emphasis": [1],
+      "subdivision": "whole"
+    }
+  },
+  
+  "scales": ["minor", "dorian", "aeolian"],
+  "instrumentation": {
+    "essential": ["synthesizer", "pad"],
+    "typical": ["reverb", "delay"],
+    "optional": ["field_recordings", "vocals"]
+  },
+  
+  "characteristics": {
+    "energy": "low",
+    "complexity": "low",
+    "mood": "contemplative"
+  }
+}

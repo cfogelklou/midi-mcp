@@ -1,0 +1,42 @@
+{
+  "name": "pop",
+  "description": "Popular music designed for mass appeal with catchy melodies and accessible harmonies",
+  "tempo_range": [100, 130],
+  "key_preferences": ["major", "minor"],
+  "common_keys": ["C", "G", "D", "A", "F"],
+  
+  "progressions": {
+    "standard": {
+      "pattern": ["I", "V", "vi", "IV"],
+      "bars": 4,
+      "description": "Most popular pop progression",
+      "variations": ["vi_IV_I_V", "I_vi_IV_V", "vi_V_IV_V"]
+    },
+    "vi_IV_I_V": {
+      "pattern": ["vi", "IV", "I", "V"],
+      "bars": 4,
+      "description": "Alternative pop progression"
+    }
+  },
+  
+  "rhythms": {
+    "standard": {
+      "feel": "straight",
+      "emphasis": [1, 3],
+      "subdivision": "eighth"
+    }
+  },
+  
+  "scales": ["major", "minor", "pentatonic"],
+  "instrumentation": {
+    "essential": ["vocals", "drums"],
+    "typical": ["guitar", "bass", "keyboards"],
+    "optional": ["strings", "horns"]
+  },
+  
+  "characteristics": {
+    "energy": "medium_high",
+    "complexity": "low_medium",
+    "mood": "accessible"
+  }
+}

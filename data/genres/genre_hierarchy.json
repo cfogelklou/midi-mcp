@@ -1,0 +1,143 @@
+{
+  "genres": {
+    "blues": {
+      "parent": null,
+      "subgenres": [
+        "chicago_blues",
+        "delta_blues",
+        "electric_blues"
+      ],
+      "related": [
+        "rock",
+        "jazz",
+        "r_and_b"
+      ]
+    },
+    "rock": {
+      "parent": null,
+      "subgenres": [
+        "classic_rock",
+        "hard_rock",
+        "punk",
+        "metal"
+      ],
+      "related": [
+        "blues",
+        "pop",
+        "country"
+      ]
+    },
+    "hip_hop": {
+      "parent": null,
+      "subgenres": [
+        "boom_bap",
+        "trap",
+        "lo_fi",
+        "drill",
+        "old_school"
+      ],
+      "related": [
+        "r_and_b",
+        "funk",
+        "jazz"
+      ]
+    },
+    "jazz": {
+      "parent": null,
+      "subgenres": [
+        "bebop",
+        "cool_jazz",
+        "fusion",
+        "swing"
+      ],
+      "related": [
+        "blues",
+        "r_and_b",
+        "latin"
+      ]
+    },
+    "country": {
+      "parent": null,
+      "subgenres": [
+        "bluegrass",
+        "honky_tonk",
+        "outlaw_country"
+      ],
+      "related": [
+        "rock",
+        "blues",
+        "folk"
+      ]
+    },
+    "electronic": {
+      "parent": null,
+      "subgenres": [
+        "house",
+        "techno",
+        "trance",
+        "ambient"
+      ],
+      "related": [
+        "pop",
+        "hip_hop"
+      ]
+    },
+    "trance": {
+      "parent": "electronic",
+      "subgenres": [
+        "progressive_trance",
+        "uplifting_trance",
+        "psytrance",
+        "tech_trance"
+      ],
+      "related": [
+        "house",
+        "techno",
+        "ambient"
+      ]
+    },
+    "pop": {
+      "parent": null,
+      "subgenres": [
+        "dance_pop",
+        "indie_pop",
+        "electropop",
+        "synth_pop"
+      ],
+      "related": [
+        "rock",
+        "r_and_b",
+        "electronic"
+      ]
+    },
+    "ambient": {
+      "parent": "electronic",
+      "subgenres": [
+        "dark_ambient",
+        "drone",
+        "new_age",
+        "space_ambient"
+      ],
+      "related": [
+        "trance",
+        "downtempo",
+        "experimental"
+      ]
+    },
+    "k_pop": {
+      "parent": "pop",
+      "subgenres": [
+        "k_pop_ballad",
+        "k_pop_dance",
+        "k_pop_rap",
+        "k_pop_r&b"
+      ],
+      "related": [
+        "pop",
+        "hip_hop",
+        "r_and_b",
+        "electronic"
+      ]
+    }
+  }
+}

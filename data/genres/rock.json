@@ -1,0 +1,135 @@
+{
+  "name": "rock",
+  "description": "Electric guitar-driven music with strong rhythms, power chords, and energetic performance style",
+  "tempo_range": [100, 180],
+  "key_preferences": ["major", "minor"],
+  "common_keys": ["E", "A", "D", "G", "C"],
+  
+  "progressions": {
+    "standard": {
+      "pattern": ["I", "V", "vi", "IV"],
+      "bars": 4,
+      "description": "Classic rock progression (I-V-vi-IV)",
+      "variations": ["vi_IV_I_V", "I_vi_IV_V", "power_chord"]
+    },
+    "vi_IV_I_V": {
+      "pattern": ["vi", "IV", "I", "V"],
+      "bars": 4,
+      "description": "vi-IV-I-V progression (very popular in rock)"
+    },
+    "I_vi_IV_V": {
+      "pattern": ["I", "vi", "IV", "V"],
+      "bars": 4,
+      "description": "50s progression adapted for rock"
+    },
+    "power_chord": {
+      "pattern": ["I5", "VII5", "VI5", "IV5"],
+      "bars": 4,
+      "description": "Power chord progression in minor key"
+    },
+    "classic_rock": {
+      "pattern": ["I", "VII", "IV", "I"],
+      "bars": 4,
+      "description": "Classic rock with flat VII"
+    }
+  },
+  
+  "rhythms": {
+    "standard": {
+      "feel": "straight",
+      "emphasis": [1, 3],
+      "subdivision": "eighth",
+      "backbeat": true,
+      "description": "Standard rock beat with backbeat on 2 and 4"
+    },
+    "driving": {
+      "feel": "driving",
+      "emphasis": [1, 2, 3, 4],
+      "subdivision": "eighth",
+      "backbeat": true,
+      "description": "High-energy driving rhythm"
+    },
+    "half_time": {
+      "feel": "half_time",
+      "emphasis": [1, 3],
+      "subdivision": "quarter",
+      "backbeat": false,
+      "description": "Half-time feel for dramatic effect"
+    }
+  },
+  
+  "scales": [
+    "major",
+    "minor",
+    "pentatonic_minor",
+    "pentatonic_major",
+    "blues_scale",
+    "mixolydian"
+  ],
+  
+  "characteristic_intervals": [
+    "perfect_fifth",
+    "minor_seventh",
+    "major_second"
+  ],
+  
+  "instrumentation": {
+    "essential": ["electric_guitar", "bass_guitar", "drums"],
+    "typical": ["vocals", "lead_guitar", "rhythm_guitar"],
+    "optional": ["keyboards", "organ", "harmonica", "saxophone"]
+  },
+  
+  "characteristics": {
+    "energy": "high",
+    "complexity": "medium",
+    "mood": "energetic",
+    "emotional_range": ["rebellious", "celebratory", "aggressive", "anthemic"],
+    "typical_tempos": [120, 140],
+    "common_time_signatures": ["4/4"]
+  },
+  
+  "stylistic_elements": {
+    "power_chords": true,
+    "distorted_guitar": true,
+    "guitar_solos": true,
+    "strong_backbeat": true,
+    "vocal_harmony": true,
+    "improvisation": "moderate"
+  },
+  
+  "historical_context": {
+    "origin_period": "1950s-1960s",
+    "geographic_origin": "United States and United Kingdom",
+    "cultural_context": "Youth culture and rebellion",
+    "evolution": ["Classic Rock", "Hard Rock", "Punk Rock", "Metal"]
+  },
+  
+  "song_forms": {
+    "standard": {
+      "structure": ["intro", "verse", "chorus", "verse", "chorus", "bridge", "chorus", "outro"],
+      "description": "Standard rock song form"
+    },
+    "simple": {
+      "structure": ["verse", "chorus", "verse", "chorus", "solo", "chorus"],
+      "description": "Simplified rock structure"
+    },
+    "epic": {
+      "structure": ["intro", "verse", "chorus", "verse", "chorus", "bridge", "solo", "chorus", "chorus", "outro"],
+      "description": "Extended epic rock form"
+    }
+  },
+  
+  "voice_leading_preferences": {
+    "parallel_motion": "common",
+    "voice_independence": "low",
+    "chord_extensions": ["add9", "sus4"],
+    "typical_voicings": ["power_chords", "barre_chords", "open_chords"]
+  },
+  
+  "production_characteristics": {
+    "reverb": "moderate_to_high",
+    "distortion": "moderate_to_high",
+    "compression": "high",
+    "eq_emphasis": ["bass", "presence", "treble"]
+  }
+}

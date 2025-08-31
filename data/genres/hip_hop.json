@@ -1,0 +1,165 @@
+{
+  "name": "hip_hop",
+  "description": "Rhythmic music centered around beats, sampling, and rap vocals with strong emphasis on groove",
+  "tempo_range": [70, 140],
+  "key_preferences": ["minor", "major"],
+  "common_keys": ["A", "E", "G", "C", "F"],
+  
+  "progressions": {
+    "standard": {
+      "pattern": ["i", "VII", "VI", "VII"],
+      "bars": 4,
+      "description": "Classic hip hop minor progression",
+      "variations": ["boom_bap", "trap", "lo_fi", "drill"]
+    },
+    "boom_bap": {
+      "pattern": ["i", "iv", "VII", "III"],
+      "bars": 4,
+      "description": "90s boom bap progression"
+    },
+    "trap": {
+      "pattern": ["i", "VI", "III", "VII"],
+      "bars": 4,
+      "description": "Modern trap progression"
+    },
+    "lo_fi": {
+      "pattern": ["i", "VII", "VI", "v"],
+      "bars": 4,
+      "description": "Lo-fi hip hop progression"
+    },
+    "drill": {
+      "pattern": ["i", "VII", "i", "VII"],
+      "bars": 4,
+      "description": "UK/Chicago drill progression"
+    }
+  },
+  
+  "rhythms": {
+    "standard": {
+      "feel": "straight",
+      "emphasis": [1, 3],
+      "subdivision": "sixteenth",
+      "description": "Standard hip hop rhythm with emphasis on 1 and 3"
+    },
+    "boom_bap": {
+      "feel": "boom_bap",
+      "emphasis": [1, 3],
+      "subdivision": "eighth",
+      "swing_ratio": 0.6,
+      "description": "Classic boom bap with slight swing"
+    },
+    "trap": {
+      "feel": "trap",
+      "emphasis": [1, 2.5, 4],
+      "subdivision": "triplet",
+      "hi_hats": "rapid",
+      "description": "Trap rhythm with rapid hi-hats"
+    },
+    "lo_fi": {
+      "feel": "laid_back",
+      "emphasis": [1, 3.5],
+      "subdivision": "eighth",
+      "swing_ratio": 0.65,
+      "description": "Relaxed lo-fi rhythm"
+    }
+  },
+  
+  "scales": [
+    "minor",
+    "dorian",
+    "pentatonic_minor",
+    "harmonic_minor",
+    "blues_scale"
+  ],
+  
+  "characteristic_intervals": [
+    "minor_third",
+    "perfect_fourth",
+    "minor_seventh"
+  ],
+  
+  "instrumentation": {
+    "essential": ["drums", "bass", "vocals"],
+    "typical": ["keyboards", "samples", "synthesizer"],
+    "optional": ["guitar", "strings", "brass", "turntables"]
+  },
+  
+  "characteristics": {
+    "energy": "medium_high",
+    "complexity": "medium",
+    "mood": "confident",
+    "emotional_range": ["aggressive", "contemplative", "celebratory", "melancholic"],
+    "typical_tempos": [80, 100],
+    "common_time_signatures": ["4/4"]
+  },
+  
+  "stylistic_elements": {
+    "sampling": true,
+    "rap_vocals": true,
+    "strong_backbeat": true,
+    "bass_heavy": true,
+    "syncopation": true,
+    "improvisation": "lyrical"
+  },
+  
+  "historical_context": {
+    "origin_period": "1970s",
+    "geographic_origin": "Bronx, New York City",
+    "cultural_context": "African American and Latino communities",
+    "evolution": ["Old School", "Golden Age", "Gangsta Rap", "Alternative Hip Hop", "Trap", "Drill"]
+  },
+  
+  "song_forms": {
+    "standard": {
+      "structure": ["intro", "verse", "hook", "verse", "hook", "bridge", "hook", "outro"],
+      "description": "Standard rap song structure"
+    },
+    "simple": {
+      "structure": ["verse", "hook", "verse", "hook", "verse", "hook"],
+      "description": "Simple verse-hook alternation"
+    },
+    "extended": {
+      "structure": ["intro", "verse", "hook", "verse", "hook", "verse", "bridge", "hook", "hook", "outro"],
+      "description": "Extended form with multiple verses"
+    }
+  },
+  
+  "voice_leading_preferences": {
+    "parallel_motion": "acceptable",
+    "voice_independence": "low",
+    "chord_extensions": ["add9", "sus2"],
+    "typical_voicings": ["power_chords", "simple_triads", "quartal"]
+  },
+  
+  "production_characteristics": {
+    "reverb": "minimal_to_moderate",
+    "distortion": "minimal",
+    "compression": "heavy",
+    "eq_emphasis": ["bass", "sub_bass", "high_frequencies"],
+    "sidechain_compression": true,
+    "sampling_techniques": ["chopping", "filtering", "pitch_shifting"]
+  },
+  
+  "subgenre_characteristics": {
+    "boom_bap": {
+      "tempo_range": [85, 95],
+      "drum_sounds": "punchy_acoustic",
+      "sampling": "soul_jazz_funk"
+    },
+    "trap": {
+      "tempo_range": [130, 150],
+      "drum_sounds": "808_heavy",
+      "hi_hats": "rapid_triplets"
+    },
+    "lo_fi": {
+      "tempo_range": [70, 85],
+      "production": "vintage_warm",
+      "vinyl_texture": true
+    },
+    "drill": {
+      "tempo_range": [140, 150],
+      "production": "dark_minimal",
+      "sliding_808s": true
+    }
+  }
+}

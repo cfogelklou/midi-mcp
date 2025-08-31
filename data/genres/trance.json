@@ -1,0 +1,175 @@
+{
+  "name": "trance",
+  "description": "Electronic dance music with hypnotic rhythms, build-ups, and emotional breakdowns",
+  "tempo_range": [128, 140],
+  "key_preferences": ["minor", "major"],
+  "common_keys": ["A", "G", "F", "Bb", "D"],
+  
+  "progressions": {
+    "standard": {
+      "pattern": ["i", "VII", "VI", "VII"],
+      "bars": 4,
+      "description": "Classic trance progression in minor",
+      "variations": ["uplifting", "progressive", "psytrance", "tech_trance"]
+    },
+    "uplifting": {
+      "pattern": ["vi", "IV", "I", "V"],
+      "bars": 4,
+      "description": "Uplifting trance progression in major"
+    },
+    "progressive": {
+      "pattern": ["i", "VI", "III", "VII", "i", "VI", "IV", "VII"],
+      "bars": 8,
+      "description": "Progressive trance extended progression"
+    },
+    "psytrance": {
+      "pattern": ["i", "VII", "i", "VII"],
+      "bars": 2,
+      "description": "Minimal psytrance progression"
+    },
+    "tech_trance": {
+      "pattern": ["i", "iv", "VII", "III"],
+      "bars": 4,
+      "description": "Tech trance with darker harmony"
+    }
+  },
+  
+  "rhythms": {
+    "standard": {
+      "feel": "four_on_floor",
+      "emphasis": [1, 2, 3, 4],
+      "subdivision": "sixteenth",
+      "description": "Four-on-the-floor kick pattern"
+    },
+    "uplifting": {
+      "feel": "driving",
+      "emphasis": [1, 3],
+      "subdivision": "eighth",
+      "snare_pattern": "on_2_and_4",
+      "description": "Uplifting trance with snare on 2 and 4"
+    },
+    "progressive": {
+      "feel": "evolving",
+      "emphasis": [1, 2.5, 4],
+      "subdivision": "sixteenth",
+      "percussion_layers": "multiple",
+      "description": "Progressive build with layered percussion"
+    },
+    "psytrance": {
+      "feel": "psychedelic",
+      "emphasis": [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5],
+      "subdivision": "sixteenth",
+      "offbeat_bass": true,
+      "description": "Complex psytrance rhythm with offbeat elements"
+    }
+  },
+  
+  "scales": [
+    "minor",
+    "harmonic_minor",
+    "dorian",
+    "major",
+    "phrygian_dominant"
+  ],
+  
+  "characteristic_intervals": [
+    "minor_third",
+    "perfect_fifth",
+    "octave",
+    "minor_seventh"
+  ],
+  
+  "instrumentation": {
+    "essential": ["synthesizer", "drum_machine", "bass_synthesizer"],
+    "typical": ["lead_synth", "pad_synth", "arpeggiator", "vocal_samples"],
+    "optional": ["guitar", "ethnic_instruments", "orchestral_elements"]
+  },
+  
+  "characteristics": {
+    "energy": "high",
+    "complexity": "medium_high", 
+    "mood": "euphoric",
+    "emotional_range": ["euphoric", "melancholic", "transcendent", "energetic"],
+    "typical_tempos": [132, 138],
+    "common_time_signatures": ["4/4"]
+  },
+  
+  "stylistic_elements": {
+    "build_ups": true,
+    "breakdowns": true,
+    "arpeggios": true,
+    "filter_sweeps": true,
+    "emotional_leads": true,
+    "layered_percussion": true
+  },
+  
+  "historical_context": {
+    "origin_period": "1990s",
+    "geographic_origin": "Germany and UK",
+    "cultural_context": "European club scene",
+    "evolution": ["Uplifting Trance", "Progressive Trance", "Psytrance", "Tech Trance", "Vocal Trance"]
+  },
+  
+  "song_forms": {
+    "standard": {
+      "structure": ["intro", "buildup", "breakdown", "buildup", "climax", "breakdown", "outro"],
+      "description": "Classic trance structure with emotional journey"
+    },
+    "progressive": {
+      "structure": ["intro", "layer1", "layer2", "breakdown", "layer3", "climax", "outro"],
+      "description": "Progressive build with gradual layering"
+    },
+    "uplifting": {
+      "structure": ["intro", "breakdown", "buildup", "climax", "playout"],
+      "description": "Uplifting trance with emotional breakdown"
+    }
+  },
+  
+  "voice_leading_preferences": {
+    "parallel_motion": "common",
+    "voice_independence": "medium",
+    "chord_extensions": ["sus2", "sus4", "add9"],
+    "typical_voicings": ["wide_voicings", "pad_chords", "supersaw_stacks"]
+  },
+  
+  "production_characteristics": {
+    "reverb": "lush_hall",
+    "distortion": "minimal",
+    "compression": "moderate",
+    "eq_emphasis": ["sub_bass", "presence", "air"],
+    "sidechain_compression": true,
+    "delay": "rhythmic_echoes",
+    "filters": "sweeping_cutoffs"
+  },
+  
+  "arrangement_patterns": {
+    "intro": "8-16_bars",
+    "breakdown": "32-64_bars",
+    "buildup": "32-64_bars", 
+    "climax": "64-128_bars",
+    "outro": "16-32_bars"
+  },
+  
+  "subgenre_characteristics": {
+    "uplifting": {
+      "tempo_range": [132, 138],
+      "emotional_content": "euphoric",
+      "lead_style": "emotional_plucks"
+    },
+    "progressive": {
+      "tempo_range": [128, 132],
+      "structure": "gradual_evolution",
+      "breakdown_length": "extended"
+    },
+    "psytrance": {
+      "tempo_range": [138, 150],
+      "bass_pattern": "rolling_offbeat",
+      "effects": "psychedelic"
+    },
+    "tech_trance": {
+      "tempo_range": [130, 136],
+      "mood": "darker_driving",
+      "percussion": "techno_influenced"
+    }
+  }
+}

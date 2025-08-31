@@ -1,0 +1,125 @@
+{
+  "name": "blues",
+  "description": "Traditional American blues music with characteristic 12-bar progressions, blue notes, and call-and-response patterns",
+  "tempo_range": [60, 140],
+  "key_preferences": ["major", "minor"],
+  "common_keys": ["E", "A", "G", "C", "F"],
+  
+  "progressions": {
+    "standard": {
+      "pattern": ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
+      "bars": 12,
+      "description": "Classic 12-bar blues progression",
+      "variations": ["quick_change", "minor_blues", "jazz_blues"]
+    },
+    "quick_change": {
+      "pattern": ["I7", "IV7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
+      "bars": 12,
+      "description": "Quick change to IV chord in measure 2"
+    },
+    "minor_blues": {
+      "pattern": ["i7", "i7", "i7", "i7", "iv7", "iv7", "i7", "i7", "V7", "iv7", "i7", "V7"],
+      "bars": 12,
+      "description": "Minor key blues progression"
+    },
+    "jazz_blues": {
+      "pattern": ["I7", "vi7", "ii7", "V7", "IV7", "iv7", "I7", "vi7", "ii7", "V7", "I7", "V7"],
+      "bars": 12,
+      "description": "Jazz-influenced blues with ii-V substitutions"
+    }
+  },
+  
+  "rhythms": {
+    "standard": {
+      "feel": "shuffle",
+      "emphasis": [1, 3],
+      "subdivision": "triplet",
+      "swing_ratio": 0.67,
+      "description": "Classic shuffle feel with triplet subdivision"
+    },
+    "straight": {
+      "feel": "straight",
+      "emphasis": [1, 3],
+      "subdivision": "eighth",
+      "swing_ratio": 0.5,
+      "description": "Straight eighth note feel"
+    },
+    "slow_blues": {
+      "feel": "ballad",
+      "emphasis": [1, 4],
+      "subdivision": "quarter",
+      "swing_ratio": 0.67,
+      "description": "Slow blues ballad feel"
+    }
+  },
+  
+  "scales": [
+    "blues_scale",
+    "minor_pentatonic", 
+    "major_pentatonic",
+    "mixolydian",
+    "dorian"
+  ],
+  
+  "characteristic_intervals": [
+    "minor_third",
+    "flat_seventh",
+    "flat_fifth"
+  ],
+  
+  "instrumentation": {
+    "essential": ["guitar", "vocals"],
+    "typical": ["harmonica", "bass", "drums", "piano"],
+    "optional": ["saxophone", "trumpet", "organ"]
+  },
+  
+  "characteristics": {
+    "energy": "medium_high",
+    "complexity": "medium",
+    "mood": "expressive",
+    "emotional_range": ["melancholic", "defiant", "celebratory"],
+    "typical_tempos": [80, 120],
+    "common_time_signatures": ["4/4", "12/8"]
+  },
+  
+  "stylistic_elements": {
+    "call_and_response": true,
+    "blue_notes": true,
+    "bent_notes": true,
+    "slide_guitar": true,
+    "vocal_melisma": true,
+    "improvisation": "moderate"
+  },
+  
+  "historical_context": {
+    "origin_period": "1860s-1890s",
+    "geographic_origin": "Southern United States",
+    "cultural_context": "African American communities",
+    "evolution": ["Delta Blues", "Chicago Blues", "Electric Blues"]
+  },
+  
+  "song_forms": {
+    "standard": {
+      "structure": ["verse", "verse", "verse"],
+      "description": "Simple AAB lyrical form"
+    },
+    "extended": {
+      "structure": ["verse", "verse", "instrumental", "verse"],
+      "description": "Extended form with instrumental break"
+    }
+  },
+  
+  "voice_leading_preferences": {
+    "parallel_motion": "acceptable",
+    "voice_independence": "low",
+    "chord_extensions": ["7th", "9th"],
+    "typical_voicings": ["dominant_7th", "power_chords"]
+  },
+  
+  "production_characteristics": {
+    "reverb": "moderate",
+    "distortion": "light_to_moderate",
+    "compression": "moderate",
+    "eq_emphasis": ["midrange", "presence"]
+  }
+}

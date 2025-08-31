@@ -1,9 +1,10 @@
-"""Core genre management system."""
+"""Core genre management system with library integration."""
 
 import json
 import os
 from typing import Dict, List, Optional, Any
 from pathlib import Path
+from .library_integration import LibraryIntegration
 
 class GenreManager:
     """Manages genre hierarchies, relationships, and characteristics."""
@@ -22,6 +23,9 @@ class GenreManager:
         self.data_dir = Path(data_dir)
         self._genre_hierarchy = None
         self._genre_data_cache = {}
+        
+        # Initialize library integration
+        self.libraries = LibraryIntegration()
         
         # Load genre hierarchy
         self._load_genre_hierarchy()
@@ -300,3 +304,59 @@ class GenreManager:
             return 0.7
         
         return 0.1  # Distant relationship
+    
+    def create_progression_from_library(self, genre: str, key: str, variation: str = "standard") -> Dict[str, Any]:
+        """Create a chord progression using music21 library knowledge."""
+        # Get genre-specific progressions
+        progressions = self.get_progression_patterns(genre)
+        
+        if variation not in progressions:
+            variation = "standard"
+        
+        pattern = progressions.get(variation, {}).get("pattern", ["I", "V", "vi", "IV"])
+        
+        # Use music21 to create actual chords
+        chord_progression = self.libraries.analyze_chord_progression(pattern, key)
+        
+        return {
+            "genre": genre,
+            "key": key,
+            "variation": variation,
+            "pattern": pattern,
+            "chords": chord_progression,
+            "bars": progressions.get(variation, {}).get("bars", len(pattern)),
+            "library_used": "music21" if self.libraries.music21.is_available() else "fallback"
+        }
+    
+    def get_corpus_examples(self, genre: str) -> List[str]:
+        """Get real musical examples from music21 corpus."""
+        return self.libraries.get_genre_examples_from_corpus(genre)
+    
+    def analyze_genre_authenticity(self, midi_notes: List[int], target_genre: str) -> Dict[str, Any]:
+        """Analyze how well a sequence matches a genre using library analysis."""
+        # Use music21 for key analysis
+        key_analysis = self.libraries.music21.analyze_key_from_notes(midi_notes)
+        
+        # Get expected characteristics for the genre
+        genre_data = self.get_genre_data(target_genre)
+        
+        authenticity_score = 0.5  # Default
+        analysis = {
+            "target_genre": target_genre,
+            "detected_key": key_analysis,
+            "genre_characteristics": genre_data.get("characteristics", {}),
+            "authenticity_score": authenticity_score,
+            "suggestions": []
+        }
+        
+        # Check key preferences
+        if key_analysis and "key_preferences" in genre_data:
+            detected_mode = key_analysis.get("mode", "major")
+            if detected_mode in genre_data["key_preferences"]:
+                authenticity_score += 0.2
+                analysis["suggestions"].append("Key mode matches genre expectations")
+            else:
+                analysis["suggestions"].append(f"Consider using {genre_data['key_preferences'][0]} mode for more authentic {target_genre}")
+        
+        analysis["authenticity_score"] = min(1.0, authenticity_score)
+        return analysis
