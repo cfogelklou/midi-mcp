@@ -1,10 +1,19 @@
 """Generates musical parts for different instruments."""
 
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import random
+from .library_integration import LibraryIntegration
 
 class PartGenerator:
     """Generates musical parts."""
+    
+    def __init__(self, libraries: Optional[LibraryIntegration] = None):
+        """Initialize part generator.
+        
+        Args:
+            libraries: Optional library integration instance
+        """
+        self.libraries = libraries or LibraryIntegration()
 
     def generate_melody_from_progression(self, progression: Dict[str, Any], 
                                         scale_notes: List[str], style: str, genre: str) -> List[Dict[str, Any]]:
@@ -77,8 +86,9 @@ class PartGenerator:
                         "duration": 2.0
                     })
                     # Add passing tone
+                    passing_tone = self._get_passing_tone(root_note, chords[i+1]["root"] if i+1 < len(chords) else root_note)
                     bass_line.append({
-                        "note": self._get_passing_tone(root_note),
+                        "note": passing_tone,
                         "beat": i * 4 + 3,
                         "duration": 2.0
                     })
@@ -104,14 +114,19 @@ class PartGenerator:
             "dynamics": "mf"  # Default
         }
 
-    def _get_passing_tone(self, note: str) -> str:
-        """Get a passing tone between notes (simplified)."""
-        # This is a simplified approach - could be enhanced with music21
+    def _get_passing_tone(self, from_note: str, to_note: str) -> str:
+        """Get a passing tone between two notes using music21."""
+        if self.libraries.music21.is_available():
+            passing_tone = self.libraries.music21.get_passing_tone(from_note, to_note)
+            if passing_tone:
+                return passing_tone
+        
+        # Fallback to simplified approach
         note_names = ["C", "D", "E", "F", "G", "A", "B"]
-        if note in note_names:
-            idx = note_names.index(note)
+        if from_note in note_names:
+            idx = note_names.index(from_note)
             return note_names[(idx + 1) % len(note_names)]
-        return note
+        return from_note
 
     def adjust_progression_length(self, progression: Dict[str, Any], target_bars: int) -> Dict[str, Any]:
         """Adjust progression length to match target bars."""
@@ -132,3 +147,40 @@ class PartGenerator:
             progression["chords"] = progression["chords"][:target_bars]
         
         return progression
+
+    def _determine_instrument_role(self, instrument: str, genre: str) -> str:
+        """Determine the role of an instrument in a genre."""
+        role_map = {
+            "piano": "harmonic_support",
+            "guitar": "harmonic_lead",
+            "bass": "harmonic_foundation", 
+            "drums": "rhythmic_foundation",
+            "vocals": "melodic_lead"
+        }
+        return role_map.get(instrument, "supporting")
+
+    def _determine_pattern_type(self, instrument: str, genre: str) -> str:
+        """Determine playing pattern for instrument in genre."""
+        if instrument == "piano":
+            if genre in ["jazz", "blues"]:
+                return "comping"
+            elif genre in ["rock", "pop"]:
+                return "chordal"
+        elif instrument == "bass":
+            if genre == "jazz":
+                return "walking"
+            else:
+                return "root_based"
+        
+        return "standard"
+
+    def _get_instrument_articulation(self, instrument: str, genre: str) -> str:
+        """Get appropriate articulation for instrument in genre."""
+        if genre == "jazz":
+            return "swing"
+        elif genre == "rock":
+            return "staccato"
+        elif genre == "blues":
+            return "legato"
+        else:
+            return "normal"

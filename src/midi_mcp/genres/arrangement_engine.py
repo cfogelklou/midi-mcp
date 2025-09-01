@@ -53,39 +53,3 @@ class ArrangementEngine:
         
         return dynamics
 
-    def determine_instrument_role(self, instrument: str, genre: str) -> str:
-        """Determine the role of an instrument in a genre."""
-        role_map = {
-            "piano": "harmonic_support",
-            "guitar": "harmonic_lead",
-            "bass": "harmonic_foundation", 
-            "drums": "rhythmic_foundation",
-            "vocals": "melodic_lead"
-        }
-        return role_map.get(instrument, "supporting")
-
-    def determine_pattern_type(self, instrument: str, genre: str) -> str:
-        """Determine playing pattern for instrument in genre."""
-        if instrument == "piano":
-            if genre in ["jazz", "blues"]:
-                return "comping"
-            elif genre in ["rock", "pop"]:
-                return "chordal"
-        elif instrument == "bass":
-            if genre == "jazz":
-                return "walking"
-            else:
-                return "root_based"
-        
-        return "standard"
-
-    def get_instrument_articulation(self, instrument: str, genre: str) -> str:
-        """Get appropriate articulation for instrument in genre."""
-        if genre == "jazz":
-            return "swing"
-        elif genre == "rock":
-            return "staccato"
-        elif genre == "blues":
-            return "legato"
-        else:
-            return "normal"

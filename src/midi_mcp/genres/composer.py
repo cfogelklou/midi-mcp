@@ -17,10 +17,10 @@ class Composer:
             genre_manager: Optional genre manager instance
         """
         self.genre_manager = genre_manager or GenreManager()
-        self.part_generator = PartGenerator()
-        self.arrangement_engine = ArrangementEngine()
-        self.analysis_engine = AnalysisEngine()
         self.libraries = self.genre_manager.libraries
+        self.part_generator = PartGenerator(self.libraries)
+        self.arrangement_engine = ArrangementEngine()
+        self.analysis_engine = AnalysisEngine(self.libraries)
 
     def create_progression(self, genre: str, key: str, variation: str = "standard",
                           bars: Optional[int] = None) -> Dict[str, Any]:

@@ -129,6 +129,48 @@ class Music21Integration:
             logger.warning(f"Error searching corpus for {genre}: {e}")
             return []
 
+    def calculate_interval_semitones(self, note1: str, note2: str) -> Optional[int]:
+        """Calculate interval between two notes in semitones."""
+        if not self._available:
+            return None
+        
+        try:
+            from music21 import pitch
+            p1 = pitch.Pitch(note1)
+            p2 = pitch.Pitch(note2)
+            interval = p2.midi - p1.midi
+            return abs(interval)
+        except Exception as e:
+            logger.warning(f"Error calculating interval between {note1} and {note2}: {e}")
+            return None
+
+    def is_large_leap(self, note1: str, note2: str, threshold_semitones: int = 7) -> bool:
+        """Check if interval between notes is a large leap (default: larger than perfect fifth)."""
+        interval = self.calculate_interval_semitones(note1, note2)
+        return interval is not None and interval > threshold_semitones
+
+    def get_passing_tone(self, from_note: str, to_note: str) -> Optional[str]:
+        """Get a passing tone between two notes."""
+        if not self._available:
+            return None
+        
+        try:
+            from music21 import pitch
+            p1 = pitch.Pitch(from_note)
+            p2 = pitch.Pitch(to_note)
+            
+            # Simple chromatic passing tone
+            interval = p2.midi - p1.midi
+            if abs(interval) > 2:  # Only if interval is larger than a whole tone
+                passing_midi = p1.midi + (1 if interval > 0 else -1)
+                passing_pitch = pitch.Pitch(midi=passing_midi)
+                return str(passing_pitch)
+            
+            return None
+        except Exception as e:
+            logger.warning(f"Error getting passing tone between {from_note} and {to_note}: {e}")
+            return None
+
 class PrettyMidiIntegration:
     """Integration wrapper for pretty_midi library."""
     

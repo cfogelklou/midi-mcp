@@ -26,17 +26,23 @@ structlog>=23.0.0
 # Development dependencies (optional)
 # Uncomment for development environment
 # vulture
-# pytest>=7.4.0
-# pytest-asyncio>=0.21.0
-# pytest-mock>=3.11.0
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0
 # black>=23.0.0
 # flake8>=6.0.0
 # mypy>=1.5.0
 # pre-commit>=3.4.0
 
 # Testing dependencies for HIL testing
-# pytest-timeout>=2.1.0
+pytest-timeout>=2.1.0
 # pytest-xdist>=3.3.0
+
+# JSON schema validation for E2E tests
+jsonschema>=4.17.0
+
+# HTTP client for E2E testing
+httpx>=0.24.0
 
 # Documentation dependencies (for future phases)
 # sphinx>=7.0.0
