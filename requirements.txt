@@ -25,6 +25,7 @@ structlog>=23.0.0
 
 # Development dependencies (optional)
 # Uncomment for development environment
+# vulture
 # pytest>=7.4.0
 # pytest-asyncio>=0.21.0
 # pytest-mock>=3.11.0
