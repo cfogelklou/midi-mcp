@@ -17,9 +17,10 @@ from ..composition.song_structure import SongStructureGenerator, SectionGenerato
 from ..composition.melodic_development import MotifDeveloper, PhraseGenerator, MelodyVariator
 from ..composition.voice_leading import VoiceLeadingOptimizer, ChromaticHarmonyGenerator, BassLineCreator
 from ..composition.arrangement import EnsembleArranger, CounterMelodyGenerator, TextureOrchestrator
+from ..composition.complete_composer import CompleteComposer, CompositionAnalyzer, CompositionRefiner
 from ..models.composition_models import (
     SongStructure, Section, Transition, Motif, MelodicDevelopment, Phrase, MelodyVariation,
-    VoiceLeadingAnalysis, Arrangement, CounterMelody
+    VoiceLeadingAnalysis, Arrangement, CounterMelody, CompleteComposition, CompositionAnalysis
 )
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,9 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
     ensemble_arranger = EnsembleArranger()
     counter_melody_generator = CounterMelodyGenerator()
     texture_orchestrator = TextureOrchestrator()
+    complete_composer = CompleteComposer()
+    composition_analyzer = CompositionAnalyzer()
+    composition_refiner = CompositionRefiner()
     
     # Song Structure Tools
     @app.tool(name="create_song_structure")
@@ -669,6 +673,226 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
             }
             return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
     
+    # Complete Composition Tools
+    @app.tool(name="compose_complete_song")
+    async def compose_complete_song(
+        description: str,
+        genre: str,
+        key: str,
+        tempo: int,
+        target_duration: int = 180,
+        ensemble_type: str = "piano_solo"
+    ) -> List[TextContent]:
+        """
+        Generate a complete musical composition from a text description.
+        
+        Args:
+            description: Text description of desired composition
+            genre: Musical genre/style
+            key: Key signature
+            tempo: Tempo in BPM
+            target_duration: Target length in seconds
+            ensemble_type: Type of ensemble arrangement
+            
+        Returns:
+            Complete composition with all sections, arrangements, and details
+        """
+        try:
+            composition = complete_composer.compose_complete_song(
+                description, genre, key, tempo, target_duration, ensemble_type
+            )
+            
+            result = {
+                "status": "success",
+                "data": {
+                    "title": composition.title,
+                    "composer": composition.composer,
+                    "genre": composition.genre,
+                    "key": composition.key,
+                    "tempo": composition.tempo,
+                    "duration": composition.duration,
+                    "description": composition.description,
+                    "song_structure": {
+                        "genre": composition.song_structure.genre,
+                        "tempo": composition.song_structure.tempo,
+                        "total_duration": composition.song_structure.total_duration,
+                        "sections": [
+                            {
+                                "type": section.type.value,
+                                "duration": section.duration,
+                                "measures": section.measures,
+                                "energy_level": section.energy_level
+                            } for section in composition.song_structure.sections
+                        ]
+                    },
+                    "main_melody": {
+                        "notes": composition.main_melody.notes,
+                        "rhythm": composition.main_melody.rhythm,
+                        "register": composition.main_melody.register
+                    },
+                    "harmonic_progression": composition.harmonic_progression,
+                    "arrangement": {
+                        "ensemble_type": composition.arrangement.ensemble_type,
+                        "style": composition.arrangement.style,
+                        "parts": list(composition.arrangement.parts.keys())
+                    },
+                    "sections": composition.sections,
+                    "composition_notes": composition.composition_notes,
+                    "metadata": composition.metadata
+                }
+            }
+            
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+            
+        except Exception as e:
+            logger.error(f"Error composing complete song: {e}")
+            error_result = {
+                "status": "error",
+                "message": str(e),
+                "description": description,
+                "genre": genre,
+                "key": key,
+                "tempo": tempo
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+    
+    @app.tool(name="analyze_composition_quality")
+    async def analyze_composition_quality(
+        composition: Dict[str, Any]
+    ) -> List[TextContent]:
+        """
+        Analyze a composition for musical quality and suggest improvements.
+        
+        Args:
+            composition: Complete composition to analyze
+            
+        Returns:
+            Analysis of melody, harmony, rhythm, form, and improvement suggestions
+        """
+        try:
+            # Convert dict to CompleteComposition object (simplified)
+            # In a real implementation, would need proper deserialization
+            complete_comp = CompleteComposition(
+                title=composition.get("title", "Untitled"),
+                composer=composition.get("composer", "Unknown"),
+                genre=composition.get("genre", "unknown"),
+                key=composition.get("key", "C major"),
+                tempo=composition.get("tempo", 120),
+                time_signature=(4, 4),
+                duration=composition.get("duration", 180),
+                description=composition.get("description", ""),
+                song_structure=composition.get("song_structure"),
+                main_melody=composition.get("main_melody"),
+                harmonic_progression=composition.get("harmonic_progression", []),
+                melodic_variations=composition.get("melodic_variations", {}),
+                arrangement=composition.get("arrangement"),
+                sections=composition.get("sections", []),
+                composition_notes=composition.get("composition_notes", []),
+                metadata=composition.get("metadata", {})
+            )
+            
+            analysis = composition_analyzer.analyze_composition_quality(complete_comp)
+            
+            result = {
+                "status": "success",
+                "data": {
+                    "composition_title": analysis.composition_title,
+                    "overall_quality_score": analysis.overall_quality_score,
+                    "melody_analysis": analysis.melody_analysis,
+                    "harmonic_analysis": analysis.harmonic_analysis,
+                    "rhythmic_analysis": analysis.rhythmic_analysis,
+                    "structural_analysis": analysis.structural_analysis,
+                    "arrangement_analysis": analysis.arrangement_analysis,
+                    "improvement_suggestions": analysis.improvement_suggestions,
+                    "analysis_notes": analysis.analysis_notes
+                }
+            }
+            
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+            
+        except Exception as e:
+            logger.error(f"Error analyzing composition: {e}")
+            error_result = {
+                "status": "error",
+                "message": str(e),
+                "composition": composition
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+    
+    @app.tool(name="refine_composition")
+    async def refine_composition(
+        composition: Dict[str, Any],
+        focus_areas: List[str]
+    ) -> List[TextContent]:
+        """
+        Refine and improve specific aspects of a composition.
+        
+        Args:
+            composition: Composition to refine
+            focus_areas: Areas to improve (melody, harmony, rhythm, form, arrangement)
+            
+        Returns:
+            Improved composition with changes documented
+        """
+        try:
+            # Convert dict to CompleteComposition object (simplified)
+            complete_comp = CompleteComposition(
+                title=composition.get("title", "Untitled"),
+                composer=composition.get("composer", "Unknown"),
+                genre=composition.get("genre", "unknown"),
+                key=composition.get("key", "C major"),
+                tempo=composition.get("tempo", 120),
+                time_signature=(4, 4),
+                duration=composition.get("duration", 180),
+                description=composition.get("description", ""),
+                song_structure=composition.get("song_structure"),
+                main_melody=composition.get("main_melody"),
+                harmonic_progression=composition.get("harmonic_progression", []),
+                melodic_variations=composition.get("melodic_variations", {}),
+                arrangement=composition.get("arrangement"),
+                sections=composition.get("sections", []),
+                composition_notes=composition.get("composition_notes", []),
+                metadata=composition.get("metadata", {})
+            )
+            
+            refined_composition = composition_refiner.refine_composition(
+                complete_comp, focus_areas
+            )
+            
+            result = {
+                "status": "success",
+                "data": {
+                    "title": refined_composition.title,
+                    "composer": refined_composition.composer,
+                    "genre": refined_composition.genre,
+                    "key": refined_composition.key,
+                    "tempo": refined_composition.tempo,
+                    "duration": refined_composition.duration,
+                    "description": refined_composition.description,
+                    "main_melody": {
+                        "notes": refined_composition.main_melody.notes,
+                        "rhythm": refined_composition.main_melody.rhythm,
+                        "register": refined_composition.main_melody.register
+                    },
+                    "harmonic_progression": refined_composition.harmonic_progression,
+                    "composition_notes": refined_composition.composition_notes,
+                    "focus_areas": focus_areas,
+                    "refinements_applied": len([note for note in refined_composition.composition_notes if "Refinement" in note])
+                }
+            }
+            
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+            
+        except Exception as e:
+            logger.error(f"Error refining composition: {e}")
+            error_result = {
+                "status": "error",
+                "message": str(e),
+                "composition": composition,
+                "focus_areas": focus_areas
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+    
     # Register tools with registry
     tool_registry.register_tool("create_song_structure", "Create complete song structure templates")
     tool_registry.register_tool("generate_song_section", "Generate individual song sections")  
@@ -682,3 +906,6 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
     tool_registry.register_tool("arrange_for_ensemble", "Arrange compositions for specific ensembles")
     tool_registry.register_tool("create_counter_melodies", "Create counter-melodies that complement main melody")
     tool_registry.register_tool("orchestrate_texture_changes", "Create dynamic texture changes throughout composition")
+    tool_registry.register_tool("compose_complete_song", "Generate complete musical compositions from descriptions")
+    tool_registry.register_tool("analyze_composition_quality", "Analyze composition quality and suggest improvements")
+    tool_registry.register_tool("refine_composition", "Refine and improve specific aspects of compositions")
