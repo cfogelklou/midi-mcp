@@ -19,6 +19,8 @@ from ..composition.melodic_development import MotifDeveloper, PhraseGenerator, M
 from ..composition.voice_leading import VoiceLeadingOptimizer, ChromaticHarmonyGenerator, BassLineCreator
 from ..composition.arrangement import EnsembleArranger, CounterMelodyGenerator, TextureOrchestrator
 from ..composition.complete_composer import CompleteComposer, CompositionAnalyzer, CompositionRefiner
+from ..theory import ChordManager, ProgressionManager
+from ..genres.composer import Composer
 from ..models.composition_models import (
     SongStructure,
     Section,
@@ -61,6 +63,11 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
     complete_composer = CompleteComposer()
     composition_analyzer = CompositionAnalyzer()
     composition_refiner = CompositionRefiner()
+    
+    # Initialize theory managers for enhanced composition
+    chord_manager = ChordManager()
+    progression_manager = ProgressionManager()
+    composer = Composer()
 
     # Song Structure Tools
     @app.tool(name="create_song_structure")
@@ -693,50 +700,61 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                             channel=0
                         )
                     
-                    # Convert harmonic progression to chords if available
+                    # Convert harmonic progression to chords using theory APIs
                     if composition.harmony:
                         harmony_notes = []
                         current_time = 0.0
                         chord_duration = 4.0  # 4 beats per chord (1 measure)
                         target_duration_beats = target_duration * (tempo / 60.0)
                         
-                        while current_time < target_duration_beats:
-                            for chord_data in composition.harmony:
-                                if current_time >= target_duration_beats:
-                                    break
-                                    
-                                # Extract chord information
-                                if isinstance(chord_data, dict):
-                                    chord_symbol = chord_data.get('symbol', 'C')
-                                    root_note = chord_data.get('root', 60)
-                                else:
-                                    chord_symbol = str(chord_data)
-                                    root_note = 60
+                        # Use proper theory API to create chord progression
+                        try:
+                            # Create a progression using the composition's key and genre
+                            progression_result = composer.create_progression(genre, key, "standard")
+                            if progression_result and "chord_progression" in progression_result:
+                                theory_chords = progression_result["chord_progression"]
                                 
-                                # Simple chord mapping
-                                if 'C' in chord_symbol:
-                                    chord_notes = [60, 64, 67]  # C major triad
-                                elif 'F' in chord_symbol:
-                                    chord_notes = [65, 69, 72]  # F major triad  
-                                elif 'G' in chord_symbol:
-                                    chord_notes = [67, 71, 74]  # G major triad
-                                elif 'A' in chord_symbol:
-                                    chord_notes = [69, 73, 76]  # A major triad
-                                elif 'B' in chord_symbol:
-                                    chord_notes = [71, 75, 78]  # B major triad
-                                elif 'E' in chord_symbol:
-                                    chord_notes = [64, 68, 71]  # E major triad
-                                else:
-                                    chord_notes = [60, 64, 67]  # Default C major
-                                    
-                                for note in chord_notes:
-                                    harmony_notes.append({
-                                        "note": note,
-                                        "velocity": 60,
-                                        "start_time": current_time,
-                                        "duration": chord_duration
-                                    })
-                                current_time += chord_duration
+                                while current_time < target_duration_beats:
+                                    for chord_data in theory_chords:
+                                        if current_time >= target_duration_beats:
+                                            break
+                                            
+                                        # Extract chord information from theory API
+                                        if isinstance(chord_data, dict) and "notes" in chord_data:
+                                            chord_notes = chord_data["notes"]
+                                        else:
+                                            # Fallback: use chord manager to build chord
+                                            chord_symbol = str(chord_data.get("symbol", "C")) if isinstance(chord_data, dict) else str(chord_data)
+                                            try:
+                                                chord_result = chord_manager.build_chord(chord_symbol, 4)  # 4th octave
+                                                chord_notes = [note.midi_note for note in chord_result.notes]
+                                            except:
+                                                chord_notes = [60, 64, 67]  # Default C major
+                                                
+                                        for note in chord_notes:
+                                            harmony_notes.append({
+                                                "note": note,
+                                                "velocity": 60,
+                                                "start_time": current_time,
+                                                "duration": chord_duration
+                                            })
+                                        current_time += chord_duration
+                        except Exception as theory_error:
+                            logger.warning(f"Theory API failed, using fallback harmony: {theory_error}")
+                            # Fallback to basic progression
+                            basic_chords = [60, 65, 67, 65]  # C-F-G-F progression
+                            while current_time < target_duration_beats:
+                                for root_note in basic_chords:
+                                    if current_time >= target_duration_beats:
+                                        break
+                                    for note in [root_note, root_note + 4, root_note + 7]:  # Major triad
+                                        harmony_notes.append({
+                                            "note": note,
+                                            "velocity": 60,
+                                            "start_time": current_time,
+                                            "duration": chord_duration
+                                        })
+                                    current_time += chord_duration
                         
                         if harmony_notes:
                             # Add harmony track
@@ -754,6 +772,79 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                                 channel=1
                             )
                     
+                    # Add drums for appropriate genres
+                    if genre in ["hip_hop", "rock", "pop", "jazz", "blues"] and ensemble_type in ["rock_band", "jazz_combo"]:
+                        try:
+                            # Generate drum pattern using theory APIs
+                            beat_result = composer.create_beat(genre, tempo, "medium", "standard")
+                            if beat_result and "pattern" in beat_result:
+                                drum_notes = []
+                                current_time = 0.0
+                                beat_duration = 1.0  # 1 beat per drum hit
+                                target_duration_beats = target_duration * (tempo / 60.0)
+                                
+                                # Map drum types to MIDI notes (General MIDI drum kit)
+                                drum_map = {
+                                    "kick": 36,    # Bass Drum 1
+                                    "snare": 38,   # Acoustic Snare
+                                    "hihat": 42,   # Closed Hi-Hat
+                                    "ride": 51,    # Ride Cymbal 1
+                                    "crash": 49    # Crash Cymbal 1
+                                }
+                                
+                                pattern = beat_result["pattern"]
+                                while current_time < target_duration_beats:
+                                    for beat_info in pattern:
+                                        if current_time >= target_duration_beats:
+                                            break
+                                            
+                                        # Add drum hits based on pattern
+                                        if beat_info.get("kick", False):
+                                            drum_notes.append({
+                                                "note": drum_map["kick"],
+                                                "velocity": 100,
+                                                "start_time": current_time,
+                                                "duration": beat_duration
+                                            })
+                                        if beat_info.get("snare", False):
+                                            drum_notes.append({
+                                                "note": drum_map["snare"],
+                                                "velocity": 90,
+                                                "start_time": current_time,
+                                                "duration": beat_duration
+                                            })
+                                        if beat_info.get("hihat", False):
+                                            drum_notes.append({
+                                                "note": drum_map["hihat"],
+                                                "velocity": 70,
+                                                "start_time": current_time,
+                                                "duration": beat_duration * 0.5
+                                            })
+                                        
+                                        current_time += beat_duration
+                                
+                                if drum_notes:
+                                    # Add drum track (channel 9 is standard for drums)
+                                    file_manager.add_track(
+                                        midi_file_id=midi_file_id,
+                                        track_name="Drums",
+                                        channel=9,
+                                        program=0  # Drum kit
+                                    )
+                                    
+                                    file_manager.add_notes_to_track(
+                                        midi_file_id=midi_file_id,
+                                        track_identifier="Drums",
+                                        notes_data=drum_notes,
+                                        channel=9
+                                    )
+                        except Exception as drum_error:
+                            logger.warning(f"Failed to add drums: {drum_error}")
+                    
+                    track_list = "Melody, Harmony"
+                    if genre in ["hip_hop", "rock", "pop", "jazz", "blues"] and ensemble_type in ["rock_band", "jazz_combo"]:
+                        track_list += ", Drums"
+                    
                     return [TextContent(
                         type="text",
                         text=f"Created complete composition and MIDI file!\n"
@@ -764,7 +855,7 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                              f"Tempo: {composition.tempo} BPM\n"
                              f"Duration: {composition.duration} seconds\n"
                              f"Description: {composition.description}\n"
-                             f"Tracks created: Melody, Harmony"
+                             f"Tracks created: {track_list}"
                     )]
                     
                 except Exception as midi_error:
