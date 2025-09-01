@@ -19,7 +19,7 @@ from ..composition.melodic_development import MotifDeveloper, PhraseGenerator, M
 from ..composition.voice_leading import VoiceLeadingOptimizer, ChromaticHarmonyGenerator, BassLineCreator
 from ..composition.arrangement import EnsembleArranger, CounterMelodyGenerator, TextureOrchestrator
 from ..composition.complete_composer import CompleteComposer, CompositionAnalyzer, CompositionRefiner
-from ..theory import ChordManager, ProgressionManager
+from ..theory import ChordManager, ProgressionManager, ScaleManager
 from ..genres.composer import Composer
 from ..models.composition_models import (
     SongStructure,
@@ -67,6 +67,7 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
     # Initialize theory managers for enhanced composition
     chord_manager = ChordManager()
     progression_manager = ProgressionManager()
+    scale_manager = ScaleManager()
     composer = Composer()
 
     # Song Structure Tools
@@ -659,32 +660,102 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                         key_signature=composition.key.split()[0] if " " in composition.key else composition.key
                     )
                     
-                    # Convert composition data to MIDI notes for main melody
-                    if composition.melody and 'notes' in composition.melody:
-                        melody_notes = []
-                        current_time = 0.0
+                    # Generate melody using music theory APIs instead of random notes
+                    melody_notes = []
+                    current_time = 0.0
+                    target_duration_beats = target_duration * (tempo / 60.0)
+                    
+                    try:
+                        # Create a theory-based melody using the composer's melody generation
+                        melody_result = composer.create_melody(genre, key, {"genre": genre, "key": key}, "typical")
                         
-                        # Get melody notes and rhythm
-                        notes = composition.melody['notes']
-                        rhythm = composition.melody.get('rhythm', [0.5] * len(notes))
+                        if melody_result and "melody" in melody_result:
+                            theory_melody = melody_result["melody"]
+                            if isinstance(theory_melody, list) and theory_melody:
+                                # Use the theory-generated melody
+                                base_notes = theory_melody
+                                base_rhythm = [1.0] * len(base_notes)  # 1 beat per note
+                            else:
+                                # Fallback: create scale-based melody
+                                try:
+                                    scale_result = scale_manager.generate_scale(key.replace('m', ''), 'minor' if 'm' in key else 'major', 4)
+                                    if scale_result and hasattr(scale_result, 'notes'):
+                                        base_notes = [note.midi_note for note in scale_result.notes[:8]]
+                                        base_rhythm = [0.5, 1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]
+                                    else:
+                                        base_notes = [60, 62, 64, 65, 67, 69, 71, 72]  # C major scale
+                                        base_rhythm = [0.5, 1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]
+                                except:
+                                    base_notes = [60, 62, 64, 65, 67, 69, 71, 72]  # C major scale
+                                    base_rhythm = [0.5, 1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]
+                        else:
+                            # Fallback: create scale-based melody
+                            try:
+                                scale_result = scale_manager.generate_scale(key.replace('m', ''), 'minor' if 'm' in key else 'major', 4)
+                                if scale_result and hasattr(scale_result, 'notes'):
+                                    base_notes = [note.midi_note for note in scale_result.notes[:8]]
+                                else:
+                                    base_notes = [60, 62, 64, 65, 67, 69, 71, 72]  # C major scale
+                                base_rhythm = [0.5, 1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]
+                            except:
+                                base_notes = [60, 62, 64, 65, 67, 69, 71, 72]  # C major scale
+                                base_rhythm = [0.5, 1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]
                         
-                        # Extend melody to fill the target duration
-                        target_duration_beats = target_duration * (tempo / 60.0)  # Convert to beats
+                        # Create melodic patterns that fit the genre
+                        if genre == "hip_hop":
+                            # Hip-hop typically has more rhythmic, repetitive melodies
+                            pattern_notes = base_notes[:4] * 2  # Repeat first 4 notes
+                            pattern_rhythm = [0.25, 0.25, 0.5, 1.0] * 2
+                        elif genre == "ambient":
+                            # Ambient uses longer, flowing notes
+                            pattern_notes = base_notes
+                            pattern_rhythm = [2.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0]
+                        elif genre == "jazz":
+                            # Jazz uses more complex rhythms and note patterns
+                            pattern_notes = base_notes + [base_notes[0] + 12]  # Add octave
+                            pattern_rhythm = [0.5, 0.25, 0.25, 1.0, 0.5, 0.5, 0.75, 0.25, 1.0]
+                        else:
+                            # Default melodic pattern
+                            pattern_notes = base_notes
+                            pattern_rhythm = base_rhythm
                         
+                        # Generate melody to fill target duration
                         while current_time < target_duration_beats:
-                            for i, note_midi in enumerate(notes):
+                            for i, note_midi in enumerate(pattern_notes):
                                 if current_time >= target_duration_beats:
                                     break
                                     
-                                note_duration = rhythm[i] if i < len(rhythm) else 0.5
+                                note_duration = pattern_rhythm[i % len(pattern_rhythm)]
+                                # Add some variation to avoid mechanical repetition
+                                if i % 8 == 0:  # Every 8th note, add slight variation
+                                    variation = [-2, 0, 2][i % 3]  # Small melodic variation
+                                    note_midi = max(48, min(84, note_midi + variation))
+                                
                                 melody_notes.append({
                                     "note": note_midi,
-                                    "velocity": 80,
+                                    "velocity": 70 + (i % 20),  # Slight velocity variation
                                     "start_time": current_time,
                                     "duration": note_duration
                                 })
                                 current_time += note_duration
-                        
+                    
+                    except Exception as melody_error:
+                        logger.warning(f"Melody generation failed, using simple scale: {melody_error}")
+                        # Simple fallback melody
+                        scale_notes = [60, 62, 64, 65, 67, 69, 71, 72]  # C major scale
+                        while current_time < target_duration_beats:
+                            for i, note in enumerate(scale_notes):
+                                if current_time >= target_duration_beats:
+                                    break
+                                melody_notes.append({
+                                    "note": note,
+                                    "velocity": 75,
+                                    "start_time": current_time,
+                                    "duration": 1.0
+                                })
+                                current_time += 1.0
+                    
+                    if melody_notes:
                         # Add melody track
                         file_manager.add_track(
                             midi_file_id=midi_file_id,
