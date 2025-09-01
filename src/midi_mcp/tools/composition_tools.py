@@ -892,20 +892,3 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
                 "focus_areas": focus_areas
             }
             return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
-    
-    # Register tools with registry
-    tool_registry.register_tool("create_song_structure", "Create complete song structure templates")
-    tool_registry.register_tool("generate_song_section", "Generate individual song sections")  
-    tool_registry.register_tool("create_section_transitions", "Create transitions between sections")
-    tool_registry.register_tool("develop_melodic_motif", "Develop motifs using classical techniques")
-    tool_registry.register_tool("create_melodic_phrase", "Create well-formed melodic phrases")
-    tool_registry.register_tool("vary_melody_for_repetition", "Create melody variations")
-    tool_registry.register_tool("optimize_voice_leading", "Optimize voice leading in chord progressions")
-    tool_registry.register_tool("add_chromatic_harmony", "Add chromatic harmony to progressions")
-    tool_registry.register_tool("create_bass_line_with_voice_leading", "Create bass lines with proper voice leading")
-    tool_registry.register_tool("arrange_for_ensemble", "Arrange compositions for specific ensembles")
-    tool_registry.register_tool("create_counter_melodies", "Create counter-melodies that complement main melody")
-    tool_registry.register_tool("orchestrate_texture_changes", "Create dynamic texture changes throughout composition")
-    tool_registry.register_tool("compose_complete_song", "Generate complete musical compositions from descriptions")
-    tool_registry.register_tool("analyze_composition_quality", "Analyze composition quality and suggest improvements")
-    tool_registry.register_tool("refine_composition", "Refine and improve specific aspects of compositions")

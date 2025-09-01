@@ -3,6 +3,7 @@
 from typing import Dict, List, Optional, Any, Tuple
 import logging
 from pathlib import Path
+import threading
 
 # Set up logging
 logging.basicConfig(level=logging.WARNING)
@@ -23,7 +24,7 @@ class Music21Integration:
             self.stream = stream
             self.analysis = analysis
             self._available = True
-            logger.info("music21 integration initialized")
+            logger.debug("music21 integration initialized")
         except ImportError as e:
             logger.warning(f"music21 not available: {e}")
             self._available = False
@@ -180,7 +181,7 @@ class PrettyMidiIntegration:
             import pretty_midi
             self.pretty_midi = pretty_midi
             self._available = True
-            logger.info("pretty_midi integration initialized")
+            logger.debug("pretty_midi integration initialized")
         except ImportError as e:
             logger.warning(f"pretty_midi not available: {e}")
             self._available = False
@@ -266,7 +267,7 @@ class MuspyIntegration:
             import muspy
             self.muspy = muspy
             self._available = True
-            logger.info("muspy integration initialized")
+            logger.debug("muspy integration initialized")
         except ImportError as e:
             logger.warning(f"muspy not available: {e}")
             self._available = False
@@ -316,24 +317,44 @@ class MuspyIntegration:
             return False
 
 class LibraryIntegration:
-    """Main integration class that combines all music libraries."""
+    """Main integration class that combines all music libraries (Singleton)."""
+    
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+    
+    def __new__(cls):
+        """Ensure only one instance exists."""
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super(LibraryIntegration, cls).__new__(cls)
+        return cls._instance
     
     def __init__(self):
-        """Initialize all library integrations."""
-        self.music21 = Music21Integration()
-        self.pretty_midi = PrettyMidiIntegration() 
-        self.muspy = MuspyIntegration()
-        
-        # Log availability
-        available = []
-        if self.music21.is_available():
-            available.append("music21")
-        if self.pretty_midi.is_available():
-            available.append("pretty_midi")
-        if self.muspy.is_available():
-            available.append("muspy")
-        
-        logger.info(f"Library integration initialized. Available: {', '.join(available)}")
+        """Initialize all library integrations (only once)."""
+        if self._initialized:
+            return
+            
+        with self._lock:
+            if self._initialized:
+                return
+                
+            self.music21 = Music21Integration()
+            self.pretty_midi = PrettyMidiIntegration() 
+            self.muspy = MuspyIntegration()
+            
+            # Log availability
+            available = []
+            if self.music21.is_available():
+                available.append("music21")
+            if self.pretty_midi.is_available():
+                available.append("pretty_midi")
+            if self.muspy.is_available():
+                available.append("muspy")
+            
+            logger.info(f"Library integration initialized. Available: {', '.join(available)}")
+            LibraryIntegration._initialized = True
     
     def get_available_libraries(self) -> Dict[str, bool]:
         """Get status of all integrated libraries."""
@@ -357,3 +378,13 @@ class LibraryIntegration:
     def get_genre_examples_from_corpus(self, genre: str) -> List[str]:
         """Get genre examples from music21 corpus."""
         return self.music21.search_corpus_by_genre(genre)
+
+
+def get_library_integration() -> LibraryIntegration:
+    """
+    Get the singleton instance of LibraryIntegration.
+    
+    Returns:
+        LibraryIntegration: The singleton instance
+    """
+    return LibraryIntegration()
