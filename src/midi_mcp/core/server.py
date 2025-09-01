@@ -30,6 +30,7 @@ from ..tools.midi_tools import register_midi_tools
 from ..tools.file_tools import register_midi_file_tools
 from ..tools.theory_tools import register_theory_tools
 from ..tools.genre_tools import register_genre_tools
+from ..tools.composition_tools import register_composition_tools
 from ..midi.manager import MidiManager
 from ..midi.file_ops import MidiFileManager
 from ..midi.player import MidiFilePlayer
@@ -87,7 +88,7 @@ class MCPServer(MCPServerInterface):
         self.player = MidiFilePlayer()
         self.analyzer = MidiAnalyzer()
         
-        self.logger.info("MIDI MCP Server initialized with Phase 1-4 capabilities (MIDI + Music Theory + Genre Knowledge)")
+        self.logger.info("MIDI MCP Server initialized with Phase 1-5 capabilities (MIDI + Music Theory + Genre Knowledge + Composition)")
         
         # Register core server info handlers
         self._setup_server_info()
@@ -95,6 +96,7 @@ class MCPServer(MCPServerInterface):
         self._register_midi_tools()
         self._register_theory_tools()
         self._register_genre_tools()
+        self._register_composition_tools()
     
     def _setup_server_info(self) -> None:
         """Set up server information and capabilities."""
@@ -190,6 +192,15 @@ class MCPServer(MCPServerInterface):
             self.logger.debug("Registered genre knowledge tools (Phase 4)")
         except Exception as e:
             self.logger.error(f"Error registering genre tools: {e}")
+    
+    def _register_composition_tools(self) -> None:
+        """Register advanced composition tools (Phase 5)."""
+        try:
+            # Register Phase 5 tools (song structure, melodic development, etc.)
+            register_composition_tools(self.app, self.tool_registry)
+            self.logger.debug("Registered composition tools (Phase 5)")
+        except Exception as e:
+            self.logger.error(f"Error registering composition tools: {e}")
     
     def register_tool(self, tool: Tool, handler: Callable) -> None:
         """
