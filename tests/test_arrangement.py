@@ -8,7 +8,7 @@ from typing import Dict, List
 
 from midi_mcp.composition.arrangement import (
     EnsembleArranger,
-    CounterMelodyCreator,
+    CounterMelodyGenerator,
     TextureOrchestrator
 )
 from midi_mcp.models.composition_models import (
@@ -41,7 +41,7 @@ class TestEnsembleArranger:
         assert isinstance(arrangement, Arrangement)
         
         # Should have all string quartet instruments
-        expected_parts = ["violin1", "violin2", "viola", "cello"]
+        expected_parts = ["violin_1", "violin_2", "viola", "cello"]
         assert all(part in arrangement.parts for part in expected_parts)
         
         # Each part should have content

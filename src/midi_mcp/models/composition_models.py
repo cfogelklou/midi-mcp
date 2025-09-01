@@ -23,12 +23,20 @@ class SectionType(Enum):
 
 class DynamicLevel(Enum):
     """Dynamic levels for orchestration."""
-    PIANISSIMO = "pp"
-    PIANO = "p"
-    MEZZO_PIANO = "mp"
-    MEZZO_FORTE = "mf"
-    FORTE = "f"
-    FORTISSIMO = "ff"
+    PP = "pp"
+    P = "p"
+    MP = "mp"
+    MF = "mf"
+    F = "f"
+    FF = "ff"
+
+
+class TextureLevel(Enum):
+    """Texture density levels for orchestration."""
+    THIN = "thin"
+    MEDIUM = "medium"
+    THICK = "thick"
+    VERY_THICK = "very_thick"
 
 
 @dataclass

@@ -16,9 +16,10 @@ from ..tools.registry import ToolRegistry
 from ..composition.song_structure import SongStructureGenerator, SectionGenerator, TransitionCreator
 from ..composition.melodic_development import MotifDeveloper, PhraseGenerator, MelodyVariator
 from ..composition.voice_leading import VoiceLeadingOptimizer, ChromaticHarmonyGenerator, BassLineCreator
+from ..composition.arrangement import EnsembleArranger, CounterMelodyGenerator, TextureOrchestrator
 from ..models.composition_models import (
     SongStructure, Section, Transition, Motif, MelodicDevelopment, Phrase, MelodyVariation,
-    VoiceLeadingAnalysis
+    VoiceLeadingAnalysis, Arrangement, CounterMelody
 )
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,9 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
     voice_leading_optimizer = VoiceLeadingOptimizer()
     chromatic_harmony_generator = ChromaticHarmonyGenerator()
     bass_line_creator = BassLineCreator()
+    ensemble_arranger = EnsembleArranger()
+    counter_melody_generator = CounterMelodyGenerator()
+    texture_orchestrator = TextureOrchestrator()
     
     # Song Structure Tools
     @app.tool(name="create_song_structure")
@@ -512,6 +516,159 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
             }
             return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
     
+    # Arrangement and Orchestration Tools
+    @app.tool(name="arrange_for_ensemble")
+    async def arrange_for_ensemble(
+        composition: Dict[str, Any],
+        ensemble_type: str,
+        arrangement_style: str = "balanced"
+    ) -> List[TextContent]:
+        """
+        Arrange existing composition for specific ensemble.
+        
+        Args:
+            composition: Base composition (melody, chords, structure)
+            ensemble_type: Target ensemble (string_quartet, jazz_combo, rock_band, symphony_orchestra)
+            arrangement_style: Arrangement approach (minimal, balanced, full, dense)
+            
+        Returns:
+            Full arrangement with parts for each instrument
+        """
+        try:
+            arrangement = ensemble_arranger.arrange_for_ensemble(
+                composition, ensemble_type, arrangement_style
+            )
+            
+            result = {
+                "status": "success",
+                "data": {
+                    "ensemble_type": arrangement.ensemble_type,
+                    "instruments": arrangement.instruments,
+                    "texture_level": arrangement.texture_level.value,
+                    "dynamic_plan": [d.value for d in arrangement.dynamic_plan],
+                    "style_notes": arrangement.style_notes,
+                    "performance_notes": arrangement.performance_notes,
+                    "instrument_parts": []
+                }
+            }
+            
+            # Add instrument parts
+            for part in arrangement.instrument_parts:
+                part_data = {
+                    "instrument": part.instrument,
+                    "role": part.role,
+                    "notes": part.notes,
+                    "rhythm": part.rhythm,
+                    "dynamics": part.dynamics,
+                    "articulation": part.articulation,
+                    "playing_techniques": part.playing_techniques
+                }
+                result["data"]["instrument_parts"].append(part_data)
+            
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+            
+        except Exception as e:
+            logger.error(f"Error arranging for ensemble: {e}")
+            error_result = {
+                "status": "error",
+                "message": str(e),
+                "composition": composition,
+                "ensemble_type": ensemble_type,
+                "arrangement_style": arrangement_style
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+    
+    @app.tool(name="create_counter_melodies")
+    async def create_counter_melodies(
+        main_melody: List[int],
+        harmony: List[Dict[str, Any]],
+        instrument: str = "violin"
+    ) -> List[TextContent]:
+        """
+        Create counter-melodies that complement the main melody.
+        
+        Args:
+            main_melody: Primary melodic line
+            harmony: Underlying chord progression
+            instrument: Target instrument for counter-melody
+            
+        Returns:
+            Counter-melodies with proper independence and complementarity
+        """
+        try:
+            counter_melody = counter_melody_generator.create_counter_melodies(
+                main_melody, harmony, instrument
+            )
+            
+            result = {
+                "status": "success",
+                "data": {
+                    "main_melody": counter_melody.main_melody,
+                    "counter_notes": counter_melody.counter_notes,
+                    "counter_rhythm": counter_melody.counter_rhythm,
+                    "instrument": counter_melody.instrument,
+                    "relationship_type": counter_melody.relationship_type,
+                    "independence_score": counter_melody.independence_score,
+                    "complementarity_score": counter_melody.complementarity_score,
+                    "voice_leading_quality": counter_melody.voice_leading_quality,
+                    "analysis": {
+                        "main_melody_range": f"{min(main_melody)}-{max(main_melody)}",
+                        "counter_melody_range": f"{min(counter_melody.counter_notes)}-{max(counter_melody.counter_notes)}",
+                        "total_notes": len(counter_melody.counter_notes)
+                    }
+                }
+            }
+            
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+            
+        except Exception as e:
+            logger.error(f"Error creating counter-melodies: {e}")
+            error_result = {
+                "status": "error",
+                "message": str(e),
+                "main_melody": main_melody,
+                "harmony": harmony,
+                "instrument": instrument
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+    
+    @app.tool(name="orchestrate_texture_changes")
+    async def orchestrate_texture_changes(
+        composition: Dict[str, Any],
+        dynamic_plan: List[str]
+    ) -> List[TextContent]:
+        """
+        Create texture changes throughout a composition for dynamic interest.
+        
+        Args:
+            composition: Base composition
+            dynamic_plan: Planned dynamic levels (pp, p, mp, mf, f, ff)
+            
+        Returns:
+            Composition with varied textures supporting dynamic plan
+        """
+        try:
+            orchestrated_composition = texture_orchestrator.orchestrate_texture_changes(
+                composition, dynamic_plan
+            )
+            
+            result = {
+                "status": "success",
+                "data": orchestrated_composition
+            }
+            
+            return [TextContent(type="text", text=json.dumps(result, indent=2))]
+            
+        except Exception as e:
+            logger.error(f"Error orchestrating texture changes: {e}")
+            error_result = {
+                "status": "error",
+                "message": str(e),
+                "composition": composition,
+                "dynamic_plan": dynamic_plan
+            }
+            return [TextContent(type="text", text=json.dumps(error_result, indent=2))]
+    
     # Register tools with registry
     tool_registry.register_tool("create_song_structure", "Create complete song structure templates")
     tool_registry.register_tool("generate_song_section", "Generate individual song sections")  
@@ -522,3 +679,6 @@ def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> Non
     tool_registry.register_tool("optimize_voice_leading", "Optimize voice leading in chord progressions")
     tool_registry.register_tool("add_chromatic_harmony", "Add chromatic harmony to progressions")
     tool_registry.register_tool("create_bass_line_with_voice_leading", "Create bass lines with proper voice leading")
+    tool_registry.register_tool("arrange_for_ensemble", "Arrange compositions for specific ensembles")
+    tool_registry.register_tool("create_counter_melodies", "Create counter-melodies that complement main melody")
+    tool_registry.register_tool("orchestrate_texture_changes", "Create dynamic texture changes throughout composition")
