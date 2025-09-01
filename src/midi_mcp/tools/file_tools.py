@@ -422,4 +422,110 @@ def register_midi_file_tools(
 
     registry.register("stop_midi_playback", stop_playback_tool, stop_midi_playback)
 
-    logger.info(f"Registered {8} MIDI file tools")
+    # Add musical data to MIDI file tool
+    add_musical_data_tool = Tool(
+        name="add_musical_data_to_midi_file",
+        description="Add musical note data to a specified track within a MIDI file",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "midi_file_id": {"type": "string", "description": "ID of the MIDI file to modify"},
+                "track_name": {"type": "string", "description": "Name of the track to add notes to"},
+                "notes_data": {
+                    "type": "array",
+                    "description": "List of note dictionaries with 'note' (MIDI number), 'velocity', 'start_time' (in beats), and 'duration' (in beats)",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "note": {"type": "integer", "minimum": 0, "maximum": 127, "description": "MIDI note number"},
+                            "velocity": {"type": "integer", "minimum": 0, "maximum": 127, "description": "Note velocity"},
+                            "start_time": {"type": "number", "description": "Start time in beats"},
+                            "duration": {"type": "number", "description": "Duration in beats"}
+                        },
+                        "required": ["note", "velocity", "start_time", "duration"]
+                    }
+                },
+                "channel": {
+                    "type": "integer",
+                    "description": "MIDI channel for the notes",
+                    "minimum": 0,
+                    "maximum": 15,
+                    "default": 0,
+                },
+                "program": {
+                    "type": "integer", 
+                    "description": "MIDI program (instrument) for the notes",
+                    "minimum": 0,
+                    "maximum": 127,
+                    "default": 0,
+                },
+                "create_track_if_not_exists": {
+                    "type": "boolean",
+                    "description": "If True, creates the track if it doesn't already exist",
+                    "default": True,
+                },
+            },
+            "required": ["midi_file_id", "track_name", "notes_data"],
+        },
+    )
+
+    @app.tool(name="add_musical_data_to_midi_file")
+    async def add_musical_data_to_midi_file(
+        midi_file_id: str,
+        track_name: str,
+        notes_data: List[Dict[str, Any]],
+        channel: int = 0,
+        program: int = 0,
+        create_track_if_not_exists: bool = True,
+    ) -> List[TextContent]:
+        """Add musical note data to a specified track within a MIDI file."""
+        try:
+            # Check if track exists
+            session = file_manager.get_session(midi_file_id)
+            track_exists = False
+            
+            # Look for existing track with this name
+            for track_info in session.tracks:
+                if track_info.get("name") == track_name:
+                    track_exists = True
+                    break
+            
+            # Create track if it doesn't exist and we're allowed to
+            if not track_exists and create_track_if_not_exists:
+                track_index = file_manager.add_track(
+                    midi_file_id=midi_file_id,
+                    track_name=track_name,
+                    channel=channel,
+                    program=program
+                )
+                logger.info(f"Created new track '{track_name}' with index {track_index}")
+            elif not track_exists:
+                return [TextContent(type="text", text=f"Track '{track_name}' not found in MIDI file {midi_file_id}. Set create_track_if_not_exists=True to create it.")]
+            
+            # Add notes to track
+            file_manager.add_notes_to_track(
+                midi_file_id=midi_file_id,
+                track_identifier=track_name,
+                notes_data=notes_data,
+                channel=channel
+            )
+
+            return [
+                TextContent(
+                    type="text",
+                    text=f"Successfully added {len(notes_data)} notes to track '{track_name}' in MIDI file {midi_file_id}\n"
+                    f"Channel: {channel}, Program: {program}\n"
+                    f"Note range: {min(note['note'] for note in notes_data)} - {max(note['note'] for note in notes_data)}"
+                )
+            ]
+
+        except MidiError as e:
+            logger.error(f"Error adding musical data: {e}")
+            return [TextContent(type="text", text=f"MIDI Error: {str(e)}")]
+        except Exception as e:
+            logger.error(f"Unexpected error adding musical data: {e}")
+            return [TextContent(type="text", text=f"Error adding musical data: {str(e)}")]
+
+    registry.register("add_musical_data_to_midi_file", add_musical_data_tool, add_musical_data_to_midi_file)
+
+    logger.info(f"Registered {9} MIDI file tools")

@@ -7,14 +7,16 @@ import json
 
 from ..theory import ScaleManager, ChordManager, ProgressionManager, KeyManager, VoiceLeadingManager, MusicAnalyzer
 from ..models.theory_models import Note
+from ..midi.file_ops import MidiFileManager
 
 
-def register_theory_tools(app: FastMCP) -> None:
+def register_theory_tools(app: FastMCP, file_manager: Optional[MidiFileManager] = None) -> None:
     """
     Register all music theory tools with the MCP server.
 
     Args:
         app: FastMCP application instance
+        file_manager: Optional MIDI file manager for direct MIDI output
     """
     # Initialize theory managers
     scale_manager = ScaleManager()
@@ -189,22 +191,83 @@ def register_theory_tools(app: FastMCP) -> None:
     # Progression Tools
     @app.tool(name="create_chord_progression")
     async def create_chord_progression(
-        key: str, progression: List[str], duration_per_chord: float = 1.0
+        key: str, 
+        progression: List[str], 
+        duration_per_chord: float = 1.0,
+        midi_file_id: Optional[str] = None,
+        track_name: Optional[str] = None,
+        channel: int = 0,
+        program: int = 0
     ) -> List[TextContent]:
         """
-        Create a chord progression in a specific key.
+        Create a chord progression in a specific key, optionally adding it to a MIDI file.
 
         Args:
             key: Key signature (C, Am, F#, Bbm, etc.)
             progression: Roman numeral progression (["I", "vi", "ii", "V"])
             duration_per_chord: Duration of each chord in beats
+            midi_file_id: Optional ID of the MIDI file to add the progression to
+            track_name: Optional name for the track (if midi_file_id is provided)
+            channel: MIDI channel for the notes (if midi_file_id is provided)
+            program: MIDI program (instrument) for the notes (if midi_file_id is provided)
 
         Returns:
-            MIDI data for the chord progression
+            MIDI data for the chord progression, or confirmation of MIDI file update
         """
         try:
             chord_progression = progression_manager.create_chord_progression(key, progression, duration_per_chord)
 
+            # If MIDI file output is requested and file manager is available
+            if midi_file_id and track_name and file_manager:
+                try:
+                    # Convert chord progression to notes data
+                    notes_data = []
+                    current_time = 0.0
+                    
+                    for chord in chord_progression.chords:
+                        # Add each note in the chord simultaneously
+                        for note in chord.notes:
+                            notes_data.append({
+                                "note": note.midi_note,
+                                "velocity": 80,  # Medium velocity
+                                "start_time": current_time,
+                                "duration": duration_per_chord
+                            })
+                        current_time += duration_per_chord
+                    
+                    # Check if track exists, create if not
+                    session = file_manager.get_session(midi_file_id)
+                    track_exists = any(track.get("name") == track_name for track in session.tracks)
+                    
+                    if not track_exists:
+                        file_manager.add_track(
+                            midi_file_id=midi_file_id,
+                            track_name=track_name,
+                            channel=channel,
+                            program=program
+                        )
+                    
+                    # Add notes to track
+                    file_manager.add_notes_to_track(
+                        midi_file_id=midi_file_id,
+                        track_identifier=track_name,
+                        notes_data=notes_data,
+                        channel=channel
+                    )
+                    
+                    return [TextContent(
+                        type="text",
+                        text=f"Created chord progression in {key} and added to MIDI file {midi_file_id}\n"
+                             f"Track: {track_name}, Channel: {channel}, Program: {program}\n"
+                             f"Progression: {' - '.join(progression)}\n"
+                             f"Added {len(notes_data)} notes across {len(chord_progression.chords)} chords"
+                    )]
+                    
+                except Exception as midi_error:
+                    # Fall back to returning abstract data if MIDI output fails
+                    return [TextContent(type="text", text=f"Created chord progression but failed to add to MIDI file: {str(midi_error)}")]
+            
+            # Return abstract data (original behavior)
             result = {
                 "key": chord_progression.key,
                 "roman_numerals": chord_progression.roman_numerals,

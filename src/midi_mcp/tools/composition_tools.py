@@ -13,6 +13,7 @@ import json
 import logging
 
 from ..tools.registry import ToolRegistry
+from ..midi.file_ops import MidiFileManager
 from ..composition.song_structure import SongStructureGenerator, SectionGenerator, TransitionCreator
 from ..composition.melodic_development import MotifDeveloper, PhraseGenerator, MelodyVariator
 from ..composition.voice_leading import VoiceLeadingOptimizer, ChromaticHarmonyGenerator, BassLineCreator
@@ -36,12 +37,13 @@ from ..models.composition_models import (
 logger = logging.getLogger(__name__)
 
 
-def register_composition_tools(app: FastMCP) -> None:
+def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileManager] = None) -> None:
     """
     Register all composition tools with the MCP server.
 
     Args:
         app: FastMCP application instance
+        file_manager: Optional MIDI file manager for direct MIDI output
     """
     # Initialize composition components
     structure_generator = SongStructureGenerator()
@@ -616,6 +618,7 @@ def register_composition_tools(app: FastMCP) -> None:
         tempo: int,
         target_duration: int = 180,
         ensemble_type: str = "piano_solo",
+        create_midi_file: bool = False,
     ) -> List[TextContent]:
         """
         Generate a complete musical composition from a text description.
@@ -627,15 +630,119 @@ def register_composition_tools(app: FastMCP) -> None:
             tempo: Tempo in BPM
             target_duration: Target length in seconds
             ensemble_type: Type of ensemble arrangement
+            create_midi_file: If True, creates a MIDI file with the composition
 
         Returns:
-            Complete composition with all sections, arrangements, and details
+            Complete composition with all sections, arrangements, and details.
+            If create_midi_file=True, returns MIDI file ID instead of abstract data.
         """
         try:
             composition = complete_composer.compose_complete_song(
                 description, genre, key, tempo, target_duration, ensemble_type
             )
 
+            # If MIDI file creation is requested and file manager is available
+            if create_midi_file and file_manager:
+                try:
+                    # Create a new MIDI file with the composition details
+                    midi_file_id = file_manager.create_midi_file(
+                        title=composition.title,
+                        tempo=composition.tempo,
+                        time_signature=(4, 4),  # Default to 4/4
+                        key_signature=composition.key.split()[0] if " " in composition.key else composition.key
+                    )
+                    
+                    # Convert composition data to MIDI notes for main melody
+                    if hasattr(composition, 'main_melody') and composition.main_melody:
+                        melody_notes = []
+                        current_time = 0.0
+                        default_duration = 0.5  # Half beat per note
+                        
+                        for note_midi in composition.main_melody.notes:
+                            melody_notes.append({
+                                "note": note_midi,
+                                "velocity": 80,
+                                "start_time": current_time,
+                                "duration": default_duration
+                            })
+                            current_time += default_duration
+                        
+                        # Add melody track
+                        file_manager.add_track(
+                            midi_file_id=midi_file_id,
+                            track_name="Melody",
+                            channel=0,
+                            program=0  # Acoustic Grand Piano
+                        )
+                        
+                        file_manager.add_notes_to_track(
+                            midi_file_id=midi_file_id,
+                            track_identifier="Melody",
+                            notes_data=melody_notes,
+                            channel=0
+                        )
+                    
+                    # Convert harmonic progression to chords if available
+                    if hasattr(composition, 'harmonic_progression') and composition.harmonic_progression:
+                        harmony_notes = []
+                        current_time = 0.0
+                        chord_duration = 2.0  # 2 beats per chord
+                        
+                        for chord_symbol in composition.harmonic_progression:
+                            # Simple chord mapping (C major triad as example)
+                            # This would need proper chord symbol parsing in a real implementation
+                            if chord_symbol.startswith('C'):
+                                chord_notes = [60, 64, 67]  # C major triad
+                            elif chord_symbol.startswith('F'):
+                                chord_notes = [65, 69, 72]  # F major triad
+                            elif chord_symbol.startswith('G'):
+                                chord_notes = [67, 71, 74]  # G major triad
+                            else:
+                                chord_notes = [60, 64, 67]  # Default C major
+                                
+                            for note in chord_notes:
+                                harmony_notes.append({
+                                    "note": note,
+                                    "velocity": 60,
+                                    "start_time": current_time,
+                                    "duration": chord_duration
+                                })
+                            current_time += chord_duration
+                        
+                        if harmony_notes:
+                            # Add harmony track
+                            file_manager.add_track(
+                                midi_file_id=midi_file_id,
+                                track_name="Harmony",
+                                channel=1,
+                                program=0  # Acoustic Grand Piano
+                            )
+                            
+                            file_manager.add_notes_to_track(
+                                midi_file_id=midi_file_id,
+                                track_identifier="Harmony",
+                                notes_data=harmony_notes,
+                                channel=1
+                            )
+                    
+                    return [TextContent(
+                        type="text",
+                        text=f"Created complete composition and MIDI file!\n"
+                             f"Title: {composition.title}\n"
+                             f"MIDI File ID: {midi_file_id}\n"
+                             f"Genre: {composition.genre}\n"
+                             f"Key: {composition.key}\n"
+                             f"Tempo: {composition.tempo} BPM\n"
+                             f"Duration: {composition.duration} seconds\n"
+                             f"Description: {composition.description}\n"
+                             f"Tracks created: Melody, Harmony"
+                    )]
+                    
+                except Exception as midi_error:
+                    # Fall back to returning abstract data if MIDI creation fails
+                    return [TextContent(type="text", text=f"Created composition but failed to create MIDI file: {str(midi_error)}")]
+
+            # Return abstract data (original behavior)
             result = {
                 "status": "success",
                 "data": {

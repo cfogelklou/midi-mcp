@@ -147,6 +147,94 @@ class MidiFileManager:
             self.logger.error(f"Failed to add track: {e}")
             raise MidiError(f"Failed to add track: {str(e)}")
 
+    def add_notes_to_track(
+        self,
+        midi_file_id: str,
+        track_identifier: Any,  # Can be track name (str) or index (int)
+        notes_data: List[Dict[str, Any]],  # [{"note": 60, "velocity": 100, "start_time": 0.0, "duration": 1.0}, ...]
+        channel: int = 0,
+    ) -> None:
+        """
+        Adds musical note data to a specified track within a MIDI file.
+
+        Args:
+            midi_file_id: ID of the MIDI file to modify.
+            track_identifier: Name (str) or index (int) of the track to add notes to.
+            notes_data: List of dictionaries, each representing a note with 'note' (MIDI number),
+                        'velocity', 'start_time' (in beats), and 'duration' (in beats).
+            channel: MIDI channel for the notes.
+        """
+        session = self._get_session(midi_file_id)
+
+        if not session.midi_file.tracks:
+            raise MidiError(f"MIDI file {midi_file_id} has no tracks. Add a track first.")
+
+        target_track = None
+        if isinstance(track_identifier, int):
+            if 0 <= track_identifier < len(session.midi_file.tracks):
+                target_track = session.midi_file.tracks[track_identifier]
+            else:
+                raise MidiError(f"Track index {track_identifier} out of bounds for MIDI file {midi_file_id}.")
+        elif isinstance(track_identifier, str):
+            for i, track in enumerate(session.midi_file.tracks):
+                # Check track name (meta message)
+                for msg in track:
+                    if msg.type == 'track_name' and msg.name == track_identifier:
+                        target_track = track
+                        break
+                if target_track:
+                    break
+            if not target_track:
+                raise MidiError(f"Track '{track_identifier}' not found in MIDI file {midi_file_id}.")
+        else:
+            raise ValueError("track_identifier must be an integer (index) or a string (name).")
+
+        # Sort notes by start_time, then by note number for deterministic ordering
+        notes_data.sort(key=lambda x: (x['start_time'], x['note']))
+
+        # Calculate ticks per beat
+        ticks_per_beat = session.midi_file.ticks_per_beat
+
+        # Create all MIDI events first, then sort by absolute time
+        all_events = []
+        
+        for note_info in notes_data:
+            note = note_info['note']
+            velocity = note_info['velocity']
+            start_time_beats = note_info['start_time']
+            duration_beats = note_info['duration']
+            
+            start_time_ticks = int(start_time_beats * ticks_per_beat)
+            end_time_ticks = int((start_time_beats + duration_beats) * ticks_per_beat)
+            
+            # Note On event
+            all_events.append({
+                'time': start_time_ticks,
+                'message': mido.Message('note_on', note=note, velocity=velocity, channel=channel)
+            })
+            
+            # Note Off event
+            all_events.append({
+                'time': end_time_ticks,
+                'message': mido.Message('note_off', note=note, velocity=0, channel=channel)
+            })
+        
+        # Sort all events by time, then by message type (note_off before note_on at same time)
+        all_events.sort(key=lambda x: (x['time'], x['message'].type == 'note_on'))
+        
+        # Convert absolute times to delta times and add to track
+        current_time = 0
+        for event in all_events:
+            delta_time = event['time'] - current_time
+            if delta_time < 0:
+                delta_time = 0  # Should not happen with sorted events, but safety check
+                
+            event['message'].time = delta_time
+            target_track.append(event['message'])
+            current_time = event['time']
+
+        self.logger.info(f"Added {len(notes_data)} notes to track '{track_identifier}' in MIDI file {midi_file_id}")
+
     def save_midi_file(self, midi_file_id: str, filename: str) -> str:
         """
         Save MIDI file to disk.

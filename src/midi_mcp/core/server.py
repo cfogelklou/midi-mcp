@@ -165,8 +165,8 @@ class MCPServer(MCPServerInterface):
     def _register_theory_tools(self) -> None:
         """Register music theory tools (Phase 3)."""
         try:
-            # Register Phase 3 tools (music theory)
-            register_theory_tools(self.app)
+            # Register Phase 3 tools (music theory) with file manager for direct MIDI output
+            register_theory_tools(self.app, self.file_manager)
             self.logger.debug("Registered music theory tools (Phase 3)")
         except Exception as e:
             self.logger.error(f"Error registering theory tools: {e}")
@@ -183,8 +183,8 @@ class MCPServer(MCPServerInterface):
     def _register_composition_tools(self) -> None:
         """Register advanced composition tools (Phase 5)."""
         try:
-            # Register Phase 5 tools (song structure, melodic development, etc.)
-            register_composition_tools(self.app)
+            # Register Phase 5 tools (song structure, melodic development, etc.) with file manager for direct MIDI output
+            register_composition_tools(self.app, self.file_manager)
             self.logger.debug("Registered composition tools (Phase 5)")
         except Exception as e:
             self.logger.error(f"Error registering composition tools: {e}")
