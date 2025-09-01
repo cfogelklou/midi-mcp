@@ -1,6 +1,6 @@
 """Generic MCP tools for genre knowledge and composition."""
 
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
 from typing import Dict, List, Optional, Any
 import logging
 
@@ -12,7 +12,7 @@ from ..genres.validator import AuthenticityValidator
 logger = logging.getLogger(__name__)
 
 
-def register_genre_tools(mcp: FastMCP) -> None:
+def register_genre_tools(app: FastMCP) -> None:
     """Register all genre-related MCP tools."""
 
     # Initialize genre system components inside function to avoid circular imports
@@ -20,7 +20,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
     composer = Composer(genre_manager)
     libraries = LibraryIntegration()
 
-    @mcp.tool()
+    @app.tool()
     def list_available_genres() -> Dict[str, Any]:
         """List all available genres with categories and descriptions.
 
@@ -33,7 +33,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error listing genres: {e}")
             return {"error": str(e)}
 
-    @mcp.tool()
+    @app.tool()
     def get_genre_characteristics(genre: str) -> Dict[str, Any]:
         """Get comprehensive characteristics for any musical genre.
 
@@ -49,7 +49,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error getting genre characteristics for {genre}: {e}")
             return {"error": str(e), "genre": genre}
 
-    @mcp.tool()
+    @app.tool()
     def compare_genres(genre1: str, genre2: str) -> Dict[str, Any]:
         """Compare characteristics between two genres.
 
@@ -66,7 +66,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error comparing {genre1} and {genre2}: {e}")
             return {"error": str(e), "genres": [genre1, genre2]}
 
-    @mcp.tool()
+    @app.tool()
     def create_progression(
         genre: str, key: str, variation: str = "standard", bars: Optional[int] = None
     ) -> Dict[str, Any]:
@@ -87,7 +87,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating {genre} progression in {key}: {e}")
             return {"error": str(e), "genre": genre, "key": key}
 
-    @mcp.tool()
+    @app.tool()
     def create_melody(genre: str, key: str, progression: Dict[str, Any], style: str = "typical") -> Dict[str, Any]:
         """Generate authentic melody for any genre.
 
@@ -106,7 +106,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating {genre} melody in {key}: {e}")
             return {"error": str(e), "genre": genre, "key": key}
 
-    @mcp.tool()
+    @app.tool()
     def create_beat(genre: str, tempo: int, complexity: str = "medium", variation: str = "standard") -> Dict[str, Any]:
         """Create authentic drum patterns for any genre.
 
@@ -125,7 +125,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating {genre} beat at {tempo}bpm: {e}")
             return {"error": str(e), "genre": genre, "tempo": tempo}
 
-    @mcp.tool()
+    @app.tool()
     def create_bass_line(genre: str, progression: Dict[str, Any], style: str = "typical") -> Dict[str, Any]:
         """Generate authentic bass lines for any genre.
 
@@ -143,7 +143,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating {genre} bass line: {e}")
             return {"error": str(e), "genre": genre}
 
-    @mcp.tool()
+    @app.tool()
     def create_arrangement(
         genre: str, song_structure: Dict[str, Any], instrumentation: str = "standard"
     ) -> Dict[str, Any]:
@@ -163,7 +163,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating {genre} arrangement: {e}")
             return {"error": str(e), "genre": genre}
 
-    @mcp.tool()
+    @app.tool()
     def apply_genre_feel(midi_file_id: str, genre: str, intensity: float = 0.8) -> Dict[str, Any]:
         """Apply genre-specific timing, articulation, and feel to existing MIDI.
 
@@ -197,7 +197,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error applying {genre} feel to {midi_file_id}: {e}")
             return {"error": str(e), "midi_file_id": midi_file_id, "genre": genre}
 
-    @mcp.tool()
+    @app.tool()
     def create_genre_template(genre: str, song_type: str, key: str, tempo: int) -> Dict[str, Any]:
         """Create complete song template for any genre.
 
@@ -241,7 +241,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating {genre} template: {e}")
             return {"error": str(e), "genre": genre}
 
-    @mcp.tool()
+    @app.tool()
     def create_fusion_style(primary_genre: str, secondary_genre: str, balance: float = 0.5) -> Dict[str, Any]:
         """Create fusion of two genres with adjustable balance.
 
@@ -305,7 +305,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
             logger.error(f"Error creating fusion of {primary_genre} and {secondary_genre}: {e}")
             return {"error": str(e), "primary_genre": primary_genre, "secondary_genre": secondary_genre}
 
-    @mcp.tool()
+    @app.tool()
     def validate_genre_authenticity(midi_file_id: str, target_genre: str) -> Dict[str, Any]:
         """Analyze how well music matches genre characteristics.
 

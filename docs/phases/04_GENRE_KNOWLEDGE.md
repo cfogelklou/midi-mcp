@@ -3,6 +3,8 @@
 ## Overview
 Implement comprehensive genre-specific musical knowledge with **generic, parameterized tools** that can work with any genre. This scalable approach enables AI agents to create authentic music in various styles without cluttering the API with genre-specific functions.
 
+**TODO**: Enhance generic composition tools (`create_progression`, `create_melody`, `create_beat`, `create_bass_line`, `create_arrangement`) to optionally output directly to a MIDI file, as detailed in `API-enhancements.md`.
+
 ## Goals
 - Build comprehensive genre knowledge databases
 - Implement **generic composition tools** that take genre as a parameter

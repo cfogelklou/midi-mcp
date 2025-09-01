@@ -8,6 +8,7 @@ Establish the basic MCP server framework with minimal MIDI functionality. This p
 - Implement basic MIDI note playing
 - Establish HIL testing workflow
 - Create project structure and development environment
+- TODO: Consider how basic MIDI tools can eventually integrate with direct MIDI file output from higher-level composition tools (see API-enhancements.md).
 
 ## Duration: Week 1 (5 days)
 

@@ -3,6 +3,8 @@
 ## Overview
 Integrate comprehensive music theory knowledge into the MCP server, enabling AI agents to create musically intelligent compositions using scales, chords, progressions, and harmonic relationships.
 
+**TODO**: Enhance tools like `create_chord_progression` to optionally output directly to a MIDI file, as detailed in `API-enhancements.md`.
+
 ## Goals
 - Implement comprehensive scale and chord libraries
 - Add chord progression generation and validation

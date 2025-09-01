@@ -3,6 +3,8 @@
 ## Overview
 Develop sophisticated composition tools that enable AI agents to create complete, multi-section musical works with proper song structure, arrangement, and development. This phase elevates the system from simple pattern generation to professional-level composition.
 
+**TODO**: Ensure all high-level composition tools, especially `compose_complete_song`, can directly output a complete MIDI file, as detailed in `API-enhancements.md`.
+
 ## Goals
 - Implement complete song structure generation (intro, verse, chorus, bridge, outro)
 - Add melodic development and variation techniques

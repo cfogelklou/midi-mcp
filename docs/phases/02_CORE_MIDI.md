@@ -3,6 +3,8 @@
 ## Overview
 This phase focuses on the core capabilities of creating, saving, loading, and playing MIDI files. The goal is to enable AI agents to work with MIDI data and hear their creations in real-time. This phase transforms the basic note-playing system into a foundational MIDI production environment.
 
+**TODO**: Implement the `add_musical_data_to_midi_file` tool as proposed in `API-enhancements.md` to allow direct addition of musical data to MIDI files.
+
 ## Goals
 - Implement complete MIDI file I/O operations (create, save, load)
 - Add multi-track MIDI composition tools
