@@ -2,23 +2,21 @@
 
 from typing import Any, Dict, List, Optional
 from mcp.server.fastmcp import FastMCP
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent
 import json
 
-from ..tools.registry import ToolRegistry
 from ..theory import (
     ScaleManager, ChordManager, ProgressionManager, 
     KeyManager, VoiceLeadingManager, MusicAnalyzer
 )
 from ..models.theory_models import Note
 
-def register_theory_tools(app: FastMCP, tool_registry: ToolRegistry) -> None:
+def register_theory_tools(app: FastMCP) -> None:
     """
     Register all music theory tools with the MCP server.
     
     Args:
         app: FastMCP application instance
-        tool_registry: Tool registry for tracking tools
     """
     # Initialize theory managers
     scale_manager = ScaleManager()
@@ -533,32 +531,3 @@ def register_theory_tools(app: FastMCP, tool_registry: ToolRegistry) -> None:
                 type="text",
                 text=f"Error getting progressions: {str(e)}"
             )]
-    
-    # Register all tools with the registry
-    tools = [
-        ("get_scale_notes", "Generate notes for a specific scale"),
-        ("identify_intervals", "Identify intervals between notes"),
-        ("transpose_to_key", "Transpose notes between keys"),
-        ("build_chord", "Build chord with specified parameters"),
-        ("analyze_chord", "Analyze notes to identify chords"),
-        ("get_chord_tones_and_extensions", "Break down chord symbol"),
-        ("create_chord_progression", "Create chord progression in key"),
-        ("analyze_progression", "Analyze chord progression"),
-        ("suggest_next_chord", "Suggest next chord in progression"),
-        ("detect_key", "Detect key from MIDI notes"),
-        ("suggest_modulation", "Suggest modulation between keys"),
-        ("validate_voice_leading", "Validate voice leading"),
-        ("analyze_music", "Comprehensive music analysis"),
-        ("get_available_scales", "Get available scale types"),
-        ("get_common_progressions", "Get common chord progressions")
-    ]
-    
-    for tool_name, description in tools:
-        tool = Tool(
-            name=tool_name,
-            description=description,
-            inputSchema={"type": "object", "properties": {}, "required": []}
-        )
-        tool_registry.register(tool_name, tool, locals()[tool_name])
-    
-    print(f"Registered {len(tools)} music theory tools")

@@ -26,13 +26,12 @@ from ..models.composition_models import (
 logger = logging.getLogger(__name__)
 
 
-def register_composition_tools(app: FastMCP, tool_registry: ToolRegistry) -> None:
+def register_composition_tools(app: FastMCP) -> None:
     """
     Register all composition tools with the MCP server.
     
     Args:
         app: FastMCP application instance
-        tool_registry: Tool registry for tracking tools
     """
     # Initialize composition components
     structure_generator = SongStructureGenerator()

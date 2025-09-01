@@ -159,7 +159,7 @@ class MCPServer(MCPServerInterface):
         """Register MIDI-specific tools."""
         if self.config.enable_midi:
             # Register Phase 1 tools (basic MIDI operations)
-            register_midi_tools(self.app, self.tool_registry, self.midi_manager)
+            register_midi_tools(self.app, self.midi_manager)
             
             # Register Phase 2 tools (file operations, playback, analysis)
             register_midi_file_tools(
@@ -179,7 +179,7 @@ class MCPServer(MCPServerInterface):
         """Register music theory tools (Phase 3)."""
         try:
             # Register Phase 3 tools (music theory)
-            register_theory_tools(self.app, self.tool_registry)
+            register_theory_tools(self.app)
             self.logger.debug("Registered music theory tools (Phase 3)")
         except Exception as e:
             self.logger.error(f"Error registering theory tools: {e}")
@@ -197,7 +197,7 @@ class MCPServer(MCPServerInterface):
         """Register advanced composition tools (Phase 5)."""
         try:
             # Register Phase 5 tools (song structure, melodic development, etc.)
-            register_composition_tools(self.app, self.tool_registry)
+            register_composition_tools(self.app)
             self.logger.debug("Registered composition tools (Phase 5)")
         except Exception as e:
             self.logger.error(f"Error registering composition tools: {e}")
