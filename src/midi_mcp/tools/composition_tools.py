@@ -653,19 +653,30 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                     )
                     
                     # Convert composition data to MIDI notes for main melody
-                    if hasattr(composition, 'main_melody') and composition.main_melody:
+                    if composition.melody and 'notes' in composition.melody:
                         melody_notes = []
                         current_time = 0.0
-                        default_duration = 0.5  # Half beat per note
                         
-                        for note_midi in composition.main_melody.notes:
-                            melody_notes.append({
-                                "note": note_midi,
-                                "velocity": 80,
-                                "start_time": current_time,
-                                "duration": default_duration
-                            })
-                            current_time += default_duration
+                        # Get melody notes and rhythm
+                        notes = composition.melody['notes']
+                        rhythm = composition.melody.get('rhythm', [0.5] * len(notes))
+                        
+                        # Extend melody to fill the target duration
+                        target_duration_beats = target_duration * (tempo / 60.0)  # Convert to beats
+                        
+                        while current_time < target_duration_beats:
+                            for i, note_midi in enumerate(notes):
+                                if current_time >= target_duration_beats:
+                                    break
+                                    
+                                note_duration = rhythm[i] if i < len(rhythm) else 0.5
+                                melody_notes.append({
+                                    "note": note_midi,
+                                    "velocity": 80,
+                                    "start_time": current_time,
+                                    "duration": note_duration
+                                })
+                                current_time += note_duration
                         
                         # Add melody track
                         file_manager.add_track(
@@ -683,31 +694,49 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                         )
                     
                     # Convert harmonic progression to chords if available
-                    if hasattr(composition, 'harmonic_progression') and composition.harmonic_progression:
+                    if composition.harmony:
                         harmony_notes = []
                         current_time = 0.0
-                        chord_duration = 2.0  # 2 beats per chord
+                        chord_duration = 4.0  # 4 beats per chord (1 measure)
+                        target_duration_beats = target_duration * (tempo / 60.0)
                         
-                        for chord_symbol in composition.harmonic_progression:
-                            # Simple chord mapping (C major triad as example)
-                            # This would need proper chord symbol parsing in a real implementation
-                            if chord_symbol.startswith('C'):
-                                chord_notes = [60, 64, 67]  # C major triad
-                            elif chord_symbol.startswith('F'):
-                                chord_notes = [65, 69, 72]  # F major triad
-                            elif chord_symbol.startswith('G'):
-                                chord_notes = [67, 71, 74]  # G major triad
-                            else:
-                                chord_notes = [60, 64, 67]  # Default C major
+                        while current_time < target_duration_beats:
+                            for chord_data in composition.harmony:
+                                if current_time >= target_duration_beats:
+                                    break
+                                    
+                                # Extract chord information
+                                if isinstance(chord_data, dict):
+                                    chord_symbol = chord_data.get('symbol', 'C')
+                                    root_note = chord_data.get('root', 60)
+                                else:
+                                    chord_symbol = str(chord_data)
+                                    root_note = 60
                                 
-                            for note in chord_notes:
-                                harmony_notes.append({
-                                    "note": note,
-                                    "velocity": 60,
-                                    "start_time": current_time,
-                                    "duration": chord_duration
-                                })
-                            current_time += chord_duration
+                                # Simple chord mapping
+                                if 'C' in chord_symbol:
+                                    chord_notes = [60, 64, 67]  # C major triad
+                                elif 'F' in chord_symbol:
+                                    chord_notes = [65, 69, 72]  # F major triad  
+                                elif 'G' in chord_symbol:
+                                    chord_notes = [67, 71, 74]  # G major triad
+                                elif 'A' in chord_symbol:
+                                    chord_notes = [69, 73, 76]  # A major triad
+                                elif 'B' in chord_symbol:
+                                    chord_notes = [71, 75, 78]  # B major triad
+                                elif 'E' in chord_symbol:
+                                    chord_notes = [64, 68, 71]  # E major triad
+                                else:
+                                    chord_notes = [60, 64, 67]  # Default C major
+                                    
+                                for note in chord_notes:
+                                    harmony_notes.append({
+                                        "note": note,
+                                        "velocity": 60,
+                                        "start_time": current_time,
+                                        "duration": chord_duration
+                                    })
+                                current_time += chord_duration
                         
                         if harmony_notes:
                             # Add harmony track
@@ -747,40 +776,36 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
                 "status": "success",
                 "data": {
                     "title": composition.title,
-                    "composer": composition.composer,
                     "genre": composition.genre,
                     "key": composition.key,
                     "tempo": composition.tempo,
                     "duration": composition.duration,
                     "description": composition.description,
-                    "song_structure": {
-                        "genre": composition.song_structure.genre,
-                        "tempo": composition.song_structure.tempo,
-                        "total_duration": composition.song_structure.total_duration,
+                    "time_signature": composition.time_signature,
+                    "overall_energy": composition.overall_energy,
+                    "harmonic_complexity_score": composition.harmonic_complexity_score,
+                    "style_characteristics": composition.style_characteristics,
+                    "melody": composition.melody,
+                    "harmony": composition.harmony,
+                    "structure": {
+                        "genre": composition.structure.genre if composition.structure else genre,
+                        "tempo": composition.structure.tempo if composition.structure else tempo,
+                        "total_duration": composition.structure.total_duration if composition.structure else target_duration,
                         "sections": [
                             {
                                 "type": section.type.value,
                                 "duration": section.duration,
-                                "measures": section.measures,
-                                "energy_level": section.energy_level,
+                                "measures": getattr(section, 'measures', 4),
+                                "energy_level": getattr(section, 'energy_level', 0.5),
                             }
-                            for section in composition.song_structure.sections
-                        ],
+                            for section in composition.structure.sections
+                        ] if composition.structure else [],
                     },
-                    "main_melody": {
-                        "notes": composition.main_melody.notes,
-                        "rhythm": composition.main_melody.rhythm,
-                        "register": composition.main_melody.register,
-                    },
-                    "harmonic_progression": composition.harmonic_progression,
                     "arrangement": {
-                        "ensemble_type": composition.arrangement.ensemble_type,
-                        "style": composition.arrangement.style,
-                        "parts": list(composition.arrangement.parts.keys()),
-                    },
-                    "sections": composition.sections,
-                    "composition_notes": composition.composition_notes,
-                    "metadata": composition.metadata,
+                        "ensemble_type": composition.arrangement.ensemble_type if composition.arrangement else ensemble_type,
+                        "style": getattr(composition.arrangement, 'style', 'standard') if composition.arrangement else 'standard',
+                        "parts": list(composition.arrangement.parts.keys()) if composition.arrangement and hasattr(composition.arrangement, 'parts') else [],
+                    } if composition.arrangement else {"ensemble_type": ensemble_type, "style": "standard", "parts": []},
                 },
             }
 
@@ -814,7 +839,6 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
             # In a real implementation, would need proper deserialization
             complete_comp = CompleteComposition(
                 title=composition.get("title", "Untitled"),
-                composer=composition.get("composer", "Unknown"),
                 genre=composition.get("genre", "unknown"),
                 key=composition.get("key", "C major"),
                 tempo=composition.get("tempo", 120),

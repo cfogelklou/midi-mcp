@@ -128,6 +128,7 @@ class CompleteComposer:
                 melody={"notes": main_melody.notes, "rhythm": main_melody.rhythm, "register": main_melody.register},
                 harmony=base_progression,
                 arrangement=arrangement,
+                duration=float(request.target_duration),  # Set the actual duration
                 style_characteristics=[
                     f"mood: {request.mood}" if request.mood else "no specific mood",
                     f"ensemble: {ensemble_type}",
@@ -206,41 +207,154 @@ class CompleteComposer:
 
         base_chords = progression_result.get("chord_progression", [])
 
-        # If no chords generated, create a basic progression
+        # If no chords generated from genre composer, create fallback progression based on genre characteristics
         if not base_chords:
-            # Create basic blues progression
-            if request.genre == "blues":
-                base_chords = [
-                    {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                    {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                    {"symbol": "A7", "root": 69, "duration": 4},  # IV7
-                    {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                    {"symbol": "B7", "root": 71, "duration": 4},  # V7
-                    {"symbol": "A7", "root": 69, "duration": 4},  # IV7
-                    {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                    {"symbol": "B7", "root": 71, "duration": 4},  # V7
-                ]
-            else:
-                # Generic I-V-vi-IV progression
-                base_chords = [
-                    {"symbol": "E", "root": 64, "duration": 4},  # I
-                    {"symbol": "B", "root": 71, "duration": 4},  # V
-                    {"symbol": "C#m", "root": 61, "duration": 4},  # vi
-                    {"symbol": "A", "root": 69, "duration": 4},  # IV
-                ]
+            logger.warning(f"No genre-specific progression found for {request.genre}, creating fallback")
+            
+            # Get genre characteristics to inform the fallback
+            genre_data = self.genre_manager.get_genre_data(request.genre)
+            
+            # Use genre data to create appropriate progression
+            if genre_data and "progressions" in genre_data:
+                # Use the first available progression from genre data
+                genre_progressions = genre_data["progressions"]
+                if "standard" in genre_progressions:
+                    progression_data = genre_progressions["standard"]
+                    if "pattern" in progression_data:
+                        progression_pattern = progression_data["pattern"]
+                        base_chords = [
+                            {"symbol": self._convert_roman_to_chord(chord, request.key), 
+                             "root": self._get_chord_root_from_roman(chord, request.key), 
+                             "duration": 4}
+                            for chord in progression_pattern
+                        ]
+                elif genre_progressions:
+                    # Use first available progression
+                    first_key = list(genre_progressions.keys())[0]
+                    progression_data = genre_progressions[first_key]
+                    if "pattern" in progression_data:
+                        progression_pattern = progression_data["pattern"]
+                        base_chords = [
+                            {"symbol": self._convert_roman_to_chord(chord, request.key), 
+                             "root": self._get_chord_root_from_roman(chord, request.key), 
+                             "duration": 4}
+                            for chord in progression_pattern
+                        ]
+            
+            # If still no chords from genre data, use genre-appropriate defaults
+            if not base_chords:
+                if request.genre == "ambient":
+                    base_chords = [
+                        {"symbol": "Cm", "root": 60, "duration": 4},   # i
+                        {"symbol": "Bb", "root": 70, "duration": 4},   # VII
+                        {"symbol": "Ab", "root": 68, "duration": 4},   # VI
+                        {"symbol": "Bb", "root": 70, "duration": 4},   # VII
+                    ]
+                elif request.genre == "blues":
+                    base_chords = [
+                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
+                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
+                        {"symbol": "A7", "root": 69, "duration": 4},  # IV7
+                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
+                        {"symbol": "B7", "root": 71, "duration": 4},  # V7
+                        {"symbol": "A7", "root": 69, "duration": 4},  # IV7
+                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
+                        {"symbol": "B7", "root": 71, "duration": 4},  # V7
+                    ]
+                elif request.genre in ["rock", "pop"]:
+                    base_chords = [
+                        {"symbol": "C", "root": 60, "duration": 4},  # I
+                        {"symbol": "G", "root": 67, "duration": 4},  # V
+                        {"symbol": "Am", "root": 57, "duration": 4},  # vi
+                        {"symbol": "F", "root": 65, "duration": 4},  # IV
+                    ]
+                elif request.genre == "jazz":
+                    base_chords = [
+                        {"symbol": "Cmaj7", "root": 60, "duration": 4},  # Imaj7
+                        {"symbol": "Am7", "root": 57, "duration": 4},   # vi7
+                        {"symbol": "Dm7", "root": 62, "duration": 4},   # ii7
+                        {"symbol": "G7", "root": 67, "duration": 4},    # V7
+                    ]
+                elif request.genre == "hip_hop":
+                    base_chords = [
+                        {"symbol": "Dm", "root": 62, "duration": 8},  # ii (longer duration)
+                        {"symbol": "G", "root": 67, "duration": 8},   # V
+                    ]
+                else:
+                    # Generic progression for any other genre
+                    base_chords = [
+                        {"symbol": "C", "root": 60, "duration": 4},  # I
+                        {"symbol": "G", "root": 67, "duration": 4},  # V
+                        {"symbol": "Am", "root": 57, "duration": 4},  # vi
+                        {"symbol": "F", "root": 65, "duration": 4},  # IV
+                    ]
 
-        # Enhance with chromatic harmony if appropriate for genre (but skip for now to avoid errors)
-        # if request.genre in ["jazz", "blues", "rock"] and len(base_chords) > 0:
-        #     try:
-        #         enhanced_progression = self.chromatic_harmony_generator.add_chromatic_harmony(
-        #             [chord["symbol"] for chord in base_chords], request.key, "medium"
-        #         )
-        #         return enhanced_progression.get("enhanced_progression", base_chords)
-        #     except Exception as e:
-        #         logger.warning(f"Could not enhance harmony: {e}")
-        #         return base_chords
+        # Extend the harmonic progression to fill the target duration
+        beats_per_minute = request.tempo
+        target_duration_beats = request.target_duration * (beats_per_minute / 60.0)
+        
+        # Calculate duration of base progression
+        base_progression_duration = sum(chord.get("duration", 4) for chord in base_chords)
+        repetitions_needed = max(1, int(target_duration_beats / base_progression_duration))
+        
+        # Extend harmony by repeating the base progression
+        extended_harmony = []
+        for rep in range(repetitions_needed):
+            for chord in base_chords:
+                extended_harmony.append(chord.copy())
+        
+        # If we still need more time, add a few more chords
+        current_duration = sum(chord.get("duration", 4) for chord in extended_harmony)
+        while current_duration < target_duration_beats:
+            # Add the first chord again
+            extended_harmony.append(base_chords[0].copy())
+            current_duration += base_chords[0].get("duration", 4)
 
-        return base_chords
+        return extended_harmony
+
+    def _get_chord_root(self, chord_symbol: str, key: str) -> int:
+        """Get MIDI note number for chord root based on symbol and key."""
+        # Simple mapping - in a full implementation would use music21
+        note_to_midi = {
+            'C': 60, 'D': 62, 'E': 64, 'F': 65, 'G': 67, 'A': 69, 'B': 71,
+            'Db': 61, 'Eb': 63, 'Gb': 66, 'Ab': 68, 'Bb': 70,
+            'C#': 61, 'D#': 63, 'F#': 66, 'G#': 68, 'A#': 70
+        }
+        
+        # Extract root note from chord symbol (first letter(s))
+        root_note = chord_symbol[0]
+        if len(chord_symbol) > 1 and chord_symbol[1] in ['b', '#']:
+            root_note += chord_symbol[1]
+            
+        return note_to_midi.get(root_note, 60)  # Default to C if not found
+
+    def _convert_roman_to_chord(self, roman_numeral: str, key: str) -> str:
+        """Convert Roman numeral to chord symbol."""
+        # Simple conversion - in full implementation would use music21
+        major_key_map = {
+            'I': 'C', 'ii': 'Dm', 'iii': 'Em', 'IV': 'F', 'V': 'G', 'vi': 'Am', 'vii°': 'Bdim',
+            'V7': 'G7', 'ii7': 'Dm7', 'vi7': 'Am7', 'Imaj7': 'Cmaj7',
+            'VII': 'Bb'  # Flat VII common in rock
+        }
+        
+        minor_key_map = {
+            'i': 'Cm', 'ii°': 'Ddim', 'III': 'Eb', 'iv': 'Fm', 'v': 'Gm', 'VI': 'Ab', 'VII': 'Bb',
+            'i7': 'Cm7', 'iv7': 'Fm7', 'VI7': 'Ab7', 'VII7': 'Bb7'
+        }
+        
+        # Determine if key is major or minor (simplified)
+        is_minor = 'm' in key.lower() or key.lower() in ['am', 'em', 'bm', 'f#m', 'c#m', 'g#m', 'd#m', 'dm', 'gm', 'cm', 'fm', 'bbm', 'ebm', 'abm', 'dbm', 'gbm']
+        
+        chord_map = minor_key_map if is_minor else major_key_map
+        base_chord = chord_map.get(roman_numeral, 'C')
+        
+        # Transpose to correct key (simplified - just return as is for now)
+        return base_chord
+
+    def _get_chord_root_from_roman(self, roman_numeral: str, key: str) -> int:
+        """Get MIDI root note from Roman numeral and key."""
+        chord_symbol = self._convert_roman_to_chord(roman_numeral, key)
+        return self._get_chord_root(chord_symbol, key)
 
     def _create_main_melody(self, request: CompositionRequest, harmony: List[Dict[str, Any]]) -> Melody:
         """Create the main melody over the harmonic foundation."""
@@ -254,25 +368,51 @@ class CompleteComposer:
         )
 
         # Extract melody from phrase
-        melody_notes = phrase.melody.notes if hasattr(phrase.melody, "notes") else [60, 62, 64, 65]
-        melody_rhythm = phrase.melody.rhythm if hasattr(phrase.melody, "rhythm") else [0.25] * len(melody_notes)
+        base_melody_notes = phrase.melody.notes if hasattr(phrase.melody, "notes") else [60, 62, 64, 65]
+        base_melody_rhythm = phrase.melody.rhythm if hasattr(phrase.melody, "rhythm") else [0.5] * len(base_melody_notes)
+
+        # Calculate how many times to repeat/vary the melody to fill the target duration
+        beats_per_minute = request.tempo
+        target_duration_beats = request.target_duration * (beats_per_minute / 60.0)
+        
+        # Calculate duration of base melody
+        base_melody_duration = sum(base_melody_rhythm)
+        repetitions_needed = max(1, int(target_duration_beats / base_melody_duration))
+        
+        # Extend melody by repeating and varying the base melody
+        extended_melody_notes = []
+        extended_melody_rhythm = []
+        
+        for rep in range(repetitions_needed):
+            current_notes = base_melody_notes.copy()
+            current_rhythm = base_melody_rhythm.copy()
+            
+            # Apply variations every few repetitions to avoid monotony
+            if rep % 4 == 1:  # Transpose up
+                current_notes = [note + 2 for note in current_notes]
+            elif rep % 4 == 2:  # Transpose down
+                current_notes = [note - 2 for note in current_notes]
+            elif rep % 4 == 3:  # Rhythmic variation
+                current_rhythm = [r * 0.75 if i % 2 == 0 else r * 1.25 for i, r in enumerate(current_rhythm)]
+            
+            extended_melody_notes.extend(current_notes)
+            extended_melody_rhythm.extend(current_rhythm)
 
         # Apply mood-based adjustments
         if request.mood == "happy":
             # Adjust to major intervals, higher register
-            melody_notes = [note + (2 if note % 12 in [1, 3, 6, 8, 10] else 0) for note in melody_notes]
-            melody_notes = [note + 12 if note < 60 else note for note in melody_notes]
+            extended_melody_notes = [note + (2 if note % 12 in [1, 3, 6, 8, 10] else 0) for note in extended_melody_notes]
+            extended_melody_notes = [note + 12 if note < 60 else note for note in extended_melody_notes]
         elif request.mood == "sad":
             # Adjust to minor intervals, lower register
-            melody_notes = [note - 12 if note > 72 else note for note in melody_notes]
+            extended_melody_notes = [note - 12 if note > 72 else note for note in extended_melody_notes]
         elif request.mood == "energetic":
             # Add rhythmic activity
-            melody_rhythm = [r / 2 for r in melody_rhythm]
-            melody_notes = melody_notes + melody_notes  # Double the notes
+            extended_melody_rhythm = [r / 2 for r in extended_melody_rhythm]
 
         return Melody(
-            notes=melody_notes,
-            rhythm=melody_rhythm,
+            notes=extended_melody_notes,
+            rhythm=extended_melody_rhythm,
             phrase_structure={
                 "type": "period",
                 "phrases": ["a", "a'", "b", "a''"],
