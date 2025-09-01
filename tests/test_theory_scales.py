@@ -1,8 +1,8 @@
 """Tests for music theory scales module."""
 
 import pytest
-from src.midi_mcp.theory.scales import ScaleManager
-from src.midi_mcp.models.theory_models import Scale, Note
+from midi_mcp.theory.scales import ScaleManager
+from midi_mcp.models.theory_models import Scale, Note
 
 
 class TestScaleManager:

@@ -1,7 +1,7 @@
 """Tests for comprehensive music theory analysis module."""
 
 import pytest
-from src.midi_mcp.theory.analysis import MusicAnalyzer
+from midi_mcp.theory.analysis import MusicAnalyzer
 
 
 class TestMusicAnalyzer:
@@ -95,8 +95,8 @@ class TestMusicAnalyzer:
 
     def test_suggest_harmonic_improvements_good_progression(self, music_analyzer):
         """Test harmonic improvement suggestions for good progression."""
-        from src.midi_mcp.theory.progressions import ProgressionManager
-        from src.midi_mcp.models.theory_models import ChordProgression
+        from midi_mcp.theory.progressions import ProgressionManager
+        from midi_mcp.models.theory_models import ChordProgression
 
         progression_manager = ProgressionManager()
 
@@ -115,7 +115,7 @@ class TestMusicAnalyzer:
 
     def test_suggest_harmonic_improvements_weak_progression(self, music_analyzer):
         """Test harmonic improvement suggestions for weak progression."""
-        from src.midi_mcp.theory.progressions import ProgressionManager
+        from midi_mcp.theory.progressions import ProgressionManager
 
         progression_manager = ProgressionManager()
 
@@ -136,7 +136,7 @@ class TestMusicAnalyzer:
 
     def test_identify_musical_form_short_phrase(self, music_analyzer):
         """Test musical form identification for short phrase."""
-        from src.midi_mcp.theory.progressions import ProgressionManager
+        from midi_mcp.theory.progressions import ProgressionManager
 
         progression_manager = ProgressionManager()
 
@@ -158,7 +158,7 @@ class TestMusicAnalyzer:
 
     def test_identify_musical_form_longer_piece(self, music_analyzer):
         """Test musical form identification for longer piece."""
-        from src.midi_mcp.theory.progressions import ProgressionManager
+        from midi_mcp.theory.progressions import ProgressionManager
 
         progression_manager = ProgressionManager()
 
@@ -179,7 +179,7 @@ class TestMusicAnalyzer:
 
     def test_analyze_empty_input(self, music_analyzer):
         """Test analysis with empty input."""
-        analysis = music_analyzer.analyze_midi_file([])
+        analysis = music_analyzer.analyze_midi_file([], timestamps=[])
 
         # Should handle empty input gracefully
         assert analysis.key_analysis.most_likely_key == "C"  # Default
@@ -187,7 +187,7 @@ class TestMusicAnalyzer:
 
     def test_analyze_single_note(self, music_analyzer):
         """Test analysis with single note."""
-        analysis = music_analyzer.analyze_midi_file([60])  # Single C
+        analysis = music_analyzer.analyze_midi_file([60], timestamps=[0.0])  # Single C
 
         # Should handle single note
         assert analysis.key_analysis.most_likely_key == "C"

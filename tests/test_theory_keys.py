@@ -1,7 +1,7 @@
 """Tests for music theory keys module."""
 
 import pytest
-from src.midi_mcp.theory.keys import KeyManager
+from midi_mcp.theory.keys import KeyManager
 
 
 class TestKeyManager:

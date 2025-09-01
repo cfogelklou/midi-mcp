@@ -1,9 +1,9 @@
 """Tests for music theory voice leading module."""
 
 import pytest
-from src.midi_mcp.theory.voice_leading import VoiceLeadingManager
-from src.midi_mcp.theory.chords import ChordManager
-from src.midi_mcp.models.theory_models import Note
+from midi_mcp.theory.voice_leading import VoiceLeadingManager
+from midi_mcp.theory.chords import ChordManager
+from midi_mcp.models.theory_models import Note
 
 
 class TestVoiceLeadingManager:
@@ -106,7 +106,7 @@ class TestVoiceLeadingManager:
         chord_progression = [
             chord_manager.build_chord("C", "major", 0, "close", 4),
             chord_manager.build_chord("G", "major", 0, "close", 4),
-            chord_manager.build_chord("Am", "minor", 0, "close", 4),
+            chord_manager.build_chord("A", "minor", 0, "close", 4),
             chord_manager.build_chord("F", "major", 0, "close", 4),
         ]
 
@@ -175,7 +175,7 @@ class TestVoiceLeadingManager:
         chord1_notes = [Note.from_midi(48), Note.from_midi(52), Note.from_midi(55)]  # C3 E3 G3
         chord2_notes = [Note.from_midi(60), Note.from_midi(64), Note.from_midi(79)]  # C4 E4 G5 (large leap)
 
-        from src.midi_mcp.models.theory_models import Chord, Quality, ChordType
+        from midi_mcp.models.theory_models import Chord, Quality, ChordType
 
         chord1 = Chord(
             root=Note.from_midi(48), quality=Quality.MAJOR, chord_type=ChordType.TRIAD, notes=chord1_notes, symbol="C"
@@ -205,7 +205,7 @@ class TestVoiceLeadingManager:
         for note in voicing[0].notes:
             assert piano_range[0] <= note.midi_note <= piano_range[1]
 
-    def test_voice_crossing_detection(self, voice_leading_manager):
+    def test_voice_crossing_detection(self, voice_leading_manager, chord_manager):
         """Test detection of voice crossing."""
         # Create chord with voice crossing (bass higher than tenor)
         crossing_notes = [
@@ -215,7 +215,7 @@ class TestVoiceLeadingManager:
             Note.from_midi(72),  # C5 (soprano)
         ]
 
-        from src.midi_mcp.models.theory_models import Chord, Quality, ChordType
+        from midi_mcp.models.theory_models import Chord, Quality, ChordType
 
         crossing_chord = Chord(
             root=Note.from_midi(60), quality=Quality.MAJOR, chord_type=ChordType.TRIAD, notes=crossing_notes, symbol="C"

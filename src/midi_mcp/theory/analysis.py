@@ -304,7 +304,7 @@ class MusicAnalyzer:
 
     def _group_notes_by_time(self, midi_notes: List[int], timestamps: List[float]) -> List[Tuple[List[int], float]]:
         """Group notes into time windows for chord analysis."""
-        if len(midi_notes) != len(timestamps):
+        if len(midi_notes) != len(timestamps) or len(midi_notes) == 0:
             return []
 
         # Simple grouping by time windows (e.g., every 2 seconds)
