@@ -10,7 +10,7 @@ python-rtmidi>=1.5.0
 # Music theory and composition libraries
 music21>=9.1.0  # Comprehensive music theory toolkit (MIT)
 pretty_midi>=0.2.10  # Higher-level MIDI analysis and synthesis
-muspy>=1.0.0  # Modern music generation toolkit
+muspy>=0.5.0  # Modern music generation toolkit
 
 # Async and concurrency support
 asyncio
