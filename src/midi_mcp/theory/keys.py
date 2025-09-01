@@ -23,11 +23,20 @@ class KeyManager:
 
         # Major and minor scale templates (pitch class sets)
         self.major_template = {0, 2, 4, 5, 7, 9, 11}  # C major
-        self.minor_template = {0, 2, 3, 5, 7, 8, 10}  # C minor (natural)
+        self.minor_template = {0, 2, 3, 5, 7, 8, 10}  # C minor
 
         # Key profiles for key detection (Krumhansl-Schmuckler)
         self.major_profile = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88]
         self.minor_profile = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
+
+    def _note_to_pitch_class(self, note: str) -> int:
+        """Convert note name to pitch class, handling both sharps and flats."""
+        if note in NOTE_NAMES:
+            return NOTE_NAMES.index(note)
+        elif note in FLAT_NOTE_NAMES:
+            return FLAT_NOTE_NAMES.index(note)
+        else:
+            raise ValueError(f"Unknown note name: {note}")
 
     def detect_key(self, midi_notes: List[int], timestamps: Optional[List[float]] = None) -> KeyAnalysis:
         """
@@ -499,7 +508,13 @@ class KeyManager:
 
     def _generate_scale_notes(self, root: str, is_minor: bool) -> List[str]:
         """Generate scale notes for a key."""
-        root_pc = NOTE_NAMES.index(root)
+        # Handle both sharp and flat note names
+        if root in NOTE_NAMES:
+            root_pc = NOTE_NAMES.index(root)
+        elif root in FLAT_NOTE_NAMES:
+            root_pc = FLAT_NOTE_NAMES.index(root)
+        else:
+            raise ValueError(f"Unknown note name: {root}")
 
         if is_minor:
             intervals = [0, 2, 3, 5, 7, 8, 10]  # Natural minor
@@ -518,14 +533,20 @@ class KeyManager:
         root = key.replace("m", "")
         is_minor = "m" in key
 
+        # Handle both sharp and flat note names
+        if root in NOTE_NAMES:
+            root_pc = NOTE_NAMES.index(root)
+        elif root in FLAT_NOTE_NAMES:
+            root_pc = FLAT_NOTE_NAMES.index(root)
+        else:
+            raise ValueError(f"Unknown note name: {root}")
+
         if is_minor:
             # Relative major is a minor third up
-            root_pc = NOTE_NAMES.index(root)
             major_pc = (root_pc + 3) % 12
             return NOTE_NAMES[major_pc]
         else:
             # Relative minor is a minor third down
-            root_pc = NOTE_NAMES.index(root)
             minor_pc = (root_pc - 3) % 12
             return NOTE_NAMES[minor_pc] + "m"
 

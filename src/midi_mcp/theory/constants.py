@@ -30,11 +30,13 @@ SCALE_PATTERNS = {
     "aeolian": [2, 1, 2, 2, 1, 2, 2],  # Same as natural minor
     "locrian": [1, 2, 2, 1, 2, 2, 2],
     # Minor scales
+    "minor": [2, 1, 2, 2, 1, 2, 2],  # Alias for natural minor
     "natural_minor": [2, 1, 2, 2, 1, 2, 2],
     "harmonic_minor": [2, 1, 2, 2, 1, 3, 1],
     "melodic_minor": [2, 1, 2, 2, 2, 2, 1],
     # Pentatonic scales
     "major_pentatonic": [2, 2, 3, 2, 3],
+    "pentatonic_major": [2, 2, 3, 2, 3],  # Alias for major_pentatonic
     "minor_pentatonic": [3, 2, 2, 3, 2],
     # Blues scales
     "major_blues": [2, 1, 1, 3, 2, 3],

@@ -243,20 +243,19 @@ class VoiceLeadingManager:
                         }
                     )
 
-        # Check for voice crossing
-        if len(chord1.notes) == len(chord2.notes):
-            for chord in [chord1, chord2]:
-                if self._has_voice_crossing(chord):
-                    total_penalty += self.rules["voice_crossing_penalty"]
-                    problems.append(
-                        {
-                            "position": position,
-                            "type": "voice_crossing",
-                            "description": "Voice crossing detected",
-                            "severity": "moderate",
-                        }
-                    )
-                    break  # Don't double-penalize
+        # Check for voice crossing in each chord
+        for chord in [chord1, chord2]:
+            if self._has_voice_crossing(chord):
+                total_penalty += self.rules["voice_crossing_penalty"]
+                problems.append(
+                    {
+                        "position": position,
+                        "type": "voice_crossing",
+                        "description": "Voice crossing detected",
+                        "severity": "moderate",
+                    }
+                )
+                break  # Don't double-penalize
 
         return {"problems": problems, "parallel_motion": parallel_motion, "penalty": total_penalty}
 
