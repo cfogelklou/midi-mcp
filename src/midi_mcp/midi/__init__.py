@@ -21,7 +21,7 @@ from .interfaces import (
     NoteOffMessage,
     ControlChangeMessage,
     note_name_to_number,
-    note_number_to_name
+    note_number_to_name,
 )
 
 from .manager import MidiManager
@@ -33,29 +33,29 @@ from .exceptions import (
     DeviceNotFoundError,
     DeviceConnectionError,
     BackendNotAvailableError,
-    MessageSendError
+    MessageSendError,
 )
 
 __all__ = [
-    'MidiManagerInterface',
-    'MidiDeviceInterface',
-    'DeviceInfo',
-    'MidiMessage',
-    'NoteOnMessage',
-    'NoteOffMessage',
-    'ControlChangeMessage',
-    'MidiManager',
-    'MidiFileManager',
-    'MidiFileSession',
-    'MidiFilePlayer',
-    'PlaybackState',
-    'PlaybackProgressTracker',
-    'MidiAnalyzer',
-    'MidiError',
-    'DeviceNotFoundError',
-    'DeviceConnectionError',
-    'BackendNotAvailableError',
-    'MessageSendError',
-    'note_name_to_number',
-    'note_number_to_name'
+    "MidiManagerInterface",
+    "MidiDeviceInterface",
+    "DeviceInfo",
+    "MidiMessage",
+    "NoteOnMessage",
+    "NoteOffMessage",
+    "ControlChangeMessage",
+    "MidiManager",
+    "MidiFileManager",
+    "MidiFileSession",
+    "MidiFilePlayer",
+    "PlaybackState",
+    "PlaybackProgressTracker",
+    "MidiAnalyzer",
+    "MidiError",
+    "DeviceNotFoundError",
+    "DeviceConnectionError",
+    "BackendNotAvailableError",
+    "MessageSendError",
+    "note_name_to_number",
+    "note_number_to_name",
 ]

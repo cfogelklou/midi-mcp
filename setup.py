@@ -38,38 +38,41 @@ if requirements_path.exists():
         for line in f:
             line = line.strip()
             # Skip comments and empty lines
-            if line and not line.startswith('#'):
+            if line and not line.startswith("#"):
                 # Remove inline comments
-                if '#' in line:
-                    line = line.split('#')[0].strip()
+                if "#" in line:
+                    line = line.split("#")[0].strip()
                 # Skip conditional dependencies for now (can be enhanced later)
-                if ';' not in line:
+                if ";" not in line:
                     requirements.append(line)
 
 # Development requirements (optional)
 dev_requirements = [
     "pytest>=7.4.0",
-    "pytest-asyncio>=0.21.0", 
+    "pytest-asyncio>=0.21.0",
     "pytest-mock>=3.11.0",
     "pytest-timeout>=2.1.0",
     "pytest-xdist>=3.3.0",
     "black>=23.0.0",
     "flake8>=6.0.0",
     "mypy>=1.5.0",
-    "pre-commit>=3.4.0"
+    "pre-commit>=3.4.0",
 ]
 
 # Documentation requirements (for future phases)
-docs_requirements = [
-    "sphinx>=7.0.0",
-    "sphinx-rtd-theme>=1.3.0", 
-    "myst-parser>=2.0.0"
-]
+docs_requirements = ["sphinx>=7.0.0", "sphinx-rtd-theme>=1.3.0", "myst-parser>=2.0.0"]
 
 # Import version from package
 sys.path.insert(0, str(here / "src"))
 try:
-    from midi_mcp.core.version import __version__, PACKAGE_NAME, PACKAGE_DESCRIPTION, PACKAGE_AUTHOR, PACKAGE_EMAIL, PACKAGE_URL
+    from midi_mcp.core.version import (
+        __version__,
+        PACKAGE_NAME,
+        PACKAGE_DESCRIPTION,
+        PACKAGE_AUTHOR,
+        PACKAGE_EMAIL,
+        PACKAGE_URL,
+    )
 except ImportError:
     # Fallback if package is not yet installed
     __version__ = "0.1.0"
@@ -88,15 +91,12 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url=PACKAGE_URL,
-    
     # Package configuration
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     include_package_data=True,
-    
     # Python version requirement
     python_requires=">=3.8",
-    
     # Dependencies
     install_requires=requirements,
     extras_require={
@@ -104,7 +104,6 @@ setup(
         "docs": docs_requirements,
         "all": dev_requirements + docs_requirements,
     },
-    
     # Entry points
     entry_points={
         "console_scripts": [
@@ -112,7 +111,6 @@ setup(
             "midi-mcp=midi_mcp.core.server:main",
         ],
     },
-    
     # Package metadata
     license="MIT",
     classifiers=[
@@ -121,7 +119,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9", 
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
@@ -130,20 +128,26 @@ setup(
         "Operating System :: OS Independent",
         "Framework :: AsyncIO",
     ],
-    
     keywords=[
-        "midi", "mcp", "server", "music", "audio", 
-        "protocol", "ai", "assistant", "claude",
-        "musical", "composition", "realtime"
+        "midi",
+        "mcp",
+        "server",
+        "music",
+        "audio",
+        "protocol",
+        "ai",
+        "assistant",
+        "claude",
+        "musical",
+        "composition",
+        "realtime",
     ],
-    
     project_urls={
         "Bug Reports": f"{PACKAGE_URL}/issues",
         "Source": PACKAGE_URL,
         "Documentation": f"{PACKAGE_URL}/docs",
         "Changelog": f"{PACKAGE_URL}/blob/main/CHANGELOG.md",
     },
-    
     # Additional metadata
     zip_safe=False,
     platforms=["any"],

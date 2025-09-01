@@ -16,4 +16,4 @@ MIDI device configuration, and runtime parameters.
 
 from .settings import ServerConfig, MidiConfig
 
-__all__ = ['ServerConfig', 'MidiConfig']
+__all__ = ["ServerConfig", "MidiConfig"]

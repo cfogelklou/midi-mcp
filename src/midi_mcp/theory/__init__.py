@@ -2,7 +2,7 @@
 
 This module provides comprehensive music theory functionality including:
 - Scale generation and analysis
-- Chord construction and identification  
+- Chord construction and identification
 - Chord progression analysis
 - Key detection and modulation
 - Voice leading validation
@@ -11,17 +11,17 @@ This module provides comprehensive music theory functionality including:
 
 from .constants import *
 from .scales import ScaleManager
-from .chords import ChordManager  
+from .chords import ChordManager
 from .progressions import ProgressionManager
 from .keys import KeyManager
 from .voice_leading import VoiceLeadingManager
 from .analysis import MusicAnalyzer
 
 __all__ = [
-    'ScaleManager',
-    'ChordManager', 
-    'ProgressionManager',
-    'KeyManager',
-    'VoiceLeadingManager',
-    'MusicAnalyzer',
+    "ScaleManager",
+    "ChordManager",
+    "ProgressionManager",
+    "KeyManager",
+    "VoiceLeadingManager",
+    "MusicAnalyzer",
 ]

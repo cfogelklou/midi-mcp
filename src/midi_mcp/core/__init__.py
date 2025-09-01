@@ -17,4 +17,4 @@ and base abstractions for the MIDI MCP server.
 from .server import MCPServer
 from .version import __version__
 
-__all__ = ['MCPServer', '__version__']
+__all__ = ["MCPServer", "__version__"]

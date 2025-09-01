@@ -22,6 +22,6 @@ if __name__ == "__main__":
     # FastMCP servers run via stdio for MCP protocol communication
     config = ServerConfig()
     server = MCPServer(config)
-    
+
     # Run the FastMCP server (handles stdio communication)
     server.app.run()

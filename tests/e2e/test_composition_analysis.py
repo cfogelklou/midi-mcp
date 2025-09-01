@@ -17,7 +17,7 @@ from pathlib import Path
 from jsonschema import validate
 from typing import Dict, Any, List
 
-# Add src directory to Python path  
+# Add src directory to Python path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
@@ -38,7 +38,7 @@ class TestCompositionAnalysis:
         cls.analysis_engine = AnalysisEngine(cls.libraries)
         cls.composer = Composer()
         cls.midi_manager = MidiFileManager()
-        
+
         # Verify test file exists
         assert cls.midi_file_path.exists(), f"Test MIDI file not found: {cls.midi_file_path}"
 
@@ -46,21 +46,21 @@ class TestCompositionAnalysis:
         """Test loading the mission-impossible.mid file."""
         # Load MIDI file
         file_id = self.midi_manager.load_midi_file(str(self.midi_file_path))
-        
+
         # Validate file was loaded
         assert file_id is not None
         assert isinstance(file_id, str)
         assert len(file_id) > 0
-        
+
         # Verify file is in active files
         assert file_id in self.midi_manager._active_files
 
     def test_extract_melody_characteristics(self):
         """Test melody analysis functionality."""
-        # Load MIDI file  
+        # Load MIDI file
         file_id = self.midi_manager.load_midi_file(str(self.midi_file_path))
         session = self.midi_manager._active_files[file_id]
-        
+
         # Extract melody data (simplified - would need proper MIDI parsing)
         sample_melody = [
             {"note": "G4", "beat": 1, "duration": 1.0, "relation_to_chord": "chord_tone"},
@@ -68,10 +68,10 @@ class TestCompositionAnalysis:
             {"note": "Bb4", "beat": 2.5, "duration": 0.5, "relation_to_chord": "scale_tone"},
             {"note": "G4", "beat": 3, "duration": 1.0, "relation_to_chord": "chord_tone"},
         ]
-        
+
         # Analyze melody characteristics
         characteristics = self.analysis_engine.analyze_melody_characteristics(sample_melody, "spy_theme")
-        
+
         # Validate response structure
         melody_schema = {
             "type": "object",
@@ -79,13 +79,13 @@ class TestCompositionAnalysis:
                 "note_count": {"type": "integer", "minimum": 0},
                 "range": {"type": "string"},
                 "chord_tone_ratio": {"type": "number", "minimum": 0, "maximum": 1},
-                "genre_appropriateness": {"type": "string", "enum": ["low", "medium", "high"]}
+                "genre_appropriateness": {"type": "string", "enum": ["low", "medium", "high"]},
             },
-            "required": ["note_count", "range", "chord_tone_ratio", "genre_appropriateness"]
+            "required": ["note_count", "range", "chord_tone_ratio", "genre_appropriateness"],
         }
-        
+
         validate(instance=characteristics, schema=melody_schema)
-        
+
         # Validate analysis results make sense
         assert characteristics["note_count"] == 4
         assert characteristics["chord_tone_ratio"] == 0.75  # 3 out of 4 notes are chord tones
@@ -101,11 +101,11 @@ class TestCompositionAnalysis:
             {"note": "C3", "beat": 7, "duration": 2.0},  # Perfect 4th leap up
             {"note": "F1", "beat": 9, "duration": 2.0},  # Large leap down (tritone)
         ]
-        
+
         # Analyze voice leading
         voice_leading = self.analysis_engine.analyze_bass_voice_leading(bass_line)
-        
-        # Validate response structure  
+
+        # Validate response structure
         voice_leading_schema = {
             "type": "object",
             "properties": {
@@ -119,18 +119,18 @@ class TestCompositionAnalysis:
                             "from": {"type": "string"},
                             "to": {"type": "string"},
                             "interval_semitones": {"type": ["integer", "null"]},
-                            "beat": {"type": ["integer", "number", "null"]}
+                            "beat": {"type": ["integer", "number", "null"]},
                         },
-                        "required": ["from", "to", "interval_semitones", "beat"]
-                    }
+                        "required": ["from", "to", "interval_semitones", "beat"],
+                    },
                 },
-                "recommendations": {"type": "array", "items": {"type": "string"}}
+                "recommendations": {"type": "array", "items": {"type": "string"}},
             },
-            "required": ["quality", "large_leaps", "leap_details", "recommendations"]
+            "required": ["quality", "large_leaps", "leap_details", "recommendations"],
         }
-        
+
         validate(instance=voice_leading, schema=voice_leading_schema)
-        
+
         # Validate analysis makes musical sense
         if self.libraries.music21.is_available():
             assert voice_leading["large_leaps"] >= 1  # Should detect the large leap to F1
@@ -141,15 +141,15 @@ class TestCompositionAnalysis:
         """Test proper interval calculation using music21."""
         if not self.libraries.music21.is_available():
             pytest.skip("music21 not available")
-        
+
         # Test interval calculation
         interval = self.libraries.music21.calculate_interval_semitones("C4", "G4")
         assert interval == 7  # Perfect fifth
-        
+
         # Test large leap detection
         is_large = self.libraries.music21.is_large_leap("C4", "C5", threshold_semitones=7)
         assert is_large  # Octave is larger than perfect fifth threshold
-        
+
         # Test passing tone generation
         passing_tone = self.libraries.music21.get_passing_tone("C4", "E4")
         assert passing_tone in ["C#4", "D4", "D#4"]  # Should be a chromatic passing tone
@@ -161,7 +161,7 @@ class TestCompositionAnalysis:
         assert self.composer.analysis_engine is not None
         assert self.composer.part_generator is not None
         assert self.composer.arrangement_engine is not None
-        
+
         # Test that components share the same library instance
         assert self.composer.part_generator.libraries is self.composer.libraries
         assert self.composer.analysis_engine.libraries is self.composer.libraries
@@ -181,11 +181,11 @@ class TestCompositionAnalysis:
             {"note": f"C{4 + (i % 2)}", "beat": i + 1, "duration": 0.5, "relation_to_chord": "chord_tone"}
             for i in range(100)
         ]
-        
+
         start_time = time.time()
         characteristics = self.analysis_engine.analyze_melody_characteristics(large_melody, "test")
         analysis_time = time.time() - start_time
-        
+
         assert analysis_time < 5.0  # Should complete within 5 seconds
         assert characteristics["note_count"] == 100
 
@@ -194,7 +194,7 @@ class TestCompositionAnalysis:
         # Test with empty melody
         result = self.analysis_engine.analyze_melody_characteristics([], "test")
         assert result == {}
-        
+
         # Test with insufficient bass data
         result = self.analysis_engine.analyze_bass_voice_leading([{"note": "C4", "beat": 1}])
         assert result["quality"] == "insufficient_data"
@@ -203,18 +203,13 @@ class TestCompositionAnalysis:
         """Test that all analysis responses conform to expected schemas."""
         # This validates the JSON schema validation capability
         sample_data = {
-            "melody": [
-                {"note": "C4", "beat": 1, "duration": 1.0, "relation_to_chord": "chord_tone"}
-            ],
-            "bass_line": [
-                {"note": "C2", "beat": 1, "duration": 4.0},
-                {"note": "F2", "beat": 5, "duration": 4.0}
-            ]
+            "melody": [{"note": "C4", "beat": 1, "duration": 1.0, "relation_to_chord": "chord_tone"}],
+            "bass_line": [{"note": "C2", "beat": 1, "duration": 4.0}, {"note": "F2", "beat": 5, "duration": 4.0}],
         }
-        
+
         melody_result = self.analysis_engine.analyze_melody_characteristics(sample_data["melody"], "test")
         bass_result = self.analysis_engine.analyze_bass_voice_leading(sample_data["bass_line"])
-        
+
         # Both should return valid dictionaries
         assert isinstance(melody_result, dict)
         assert isinstance(bass_result, dict)

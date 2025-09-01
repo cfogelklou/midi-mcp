@@ -16,8 +16,4 @@ from .registry import ToolRegistry
 from .midi_tools import register_midi_tools
 from .file_tools import register_midi_file_tools
 
-__all__ = [
-    'ToolRegistry',
-    'register_midi_tools',
-    'register_midi_file_tools'
-]
+__all__ = ["ToolRegistry", "register_midi_tools", "register_midi_file_tools"]

@@ -17,4 +17,4 @@ and other cross-cutting concerns.
 from .logger import setup_logging
 from .timing import Timer, measure_latency
 
-__all__ = ['setup_logging', 'Timer', 'measure_latency']
+__all__ = ["setup_logging", "Timer", "measure_latency"]

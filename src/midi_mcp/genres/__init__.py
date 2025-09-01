@@ -12,11 +12,11 @@ from .fusion_engine import FusionEngine
 from .validator import AuthenticityValidator
 
 __all__ = [
-    'GenreManager',
-    'Composer', 
-    'LibraryIntegration',
-    'get_library_integration',
-    'PatternLibrary',
-    'FusionEngine',
-    'AuthenticityValidator',
+    "GenreManager",
+    "Composer",
+    "LibraryIntegration",
+    "get_library_integration",
+    "PatternLibrary",
+    "FusionEngine",
+    "AuthenticityValidator",
 ]

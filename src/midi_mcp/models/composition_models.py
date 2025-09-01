@@ -10,6 +10,7 @@ from .theory_models import Note, Scale, Chord
 
 class SectionType(Enum):
     """Types of song sections."""
+
     INTRO = "intro"
     VERSE = "verse"
     CHORUS = "chorus"
@@ -23,6 +24,7 @@ class SectionType(Enum):
 
 class DynamicLevel(Enum):
     """Dynamic levels for orchestration."""
+
     PP = "pp"
     P = "p"
     MP = "mp"
@@ -33,6 +35,7 @@ class DynamicLevel(Enum):
 
 class TextureLevel(Enum):
     """Texture density levels for orchestration."""
+
     THIN = "thin"
     MEDIUM = "medium"
     THICK = "thick"
@@ -42,12 +45,13 @@ class TextureLevel(Enum):
 @dataclass
 class Melody:
     """Represents a melodic line."""
+
     notes: List[int]  # MIDI note numbers
     rhythm: List[float] = field(default_factory=list)  # Note durations
     phrase_structure: Optional[Dict[str, Any]] = None
     contour: Optional[str] = None  # "ascending", "descending", "arch", etc.
     register: str = "mid"  # "low", "mid", "high"
-    
+
     def __post_init__(self):
         if not self.rhythm:
             # Default to quarter notes if no rhythm specified
@@ -57,21 +61,20 @@ class Melody:
 @dataclass
 class Motif:
     """Represents a short melodic motif."""
+
     notes: List[int]  # MIDI note numbers
     rhythm: Optional[List[float]] = None
     intervallic_pattern: Optional[List[int]] = None
-    
+
     def __post_init__(self):
         if self.intervallic_pattern is None and len(self.notes) > 1:
-            self.intervallic_pattern = [
-                self.notes[i+1] - self.notes[i] 
-                for i in range(len(self.notes) - 1)
-            ]
+            self.intervallic_pattern = [self.notes[i + 1] - self.notes[i] for i in range(len(self.notes) - 1)]
 
 
 @dataclass
 class DevelopmentTechnique:
     """Represents a melodic development technique."""
+
     name: str
     description: str
     parameters: Dict[str, Any] = field(default_factory=dict)
@@ -80,6 +83,7 @@ class DevelopmentTechnique:
 @dataclass
 class MelodicDevelopment:
     """Result of melodic development process."""
+
     original_motif: Motif
     developed_melody: Melody
     techniques_applied: List[DevelopmentTechnique]
@@ -89,6 +93,7 @@ class MelodicDevelopment:
 @dataclass
 class Phrase:
     """Represents a musical phrase."""
+
     melody: Melody
     harmony: List[Dict[str, Any]]  # Chord progression
     structure_type: str  # "period", "sentence", "phrase_group"
@@ -99,6 +104,7 @@ class Phrase:
 @dataclass
 class MelodyVariation:
     """Result of melody variation process."""
+
     original_melody: List[int]
     varied_melody: Melody
     variation_type: str
@@ -109,6 +115,7 @@ class MelodyVariation:
 @dataclass
 class VoiceLeadingAnalysis:
     """Analysis of voice leading quality."""
+
     total_motion: int  # Total semitone movement across all voices
     parallel_motion_count: int
     contrary_motion_count: int
@@ -120,6 +127,7 @@ class VoiceLeadingAnalysis:
 @dataclass
 class Section:
     """Represents a song section."""
+
     type: SectionType
     key: str
     duration: float  # In seconds
@@ -135,23 +143,25 @@ class Section:
 @dataclass
 class Transition:
     """Represents a transition between sections."""
+
     from_section: str
     to_section: str
     type: str  # "smooth", "dramatic", "surprise", "buildup"
     duration: float
     material: Dict[str, Any] = field(default_factory=dict)
-    
+
 
 @dataclass
 class SongStructure:
     """Represents complete song structure."""
+
     genre: str
     sections: List[Section]
     key_plan: Dict[str, Any]
     tempo: int
     time_signature: tuple = (4, 4)
     total_duration: float = 0.0
-    
+
     def __post_init__(self):
         if self.total_duration == 0.0:
             self.total_duration = sum(section.duration for section in self.sections)
@@ -160,6 +170,7 @@ class SongStructure:
 @dataclass
 class InstrumentPart:
     """Represents a part for a specific instrument."""
+
     instrument: str
     notes: List[int]
     rhythm: List[float]
@@ -172,6 +183,7 @@ class InstrumentPart:
 @dataclass
 class CounterMelody:
     """Represents a counter-melody."""
+
     notes: List[int]
     rhythm: List[float] = field(default_factory=list)
     independence_score: float = 0.0  # How independent from main melody
@@ -182,6 +194,7 @@ class CounterMelody:
 @dataclass
 class TexturePoint:
     """Represents texture at a specific point in time."""
+
     timestamp: float  # Time in seconds
     density: float  # 0-1, how many voices/instruments active
     register_spread: float  # Range of registers used
@@ -193,6 +206,7 @@ class TexturePoint:
 @dataclass
 class TexturePlan:
     """Represents orchestrated texture changes over time."""
+
     texture_points: List[TexturePoint]
     overall_arc: str = "static"  # "static", "building", "receding", "wave"
 
@@ -200,6 +214,7 @@ class TexturePlan:
 @dataclass
 class Arrangement:
     """Represents a complete arrangement."""
+
     parts: Dict[str, InstrumentPart]  # instrument_name -> part
     ensemble_type: str
     style: str
@@ -211,6 +226,7 @@ class Arrangement:
 @dataclass
 class Composition:
     """Base composition data."""
+
     melody: Dict[str, Any]
     harmony: List[Dict[str, Any]]
     key: str
@@ -218,27 +234,28 @@ class Composition:
     structure: Optional[Dict[str, Any]] = None
 
 
-@dataclass 
+@dataclass
 class CompleteComposition:
     """Represents a complete musical composition."""
+
     title: str = "Untitled"
     genre: str = ""
     key: str = "C major"
     tempo: int = 120
     time_signature: tuple = (4, 4)
     description: str = ""
-    
+
     # Musical content
     structure: Optional[SongStructure] = None
     melody: Dict[str, Any] = field(default_factory=dict)
     harmony: List[Dict[str, Any]] = field(default_factory=list)
     arrangement: Optional[Arrangement] = None
-    
+
     # Analysis metrics
     overall_energy: float = 0.5  # 0-1 scale
-    harmonic_complexity_score: float = 0.5  # 0-1 scale  
+    harmonic_complexity_score: float = 0.5  # 0-1 scale
     style_characteristics: List[str] = field(default_factory=list)
-    
+
     # Metadata
     duration: float = 0.0
     created_timestamp: Optional[str] = None
@@ -247,6 +264,7 @@ class CompleteComposition:
 @dataclass
 class CategoryAnalysis:
     """Analysis of a specific category (melody, harmony, etc.)."""
+
     score: float  # 0-10 scale
     analysis_details: Dict[str, Any] = field(default_factory=dict)
     strengths: List[str] = field(default_factory=list)
@@ -256,15 +274,17 @@ class CategoryAnalysis:
 @dataclass
 class ImprovementSuggestion:
     """Represents a suggested improvement."""
+
     category: str  # "melody", "harmony", "rhythm", "form", "arrangement"
     priority: str  # "high", "medium", "low"
     suggestion: str  # Description of the improvement
     specific_measures: Optional[List[int]] = None  # Which measures to change
-    
+
 
 @dataclass
 class CompositionAnalysis:
     """Complete analysis of a composition."""
+
     category_scores: Dict[str, CategoryAnalysis]  # category -> analysis
     improvement_suggestions: List[ImprovementSuggestion]
     overall_assessment: str = ""
@@ -274,6 +294,7 @@ class CompositionAnalysis:
 @dataclass
 class RefinementChange:
     """Represents a change made during refinement."""
+
     category: str
     description: str
     before: Any
@@ -284,6 +305,7 @@ class RefinementChange:
 @dataclass
 class RefinementResult:
     """Result of composition refinement process."""
+
     refined_composition: CompleteComposition
     changes_made: List[RefinementChange]
     improvement_metrics: Dict[str, float] = field(default_factory=dict)

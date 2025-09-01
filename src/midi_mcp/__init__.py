@@ -16,4 +16,4 @@ enabling AI agents to interact with MIDI devices and create musical content.
 
 from .core.version import __version__
 
-__all__ = ['__version__']
+__all__ = ["__version__"]
