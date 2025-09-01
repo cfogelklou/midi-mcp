@@ -260,7 +260,8 @@ class PhraseGenerator:
             try:
                 key_notes = self.libraries.music21.get_scale_notes("major", key)
                 if key_notes:
-                    scale_notes = key_notes
+                    # Convert music21 note names to MIDI numbers
+                    scale_notes = self._convert_note_names_to_midi(key_notes)
                 else:
                     scale_notes = self._get_fallback_scale(key)
             except Exception:
@@ -283,6 +284,10 @@ class PhraseGenerator:
                 else:
                     note = random.choice(scale_notes[:7])  # First octave
 
+                # Ensure note is an integer before arithmetic
+                if isinstance(note, str):
+                    note = self._note_name_to_midi(note)
+                
                 melody_notes.append(note + (base_octave * 12))
 
         # Apply style constraints
@@ -573,3 +578,45 @@ class MelodyVariator:
                 similarity = (similarity + interval_similarity) / 2
 
         return similarity
+
+    def _convert_note_names_to_midi(self, note_names: List[str]) -> List[int]:
+        """Convert note names like ['C4', 'D4', 'E4'] to MIDI numbers."""
+        midi_notes = []
+        for note_name in note_names:
+            midi_note = self._note_name_to_midi(note_name)
+            if midi_note is not None:
+                midi_notes.append(midi_note)
+        return midi_notes
+
+    def _note_name_to_midi(self, note_name: str) -> int:
+        """Convert a note name like 'C4' to MIDI number (60)."""
+        # Simple note name to MIDI conversion
+        note_map = {
+            'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+            'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
+            'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+        }
+        
+        # Handle different note name formats
+        note_name = note_name.strip()
+        
+        # Extract note and octave
+        if len(note_name) >= 2:
+            if note_name[1] in ['#', 'b']:
+                note = note_name[:2]
+                octave_str = note_name[2:]
+            else:
+                note = note_name[0]
+                octave_str = note_name[1:]
+        else:
+            note = note_name[0] if note_name else 'C'
+            octave_str = '4'  # Default octave
+            
+        try:
+            octave = int(octave_str) if octave_str else 4
+        except ValueError:
+            octave = 4  # Default octave
+            
+        # Calculate MIDI number
+        midi_note = note_map.get(note, 0) + (octave + 1) * 12
+        return max(0, min(127, midi_note))  # Clamp to valid MIDI range

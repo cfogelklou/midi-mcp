@@ -47,6 +47,19 @@ class EnsembleArranger:
     def _initialize_ensembles(self) -> Dict[str, EnsembleDefinition]:
         """Initialize standard ensemble definitions."""
         return {
+            "piano_solo": EnsembleDefinition(
+                name="Piano Solo",
+                instruments=["piano"],
+                typical_ranges={
+                    "piano": (21, 108),  # A0-C8 (full piano range)
+                },
+                texture_capabilities=["melody", "harmony", "accompaniment", "solo"],
+                style_characteristics={
+                    "voice_leading": "flexible",
+                    "texture_density": "variable",
+                    "dynamic_range": "wide",
+                },
+            ),
             "string_quartet": EnsembleDefinition(
                 name="String Quartet",
                 instruments=["violin_1", "violin_2", "viola", "cello"],
