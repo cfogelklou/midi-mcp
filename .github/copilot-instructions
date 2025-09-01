@@ -1,3 +1,5 @@
 # GitHub Copilot Instructions
 
+IMPORTANT! If you EVER open a new terminal, be sure to run source venv/bin/activate after you have opened it.
+
 Please follow the instructions outlined in the `AI-INSTRUCTIONS.md` file for all contributions to this codebase.
