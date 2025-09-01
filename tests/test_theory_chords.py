@@ -34,8 +34,8 @@ class TestChordManager:
         assert chord.root.name == "A"
         assert chord.quality == Quality.MINOR
 
-        # Check notes: A C E
-        expected_midi = [57, 60, 64]
+        # Check notes: A C E (at octave 4 which maps to MIDI octave 5)
+        expected_midi = [69, 72, 76]  # A4, C5, E5
         actual_midi = [note.midi_note for note in chord.notes]
         assert actual_midi == expected_midi
 

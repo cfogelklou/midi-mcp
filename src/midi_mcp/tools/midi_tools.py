@@ -17,22 +17,24 @@ note playing, and basic musical operations.
 import asyncio
 import logging
 from typing import List, Dict, Any, Optional
-from mcp.types import TextContent
+from mcp.types import TextContent, Tool
 from mcp.server.fastmcp import FastMCP
 
 from ..midi.manager import MidiManager
 from ..midi.interfaces import note_name_to_number
 from ..midi.exceptions import MidiError
 from ..config.settings import MidiConfig
+from .registry import ToolRegistry
 
 
-def register_midi_tools(app: FastMCP, midi_manager: MidiManager) -> None:
+def register_midi_tools(app: FastMCP, midi_manager: MidiManager, registry: Optional[ToolRegistry] = None) -> None:
     """
     Register all MIDI-related MCP tools.
 
     Args:
         app: FastMCP application instance
         midi_manager: MIDI manager instance
+        registry: Optional tool registry for tracking tools
     """
     logger = logging.getLogger(__name__)
 
@@ -136,5 +138,62 @@ def register_midi_tools(app: FastMCP, midi_manager: MidiManager) -> None:
         except Exception as e:
             logger.error(f"Error disconnecting from device: {e}")
             return [TextContent(type="text", text=f"Error disconnecting from device: {str(e)}")]
+
+    # Register tools with registry if provided
+    if registry:
+        # Create Tool objects for registry tracking
+        discover_tool = Tool(
+            name="discover_midi_devices",
+            description="Discover MIDI devices and return device information",
+            inputSchema={"type": "object", "properties": {}, "required": []}
+        )
+        
+        connect_tool = Tool(
+            name="connect_midi_device",
+            description="Connect to a MIDI device",
+            inputSchema={
+                "type": "object",
+                "properties": {"device_id": {"type": "string", "description": "ID of the device to connect to"}},
+                "required": ["device_id"]
+            }
+        )
+        
+        play_note_tool = Tool(
+            name="play_midi_note",
+            description="Play a single MIDI note",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "note": {"type": ["integer", "string"], "description": "MIDI note number (0-127) or note name (C4, D#5, etc.)"},
+                    "velocity": {"type": "integer", "description": "Note velocity (0-127)", "default": 64},
+                    "duration": {"type": "number", "description": "Note duration in seconds", "default": 1.0},
+                    "channel": {"type": "integer", "description": "MIDI channel (0-15)", "default": 0}
+                },
+                "required": ["note"]
+            }
+        )
+        
+        list_devices_tool = Tool(
+            name="list_connected_devices",
+            description="List currently connected MIDI devices",
+            inputSchema={"type": "object", "properties": {}, "required": []}
+        )
+        
+        disconnect_tool = Tool(
+            name="disconnect_midi_device",
+            description="Disconnect from a MIDI device",
+            inputSchema={
+                "type": "object",
+                "properties": {"device_id": {"type": "string", "description": "ID of the device to disconnect"}},
+                "required": ["device_id"]
+            }
+        )
+        
+        # Register with tool registry
+        registry.register("discover_midi_devices", discover_tool, discover_midi_devices)
+        registry.register("connect_midi_device", connect_tool, connect_midi_device)
+        registry.register("play_midi_note", play_note_tool, play_midi_note)
+        registry.register("list_connected_devices", list_devices_tool, list_connected_devices)
+        registry.register("disconnect_midi_device", disconnect_tool, disconnect_midi_device)
 
     logger.info("Registered 6 MIDI tools")

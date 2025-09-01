@@ -354,7 +354,20 @@ class ChordManager:
 
     def _normalize_note_name(self, note: str) -> str:
         """Normalize note name to standard format."""
-        return note.strip().capitalize().replace("B", "b")
+        normalized = note.strip()
+        
+        # Handle case normalization while preserving flat notation
+        if len(normalized) == 1:
+            # Single letter note (A, B, C, etc.)
+            normalized = normalized.upper()
+        elif len(normalized) == 2 and normalized[1] in ['b', '#']:
+            # Note with accidental (Ab, C#, etc.)
+            normalized = normalized[0].upper() + normalized[1]
+        else:
+            # More complex notation, just capitalize first letter
+            normalized = normalized[0].upper() + normalized[1:].lower()
+            
+        return normalized
 
     def _note_to_midi(self, note_name: str, octave: int) -> int:
         """Convert note name and octave to MIDI number."""
@@ -373,14 +386,15 @@ class ChordManager:
         """Determine chord quality from chord type string."""
         chord_type_lower = chord_type.lower()
 
-        if "maj" in chord_type_lower or chord_type == "major":
-            return Quality.MAJOR
-        elif "min" in chord_type_lower or chord_type == "minor":
-            return Quality.MINOR
-        elif "dim" in chord_type_lower:
+        # Check more specific qualities first to avoid false matches
+        if "dim" in chord_type_lower:
             return Quality.DIMINISHED
         elif "aug" in chord_type_lower:
             return Quality.AUGMENTED
+        elif "maj" in chord_type_lower or chord_type == "major":
+            return Quality.MAJOR
+        elif "min" in chord_type_lower or chord_type == "minor":
+            return Quality.MINOR
         elif "7" in chord_type and "maj" not in chord_type_lower:
             return Quality.DOMINANT
         else:

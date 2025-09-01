@@ -150,13 +150,21 @@ class MCPServer(MCPServerInterface):
     def _register_midi_tools(self) -> None:
         """Register MIDI-specific tools."""
         if self.config.enable_midi:
-            # Register Phase 1 tools (basic MIDI operations)
-            register_midi_tools(self.app, self.midi_manager)
+            try:
+                # Register Phase 1 tools (basic MIDI operations)
+                register_midi_tools(self.app, self.midi_manager, self.tool_registry)
+                self.logger.debug("Registered Phase 1 MIDI tools")
+            except Exception as e:
+                self.logger.error(f"Error registering Phase 1 MIDI tools: {e}")
 
-            # Register Phase 2 tools (file operations, playback, analysis)
-            register_midi_file_tools(
-                self.app, self.tool_registry, self.midi_manager, self.file_manager, self.player, self.analyzer
-            )
+            try:
+                # Register Phase 2 tools (file operations, playback, analysis)
+                register_midi_file_tools(
+                    self.app, self.tool_registry, self.midi_manager, self.file_manager, self.player, self.analyzer
+                )
+                self.logger.debug("Registered Phase 2 MIDI tools")
+            except Exception as e:
+                self.logger.error(f"Error registering Phase 2 MIDI tools: {e}")
 
             self.logger.debug("Registered MIDI tools (Phase 1 & Phase 2)")
         else:
