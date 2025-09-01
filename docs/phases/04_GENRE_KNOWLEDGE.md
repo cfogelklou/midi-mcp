@@ -195,7 +195,10 @@ midi-mcp/
 │   ├── genres/
 │   │   ├── __init__.py
 │   │   ├── genre_manager.py      # Generic genre management
-│   │   ├── composition_engine.py # Generic composition tools
+│   │   ├── composer.py           # High-level composition facade
+│   │   ├── part_generator.py     # Generates musical parts
+│   │   ├── arrangement_engine.py # Creates full arrangements
+│   │   ├── analysis_engine.py    # Analyzes musical elements
 │   │   ├── pattern_library.py    # Pattern storage and retrieval
 │   │   ├── fusion_engine.py      # Genre fusion capabilities
 │   │   └── validator.py          # Authenticity validation

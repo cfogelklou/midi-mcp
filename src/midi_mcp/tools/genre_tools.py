@@ -4,7 +4,7 @@ from fastmcp import FastMCP
 from typing import Dict, List, Optional, Any
 import logging
 
-from ..genres import GenreManager, GenericComposer, LibraryIntegration
+from ..genres import GenreManager, Composer, LibraryIntegration
 from ..genres.fusion_engine import FusionEngine
 from ..genres.validator import AuthenticityValidator
 
@@ -16,7 +16,7 @@ def register_genre_tools(mcp: FastMCP) -> None:
     
     # Initialize genre system components inside function to avoid circular imports
     genre_manager = GenreManager()
-    composer = GenericComposer(genre_manager)
+    composer = Composer(genre_manager)
     libraries = LibraryIntegration()
     
     @mcp.tool()

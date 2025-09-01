@@ -7,7 +7,7 @@ This document provides a review of the `midi-mcp` server codebase, highlighting 
 Anti-patterns are common solutions to problems that are generally considered to be ineffective or counterproductive.
 
 *   **Platform-Specific Code:** The `src/midi_mcp/midi/manager.py` file contains platform-specific code for listing MIDI devices. This can make the code harder to maintain and port to other operating systems. It would be better to abstract this logic into separate modules for each platform or use a cross-platform library if one is available.
-*   **Blocking Human-in-the-Loop (HIL):** The `HumanInTheLoop` class in `src/midi_mcp/genres/composition_engine.py` appears to rely on user input from the console. In a server application, this is a significant anti-pattern as it will block the server's event loop, making it unresponsive to other requests. This should be re-implemented using a non-blocking mechanism, such as a websocket, a separate API endpoint for HIL feedback, or a message queue.
+*   **Blocking Human-in-the-Loop (HIL):** The `HumanInTheLoop` class, formerly in `src/midi_mcp/genres/composition_engine.py`, appeared to rely on user input from the console. This anti-pattern has been addressed by refactoring the code, and the HIL logic will be re-implemented in a non-blocking way.
 
 ## 2. Technical Debt
 
@@ -115,5 +115,10 @@ def test_create_midi_file():
     # 6. Stop the server
     server_process.terminate()
 ```
+
+By following this strategy, you can create a comprehensive suite of E2E tests that will ensure the quality and reliability of the `midi-mcp` server.
+# 6. Stop the server
+    server_process.terminate()
+
 
 By following this strategy, you can create a comprehensive suite of E2E tests that will ensure the quality and reliability of the `midi-mcp` server.
