@@ -101,7 +101,7 @@ python -m midi_mcp
 "Now analyze the file and show me the details"
 ```
 
-## �️ MIDI Setup for Quality Playback
+## ️ MIDI Setup for Quality Playback
 
 ### **macOS Setup for Multi-Channel MIDI**
 
@@ -215,7 +215,7 @@ FluidSynth provides professional-grade multi-channel MIDI synthesis with excelle
    fluidsynth -a alsa -g 0.5 path/to/soundfont.sf2
    ```
 
-## �🎼 What You Can Create
+## 🎼 What You Can Create
 
 ### **For Musicians & Composers**
 - Generate chord progressions in any genre
@@ -266,6 +266,129 @@ FluidSynth provides professional-grade multi-channel MIDI synthesis with excelle
 "Explain secondary dominants and create an example in the key of F major."
 → AI provides educational explanation with practical musical demonstration
 ```
+## Available Tools
+
+The MIDI MCP Server provides a comprehensive suite of tools for AI agents to create, manipulate, and analyze music. The tools are organized by their implementation phase.
+
+### Phase 1: Foundation
+
+These tools provide the basic building blocks for MIDI interaction.
+
+*   **`play_note(note: int, velocity: int = 64, duration: float = 1.0, channel: int = 0)`**
+    *   **Description**: Plays a single MIDI note.
+    *   **AI Agent Prompt**: "Play middle C for 2 seconds." (Note: 60, Velocity: 64, Duration: 2.0, Channel: 0)
+
+*   **`play_sequence(notes: List[int], durations: List[float], velocities: List[int] = None, tempo: float = 120.0, channel: int = 0)`**
+    *   **Description**: Plays a sequence of MIDI notes with specified timing.
+    *   **AI Agent Prompt**: "Play the first few notes of 'Twinkle Twinkle Little Star'." (Notes: [60, 60, 67, 67, 69, 69, 67], Durations: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0], Tempo: 120.0, Channel: 0)
+
+*   **`play_chord(notes: List[int], velocity: int = 64, duration: float = 1.0, channel: int = 0)`**
+    *   **Description**: Plays multiple notes simultaneously as a chord.
+    *   **AI Agent Prompt**: "Play a C major chord." (Notes: [60, 64, 67], Velocity: 64, Duration: 1.0, Channel: 0)
+
+*   **`list_midi_devices()`**
+    *   **Description**: Lists available MIDI output devices.
+    *   **AI Agent Prompt**: "Show me the available MIDI devices."
+
+*   **`set_midi_device(device_id: int)`**
+    *   **Description**: Sets the active MIDI output device.
+    *   **AI Agent Prompt**: "Set the MIDI output to device 0." (Device ID: 0)
+
+*   **`get_server_status()`**
+    *   **Description**: Gets the current server status and configuration.
+    *   **AI Agent Prompt**: "What is the current status of the MIDI server?"
+
+### Phase 2: Core MIDI I/O and Playback
+
+These tools enable working with MIDI files.
+
+*   **`create_midi_file(title: str = "Untitled", tempo: int = 120, time_signature: Tuple[int, int] = (4, 4), key_signature: str = "C")`**
+    *   **Description**: Creates a new MIDI file with basic metadata.
+    *   **AI Agent Prompt**: "Create a new MIDI file titled 'My Song' in the key of G major with a tempo of 130 BPM." (Title: "My Song", Tempo: 130, Time Signature: (4, 4), Key Signature: "G")
+
+*   **`add_track(midi_file_id: str, track_name: str, channel: int = 0, program: int = 0)`**
+    *   **Description**: Adds a new track to an existing MIDI file.
+    *   **AI Agent Prompt**: "Add a piano track to the MIDI file." (MIDI File ID: [current_midi_file_id], Track Name: "Piano", Channel: 0, Program: 0)
+
+*   **`save_midi_file(midi_file_id: str, filename: str)`**
+    *   **Description**: Saves a MIDI file to disk.
+    *   **AI Agent Prompt**: "Save the current MIDI file as 'my_song.mid'." (MIDI File ID: [current_midi_file_id], Filename: "my_song.mid")
+
+*   **`load_midi_file(filename: str)`**
+    *   **Description**: Loads a MIDI file from disk.
+    *   **AI Agent Prompt**: "Load the MIDI file 'my_song.mid'." (Filename: "my_song.mid")
+
+*   **`play_midi_file(midi_file_id: str, device_id: str)`**
+    *   **Description**: Plays a loaded MIDI file in real-time through a specified MIDI device.
+    *   **AI Agent Prompt**: "Play the loaded MIDI file." (MIDI File ID: [current_midi_file_id], Device ID: [current_device_id])
+
+*   **`analyze_midi_file(midi_file_id: str)`**
+    *   **Description**: Analyzes a loaded MIDI file.
+    *   **AI Agent Prompt**: "Analyze the structure of the loaded MIDI file." (MIDI File ID: [current_midi_file_id])
+
+*   **`list_midi_files()`**
+    *   **Description**: Lists all MIDI files in the current session.
+    *   **AI Agent Prompt**: "Show me all the MIDI files in the current session."
+
+### Phase 3: Music Theory
+
+These tools provide music theory intelligence.
+
+*   **`get_scale_notes(root_note: str, scale_type: str, octave: int = 4)`**
+    *   **Description**: Generates the notes for a specific scale.
+    *   **AI Agent Prompt**: "What are the notes in a C minor scale?" (Root Note: "C", Scale Type: "minor", Octave: 4)
+
+*   **`build_chord(root_note: str, chord_type: str, inversion: int = 0, voicing: str = "close")`**
+    *   **Description**: Builds a chord with specified parameters.
+    *   **AI Agent Prompt**: "Build a G dominant 7th chord in first inversion." (Root Note: "G", Chord Type: "dom7", Inversion: 1, Voicing: "close")
+
+*   **`create_chord_progression(key: str, progression: List[str], duration_per_chord: float = 1.0)`**
+    *   **Description**: Creates a chord progression in a specific key.
+    *   **AI Agent Prompt**: "Create a I-V-vi-IV chord progression in the key of C major." (Key: "C major", Progression: ["I", "V", "vi", "IV"], Duration per Chord: 1.0)
+
+*   **`detect_key(midi_file_id: str, track_number: int = None)`**
+    *   **Description**: Detects the key(s) of a MIDI file or track.
+    *   **AI Agent Prompt**: "What is the key of the loaded MIDI file?" (MIDI File ID: [current_midi_file_id])
+
+### Phase 4: Genre Knowledge
+
+These tools enable the creation of music in specific genres.
+
+*   **`list_available_genres()`**
+    *   **Description**: Lists all available genres with categories and descriptions.
+    *   **AI Agent Prompt**: "What music genres do you know?"
+
+*   **`get_genre_characteristics(genre: str)`**
+    *   **Description**: Gets comprehensive characteristics for any musical genre.
+    *   **AI Agent Prompt**: "Tell me about the characteristics of blues music." (Genre: "blues")
+
+*   **`create_progression(genre: str, key: str, variation: str = "standard", bars: int = None)`**
+    *   **Description**: Creates an authentic chord progression for any genre.
+    *   **AI Agent Prompt**: "Create a 12-bar blues progression in the key of E." (Genre: "blues", Key: "E", Bars: 12)
+
+*   **`create_beat(genre: str, tempo: int, complexity: str = "medium", variation: str = "standard")`**
+    *   **Description**: Creates authentic drum patterns for any genre.
+    *   **AI Agent Prompt**: "Create a hip-hop beat at 90 BPM." (Genre: "hip_hop", Tempo: 90)
+
+### Phase 5: Advanced Composition
+
+These tools enable the creation of complete musical works.
+
+*   **`create_song_structure(genre: str, song_type: str = "standard", duration: int = 180)`**
+    *   **Description**: Generates a complete song structure template.
+    *   **AI Agent Prompt**: "Create a standard pop song structure." (Genre: "pop", Song Type: "standard")
+
+*   **`develop_melodic_motif(motif: List[int], development_techniques: List[str], target_length: int = 8)`**
+    *   **Description**: Develops a short melodic motif using classical development techniques.
+    *   **AI Agent Prompt**: "Develop this 3-note motif [60, 62, 64] into an 8-bar melody using sequencing and inversion." (Motif: [60, 62, 64], Development Techniques: ["sequencing", "inversion"], Target Length: 8)
+
+*   **`arrange_for_ensemble(composition: dict, ensemble_type: str, arrangement_style: str = "balanced")`**
+    *   **Description**: Arranges an existing composition for a specific ensemble.
+    *   **AI Agent Prompt**: "Arrange this melody for a string quartet." (Composition: [current_composition_data], Ensemble Type: "string_quartet")
+
+*   **`compose_complete_song(description: str, genre: str, key: str, tempo: int, target_duration: int = 180)`**
+    *   **Description**: Generates a complete musical composition from a text description.
+    *   **AI Agent Prompt**: "Compose a sad ballad in A minor about lost love." (Description: "sad ballad about lost love", Genre: "ballad", Key: "A minor")
 
 ## 🏗️ System Architecture
 
@@ -370,20 +493,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **MCP Team**: For creating the Model Context Protocol that makes AI-system integration seamless
-- **Music Theory Experts**: Who validated our harmonic and theoretical implementations
-- **Genre Specialists**: Musicians who ensured authentic representation of musical styles  
-- **Open Source Community**: Contributors of MIDI libraries, soundfonts, and musical resources
-
-## 🔗 Links
-
-- **Documentation**: [Full Documentation Site](https://your-org.github.io/midi-mcp/)
-- **Examples**: [Community Examples Repository](https://github.com/your-org/midi-mcp-examples)
-- **Discord**: [Community Discussion](https://discord.gg/midi-mcp)
-- **YouTube**: [Video Tutorials and Demos](https://youtube.com/@midi-mcp)
 
 ---
 
