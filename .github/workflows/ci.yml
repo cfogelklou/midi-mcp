@@ -32,14 +32,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -e .
+        pip install pytest-cov
 
-    - name: Run unit and core logic tests
+    - name: Run all tests
       run: |
-        pytest tests/test_server_basic.py
-        # Run our Phase 2 tests which will create and save MIDI files
-        python test_phase_2.py
-
-    - name: Run E2E composition analysis tests
-      run: |
-        pytest tests/e2e/test_composition_analysis.py -v
+        ./run_all_tests.sh
 
