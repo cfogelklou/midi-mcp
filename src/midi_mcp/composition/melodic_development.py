@@ -255,19 +255,27 @@ class PhraseGenerator:
         melody_notes = []
         base_octave = 4
 
-        # Use music21 if available for scale-based melody generation
-        if self.libraries.music21.is_available():
-            try:
-                key_notes = self.libraries.music21.get_scale_notes("major", key)
-                if key_notes:
-                    # Convert music21 note names to MIDI numbers
-                    scale_notes = self._convert_note_names_to_midi(key_notes)
-                else:
-                    scale_notes = self._get_fallback_scale(key)
-            except Exception:
-                scale_notes = self._get_fallback_scale(key)
-        else:
-            scale_notes = self._get_fallback_scale(key)
+        # Use music21 for scale-based melody generation
+        from ..constants import note_name_to_midi
+        # Extract just the key name (C from "C major")
+        key_name = key.split()[0] if ' ' in key else key
+        key_notes = self.libraries.music21.get_scale_notes("major", key_name)
+        
+        scale_notes = []
+        if key_notes:
+            for note_name in key_notes:
+                try:
+                    # Extract note and octave from names like 'C4'
+                    if len(note_name) >= 2 and note_name[-1].isdigit():
+                        note_part = note_name[:-1]
+                        octave = int(note_name[-1])
+                    else:
+                        note_part = note_name
+                        octave = 4  # Default octave
+                    scale_notes.append(note_name_to_midi(note_part, octave))
+                except:
+                    continue  # Skip invalid note names
+        
 
         # Generate melody based on chord progression
         for chord in chord_progression:
@@ -296,40 +304,13 @@ class PhraseGenerator:
 
         return melody_notes
 
-    def _get_fallback_scale(self, key: str) -> List[int]:
-        """Get a simple major scale as fallback."""
-        # Simple C major scale transposed to key
-        key_offset = self._get_key_offset(key)
-        return [key_offset + offset for offset in [0, 2, 4, 5, 7, 9, 11]]
-
-    def _get_key_offset(self, key: str) -> int:
-        """Get semitone offset for key."""
-        key_offsets = {
-            "C": 0,
-            "C#": 1,
-            "Db": 1,
-            "D": 2,
-            "D#": 3,
-            "Eb": 3,
-            "E": 4,
-            "F": 5,
-            "F#": 6,
-            "Gb": 6,
-            "G": 7,
-            "G#": 8,
-            "Ab": 8,
-            "A": 9,
-            "A#": 10,
-            "Bb": 10,
-            "B": 11,
-        }
-        key_name = key.split()[0]  # Remove "major"/"minor"
-        return key_offsets.get(key_name, 0)
 
     def _get_chord_tones(self, chord: str, key: str) -> List[int]:
         """Get the notes that make up a chord."""
-        # Simplified chord tone generation
-        key_offset = self._get_key_offset(key)
+        from ..constants import note_name_to_midi
+        # Get key root note
+        key_name = key.split()[0]  # Remove "major"/"minor"
+        key_offset = note_name_to_midi(key_name, 4) - 60  # Relative to middle C
 
         # Roman numeral to interval mapping
         roman_intervals = {
@@ -581,42 +562,19 @@ class MelodyVariator:
 
     def _convert_note_names_to_midi(self, note_names: List[str]) -> List[int]:
         """Convert note names like ['C4', 'D4', 'E4'] to MIDI numbers."""
+        from ..constants import note_name_to_midi
         midi_notes = []
         for note_name in note_names:
-            midi_note = self._note_name_to_midi(note_name)
-            if midi_note is not None:
-                midi_notes.append(midi_note)
+            try:
+                # Extract note and octave from names like 'C4'
+                if len(note_name) >= 2 and note_name[-1].isdigit():
+                    note_part = note_name[:-1]
+                    octave = int(note_name[-1])
+                else:
+                    note_part = note_name
+                    octave = 4  # Default octave
+                midi_notes.append(note_name_to_midi(note_part, octave))
+            except:
+                continue  # Skip invalid note names
         return midi_notes
 
-    def _note_name_to_midi(self, note_name: str) -> int:
-        """Convert a note name like 'C4' to MIDI number (60)."""
-        # Simple note name to MIDI conversion
-        note_map = {
-            'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
-            'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
-            'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
-        }
-        
-        # Handle different note name formats
-        note_name = note_name.strip()
-        
-        # Extract note and octave
-        if len(note_name) >= 2:
-            if note_name[1] in ['#', 'b']:
-                note = note_name[:2]
-                octave_str = note_name[2:]
-            else:
-                note = note_name[0]
-                octave_str = note_name[1:]
-        else:
-            note = note_name[0] if note_name else 'C'
-            octave_str = '4'  # Default octave
-            
-        try:
-            octave = int(octave_str) if octave_str else 4
-        except ValueError:
-            octave = 4  # Default octave
-            
-        # Calculate MIDI number
-        midi_note = note_map.get(note, 0) + (octave + 1) * 12
-        return max(0, min(127, midi_note))  # Clamp to valid MIDI range

@@ -14,6 +14,7 @@ from ..genres.genre_manager import GenreManager
 from ..genres.composer import Composer
 from ..genres.library_integration import LibraryIntegration
 from ..theory.keys import KeyManager
+from ..constants import get_section_energy_level
 
 
 class SongStructureGenerator:
@@ -138,21 +139,7 @@ class SongStructureGenerator:
 
     def _get_section_energy_level(self, section_type: SectionType, genre_data: Dict[str, Any]) -> float:
         """Determine energy level for section type."""
-        base_energy = genre_data.get("energy_level", 0.5)
-
-        energy_modifiers = {
-            SectionType.INTRO: -0.2,
-            SectionType.VERSE: -0.1,
-            SectionType.CHORUS: +0.2,
-            SectionType.BRIDGE: +0.1,
-            SectionType.SOLO: +0.3,
-            SectionType.BREAKDOWN: -0.3,
-            SectionType.BUILD_UP: +0.4,
-            SectionType.OUTRO: -0.2,
-        }
-
-        modifier = energy_modifiers.get(section_type, 0.0)
-        return max(0.0, min(1.0, base_energy + modifier))
+        return get_section_energy_level(section_type, genre_data)
 
     def _create_key_plan(self, genre: str, sections: List[Section]) -> Dict[str, Any]:
         """Create key relationships throughout the song."""
@@ -355,19 +342,7 @@ class SectionGenerator:
 
     def _get_section_energy_level(self, section_type: SectionType, genre_data: Dict[str, Any]) -> float:
         """Get energy level for section type."""
-        base_energy = genre_data.get("energy_level", 0.5)
-
-        energy_modifiers = {
-            SectionType.INTRO: -0.2,
-            SectionType.VERSE: -0.1,
-            SectionType.CHORUS: +0.2,
-            SectionType.BRIDGE: +0.1,
-            SectionType.SOLO: +0.3,
-            SectionType.OUTRO: -0.2,
-        }
-
-        modifier = energy_modifiers.get(section_type, 0.0)
-        return max(0.0, min(1.0, base_energy + modifier))
+        return get_section_energy_level(section_type, genre_data)
 
 
 class TransitionCreator:

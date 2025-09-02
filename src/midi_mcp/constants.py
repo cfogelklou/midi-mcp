@@ -1052,6 +1052,34 @@ def get_default_rhythm_pattern() -> list:
     """Get default rhythm pattern (quarter notes).""" 
     return DEFAULT_RHYTHM_PATTERN.copy()
 
+def get_section_energy_level(section_type, genre_data: dict) -> float:
+    """
+    Get energy level for section type (consolidated from duplicated methods).
+    
+    Args:
+        section_type: Section type (SectionType enum or string)
+        genre_data: Genre data containing base energy level
+        
+    Returns:
+        Energy level between 0.0 and 1.0
+    """
+    # Handle both enum and string types
+    section_str = section_type.value if hasattr(section_type, 'value') else str(section_type).lower()
+    
+    base_energy = genre_data.get("energy_level", 0.5)
+    energy_modifiers = {
+        "intro": -0.2,
+        "verse": -0.1,
+        "chorus": +0.2,
+        "bridge": +0.1,
+        "solo": +0.3,
+        "breakdown": -0.3,
+        "build_up": +0.4,
+        "outro": -0.2,
+    }
+    modifier = energy_modifiers.get(section_str, 0.0)
+    return max(0.0, min(1.0, base_energy + modifier))
+
 def convert_roman_to_chord_symbol(roman_numeral: str, key: str) -> str:
     """Convert Roman numeral to chord symbol using music21."""
     from music21 import roman, key as music21_key

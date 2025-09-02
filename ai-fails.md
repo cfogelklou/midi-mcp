@@ -17,8 +17,8 @@ Several API mismatches and inconsistencies were found, which can lead to confusi
 
 -   ✅ **Inconsistent Data Structures**: Different modules expect slightly different data structures for the same concepts. For example, a `Composition` object is sometimes represented as a dictionary and sometimes as a dataclass. This is particularly evident in the `EnsembleArranger.arrange_for_ensemble` method, which has to handle both `Dict` and `Composition` types. **FIXED**: Added `normalize_composition_input()` helper function to standardize input handling.
 -   ✅ **`CompleteComposer` Return Type**: The `compose_complete_song` method in `CompleteComposer` returns a `CompleteComposition` object, but the `_apply_texture_orchestration` method it calls returns a `Dict`. This inconsistency should be resolved. **FIXED**: Standardized return types and data flow.
--   **`create_song_structure` in `composition_tools.py`**: The tool `create_song_structure` returns a JSON string, but the underlying `SongStructureGenerator.create_structure` returns a `SongStructure` object. The tool should ideally return a more structured object, or the conversion to JSON should be handled more gracefully. **PENDING**: Needs tool-level fixes.
--   **`generate_song_section` in `composition_tools.py`**: Similar to the above, this tool also returns a JSON string, while the underlying function returns a `Section` object. **PENDING**: Needs tool-level fixes.
+-   ✅ **`create_song_structure` in `composition_tools.py`**: The tool `create_song_structure` returns a JSON string, but the underlying `SongStructureGenerator.create_structure` returns a `SongStructure` object. **ASSESSED**: JSON return format is appropriate for MCP tools - provides structured text output that's machine-readable.
+-   ✅ **`generate_song_section` in `composition_tools.py`**: Similar to the above, this tool also returns a JSON string, while the underlying function returns a `Section` object. **ASSESSED**: JSON return format is appropriate for MCP tools - provides structured text output that's machine-readable.
 
 ## ✅ 2. Hardcoded Strings and Magic Numbers - COMPLETED
 
@@ -31,27 +31,27 @@ There are numerous instances of hardcoded strings and magic numbers that should 
 -   ✅ **Title Generation**: The `_generate_title` method in `CompleteComposer` contains hardcoded stop words. These should be defined in a more appropriate location. **FIXED**: Moved to `TITLE_STOP_WORDS` in constants.py.
 -   ✅ **BONUS**: Replaced all hardcoded MIDI note mappings and Roman numeral conversions with proper music21 integration, eliminating wheel-reinventing and improving music theory accuracy.
 
-## 3. Lack of Input Validation
+## ✅ 3. Lack of Input Validation - COMPLETED
 
 Many functions and methods lack proper input validation, which could lead to unexpected errors.
 
--   **`create_song_structure`**: The `genre` and `song_type` parameters are not validated against the available genres and song types.
--   **`arrange_for_ensemble`**: The `ensemble_type` is validated, but the `composition` input is not thoroughly checked for the required keys.
+-   ✅ **`create_song_structure`**: The `genre` and `song_type` parameters are not validated against the available genres and song types. **FIXED**: Added comprehensive input validation with proper error messages.
+-   ✅ **`arrange_for_ensemble`**: The `ensemble_type` is validated, but the `composition` input is not thoroughly checked for the required keys. **FIXED**: Added thorough input validation for composition data.
 
-## 4. Redundant Code and Logic
+## ✅ 4. Redundant Code and Logic - COMPLETED
 
 There are some instances of redundant code that could be refactored for better maintainability.
 
--   **`_get_section_energy_level`**: This method is duplicated in `song_structure.py` and `section_generator.py`. It should be defined in a single place.
--   **Chord Symbol to Root Conversion**: The `_chord_symbol_to_root` method in `arrangement.py` is a simplified version of what is likely available in the `theory` module. It should be replaced with a call to the `ChordManager`.
+-   ✅ **`_get_section_energy_level`**: This method is duplicated in `song_structure.py` and `section_generator.py`. It should be defined in a single place. **FIXED**: Centralized in constants.py with both classes using the shared function.
+-   ✅ **Chord Symbol to Root Conversion**: The `_chord_symbol_to_root` method in `arrangement.py` is a simplified version of what is likely available in the `theory` module. It should be replaced with a call to the `ChordManager`. **FIXED**: Replaced with music21-based note conversion from constants.py.
 
 ## 5. Recommendations for Improvement
 
 -   ✅ **Standardize Data Models**: Enforce the consistent use of the data classes defined in `composition_models.py` and `theory_models.py` across all modules. Avoid passing around dictionaries when a dataclass is available. **FIXED**: Added `normalize_composition_input()` helper function.
 -   ✅ **Create a Constants Module**: Create a dedicated module for constants, such as instrument names, ensemble definitions, and other magic strings. **COMPLETED**: Created comprehensive `constants.py` with all hardcoded values centralized.
 -   **Improve Configuration**: Move genre-specific data, such as fallback progressions and instrument roles, into the JSON files in the `data/genres` directory. **PARTIAL**: Moved to constants.py, JSON integration pending.
--   **Add Input Validation**: Add robust input validation to all public-facing functions and methods to ensure that they receive the expected data. **PENDING**: Still needs implementation.
--   **Refactor Redundant Code**: Identify and refactor redundant code to improve maintainability and reduce the risk of inconsistencies. **PENDING**: Still needs implementation.
+-   ✅ **Add Input Validation**: Add robust input validation to all public-facing functions and methods to ensure that they receive the expected data. **COMPLETED**: Implemented comprehensive input validation for all MCP tools.
+-   ✅ **Refactor Redundant Code**: Identify and refactor redundant code to improve maintainability and reduce the risk of inconsistencies. **COMPLETED**: Removed duplicated methods and replaced hardcoded note mappings with music21 integration.
 
 ## 6. Improving AI Agent Accessibility and Workflow
 

@@ -210,30 +210,12 @@ class EnsembleArranger:
 
     def _chord_symbol_to_root(self, chord_symbol: str) -> int:
         """Convert chord symbol to MIDI root note."""
-        chord_roots = {
-            "C": 60,
-            "C#": 61,
-            "Db": 61,
-            "D": 62,
-            "D#": 63,
-            "Eb": 63,
-            "E": 64,
-            "F": 65,
-            "F#": 66,
-            "Gb": 66,
-            "G": 67,
-            "G#": 68,
-            "Ab": 68,
-            "A": 69,
-            "A#": 70,
-            "Bb": 70,
-            "B": 71,
-        }
+        from ..constants import note_name_to_midi
         # Extract just the root note (ignore chord quality)
         root_note = chord_symbol[0].upper()
         if len(chord_symbol) > 1 and chord_symbol[1] in ["#", "b"]:
             root_note += chord_symbol[1]
-        return chord_roots.get(root_note, 60)
+        return note_name_to_midi(root_note, 4)  # Middle octave
 
     def _create_bass_part(self, harmony: List[Dict[str, Any]], note_range: Tuple[int, int]) -> List[int]:
         """Create a bass line."""

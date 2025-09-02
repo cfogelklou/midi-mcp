@@ -84,6 +84,15 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
         Returns:
             Song structure with sections, durations, key areas, and arrangement notes
         """
+        # Input validation
+        from ..constants import COMMON_PARAMETER_VALUES, validate_genre
+        if not validate_genre(genre):
+            return [TextContent(type="text", text=f"Error: Unknown genre '{genre}'. Available genres: {', '.join(COMMON_PARAMETER_VALUES['musical_styles'])}")]
+        if song_type not in COMMON_PARAMETER_VALUES['song_types']:
+            return [TextContent(type="text", text=f"Error: Unknown song_type '{song_type}'. Available types: {', '.join(COMMON_PARAMETER_VALUES['song_types'])}")]
+        if duration < 10 or duration > 1800:  # 10 seconds to 30 minutes
+            return [TextContent(type="text", text=f"Error: Duration must be between 10 and 1800 seconds, got {duration}")]
+        
         try:
             structure = structure_generator.create_structure(genre, song_type, duration)
 
@@ -496,6 +505,19 @@ def register_composition_tools(app: FastMCP, file_manager: Optional[MidiFileMana
         Returns:
             Full arrangement with parts for each instrument
         """
+        # Input validation
+        from ..constants import validate_ensemble_type, COMMON_PARAMETER_VALUES
+        if not validate_ensemble_type(ensemble_type):
+            return [TextContent(type="text", text=f"Error: Unknown ensemble_type '{ensemble_type}'. Available types: {', '.join(COMMON_PARAMETER_VALUES['ensemble_types'])}")]
+        if arrangement_style not in COMMON_PARAMETER_VALUES['arrangement_styles']:
+            return [TextContent(type="text", text=f"Error: Unknown arrangement_style '{arrangement_style}'. Available styles: {', '.join(COMMON_PARAMETER_VALUES['arrangement_styles'])}")]
+        
+        # Validate composition structure
+        required_keys = ['melody', 'harmony']
+        missing_keys = [key for key in required_keys if key not in composition]
+        if missing_keys:
+            return [TextContent(type="text", text=f"Error: Composition missing required keys: {', '.join(missing_keys)}. Required: {', '.join(required_keys)}")]
+        
         try:
             arrangement = ensemble_arranger.arrange_for_ensemble(composition, ensemble_type, arrangement_style)
 
