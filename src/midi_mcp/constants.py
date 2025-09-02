@@ -850,6 +850,45 @@ TITLE_STOP_WORDS = {
     "should", "may", "might", "must", "can", "shall"
 }
 
+# MIDI and Music Constants
+# Standard MIDI note numbers for octave 4
+MIDDLE_C_MIDI = 60
+OCTAVE_SEMITONES = 12
+
+# Default fallback melodies (C-D-E-F pattern)
+DEFAULT_MELODY_NOTES = [60, 62, 64, 65]  # C4-D4-E4-F4
+DEFAULT_RHYTHM_PATTERN = [0.25, 0.25, 0.25, 0.25]  # Quarter notes
+
+# Register ranges for different moods/styles
+REGISTER_RANGES = {
+    "low": (36, 60),      # C2 to C4
+    "middle": (48, 72),   # C3 to C5  
+    "high": (60, 84),     # C4 to C6
+    "very_high": (72, 96), # C5 to C7
+}
+
+# Mood-based adjustments
+MOOD_ADJUSTMENTS = {
+    "happy": {
+        "chromatic_adjust": [2 if note % 12 in [1, 3, 6, 8, 10] else 0 for note in range(12)],
+        "register_shift": +12,  # Higher register
+        "register_threshold": 60
+    },
+    "sad": {
+        "chromatic_adjust": [0] * 12,  # Keep natural
+        "register_shift": -12,  # Lower register  
+        "register_threshold": 72
+    },
+    "energetic": {
+        "register_shift": +12,
+        "register_threshold": 48
+    },
+    "calm": {
+        "register_shift": 0,
+        "register_threshold": 60
+    }
+}
+
 # API Consistency Helper Functions
 def normalize_composition_input(composition):
     """
@@ -948,3 +987,86 @@ def get_genre_fallback_progression(genre: str) -> list:
         List of chord symbols
     """
     return GENRE_FALLBACK_PROGRESSIONS.get(genre.lower(), ["I", "vi", "IV", "V"])
+
+def note_name_to_midi(note_name: str, octave: int = 4) -> int:
+    """Convert note name to MIDI number using music21."""
+    from music21 import note
+    music21_note = note.Note(f"{note_name}{octave}")
+    return music21_note.pitch.midi
+
+def chord_symbol_to_midi_root(chord_symbol: str, octave: int = 4) -> int:
+    """Extract root note from chord symbol and convert to MIDI using music21."""
+    from music21 import harmony
+    chord = harmony.ChordSymbol(chord_symbol)
+    root_note = chord.root().name
+    return note_name_to_midi(root_note, octave)
+
+def apply_mood_adjustments(melody_notes: list, mood: str) -> list:
+    """
+    Apply mood-based adjustments to melody notes.
+    
+    Args:
+        melody_notes: List of MIDI note numbers
+        mood: Mood string ('happy', 'sad', 'energetic', 'calm')
+        
+    Returns:
+        Adjusted list of MIDI note numbers
+    """
+    if mood not in MOOD_ADJUSTMENTS:
+        return melody_notes
+    
+    adjustments = MOOD_ADJUSTMENTS[mood]
+    adjusted_notes = melody_notes.copy()
+    
+    # Apply chromatic adjustments if specified
+    if "chromatic_adjust" in adjustments:
+        chromatic_adj = adjustments["chromatic_adjust"]
+        adjusted_notes = [
+            note + chromatic_adj[note % OCTAVE_SEMITONES] 
+            for note in adjusted_notes
+        ]
+    
+    # Apply register shifts
+    if "register_shift" in adjustments and "register_threshold" in adjustments:
+        shift = adjustments["register_shift"]
+        threshold = adjustments["register_threshold"]
+        
+        if shift > 0:  # Shift higher
+            adjusted_notes = [
+                note + shift if note < threshold else note 
+                for note in adjusted_notes
+            ]
+        elif shift < 0:  # Shift lower
+            adjusted_notes = [
+                note + shift if note > threshold else note 
+                for note in adjusted_notes
+            ]
+    
+    return adjusted_notes
+
+def get_default_melody_notes() -> list:
+    """Get default melody pattern (C-D-E-F)."""
+    return DEFAULT_MELODY_NOTES.copy()
+
+def get_default_rhythm_pattern() -> list:
+    """Get default rhythm pattern (quarter notes).""" 
+    return DEFAULT_RHYTHM_PATTERN.copy()
+
+def convert_roman_to_chord_symbol(roman_numeral: str, key: str) -> str:
+    """Convert Roman numeral to chord symbol using music21."""
+    from music21 import roman, key as music21_key
+    
+    # Parse the key
+    if 'major' in key.lower():
+        key_obj = music21_key.Key(key.replace(' major', ''), 'major')
+    elif 'minor' in key.lower() or 'm' in key.lower():
+        key_name = key.replace(' minor', '').replace('m', '')
+        key_obj = music21_key.Key(key_name, 'minor')
+    else:
+        # Determine if major or minor by common patterns
+        minor_keys = ['am', 'em', 'bm', 'f#m', 'c#m', 'g#m', 'd#m', 'dm', 'gm', 'cm', 'fm', 'bbm', 'ebm', 'abm', 'dbm', 'gbm']
+        key_obj = music21_key.Key(key.replace('m', ''), 'minor') if key.lower() in minor_keys else music21_key.Key(key, 'major')
+    
+    # Create Roman numeral object and convert to chord
+    roman_obj = roman.RomanNumeral(roman_numeral, key_obj)
+    return roman_obj.figure

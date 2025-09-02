@@ -277,42 +277,13 @@ class CompleteComposer:
 
     def _get_chord_root(self, chord_symbol: str, key: str) -> int:
         """Get MIDI note number for chord root based on symbol and key."""
-        # Simple mapping - in a full implementation would use music21
-        note_to_midi = {
-            'C': 60, 'D': 62, 'E': 64, 'F': 65, 'G': 67, 'A': 69, 'B': 71,
-            'Db': 61, 'Eb': 63, 'Gb': 66, 'Ab': 68, 'Bb': 70,
-            'C#': 61, 'D#': 63, 'F#': 66, 'G#': 68, 'A#': 70
-        }
-        
-        # Extract root note from chord symbol (first letter(s))
-        root_note = chord_symbol[0]
-        if len(chord_symbol) > 1 and chord_symbol[1] in ['b', '#']:
-            root_note += chord_symbol[1]
-            
-        return note_to_midi.get(root_note, 60)  # Default to C if not found
+        from ..constants import chord_symbol_to_midi_root
+        return chord_symbol_to_midi_root(chord_symbol, octave=4)
 
     def _convert_roman_to_chord(self, roman_numeral: str, key: str) -> str:
-        """Convert Roman numeral to chord symbol."""
-        # Simple conversion - in full implementation would use music21
-        major_key_map = {
-            'I': 'C', 'ii': 'Dm', 'iii': 'Em', 'IV': 'F', 'V': 'G', 'vi': 'Am', 'vii°': 'Bdim',
-            'V7': 'G7', 'ii7': 'Dm7', 'vi7': 'Am7', 'Imaj7': 'Cmaj7',
-            'VII': 'Bb'  # Flat VII common in rock
-        }
-        
-        minor_key_map = {
-            'i': 'Cm', 'ii°': 'Ddim', 'III': 'Eb', 'iv': 'Fm', 'v': 'Gm', 'VI': 'Ab', 'VII': 'Bb',
-            'i7': 'Cm7', 'iv7': 'Fm7', 'VI7': 'Ab7', 'VII7': 'Bb7'
-        }
-        
-        # Determine if key is major or minor (simplified)
-        is_minor = 'm' in key.lower() or key.lower() in ['am', 'em', 'bm', 'f#m', 'c#m', 'g#m', 'd#m', 'dm', 'gm', 'cm', 'fm', 'bbm', 'ebm', 'abm', 'dbm', 'gbm']
-        
-        chord_map = minor_key_map if is_minor else major_key_map
-        base_chord = chord_map.get(roman_numeral, 'C')
-        
-        # Transpose to correct key (simplified - just return as is for now)
-        return base_chord
+        """Convert Roman numeral to chord symbol using music21."""
+        from ..constants import convert_roman_to_chord_symbol
+        return convert_roman_to_chord_symbol(roman_numeral, key)
 
     def _get_chord_root_from_roman(self, roman_numeral: str, key: str) -> int:
         """Get MIDI root note from Roman numeral and key."""
@@ -330,9 +301,11 @@ class CompleteComposer:
             "vocal" if request.ensemble_type != "piano_solo" else "instrumental",
         )
 
-        # Extract melody from phrase
-        base_melody_notes = phrase.melody.notes if hasattr(phrase.melody, "notes") else [60, 62, 64, 65]
-        base_melody_rhythm = phrase.melody.rhythm if hasattr(phrase.melody, "rhythm") else [0.5] * len(base_melody_notes)
+        # Extract melody from phrase using constants
+        from ..constants import get_default_melody_notes
+        base_melody_notes = phrase.melody.notes if hasattr(phrase.melody, "notes") else get_default_melody_notes()
+        from ..constants import get_default_rhythm_pattern
+        base_melody_rhythm = phrase.melody.rhythm if hasattr(phrase.melody, "rhythm") else get_default_rhythm_pattern()
 
         # Calculate how many times to repeat/vary the melody to fill the target duration
         beats_per_minute = request.tempo
@@ -361,17 +334,14 @@ class CompleteComposer:
             extended_melody_notes.extend(current_notes)
             extended_melody_rhythm.extend(current_rhythm)
 
-        # Apply mood-based adjustments
-        if request.mood == "happy":
-            # Adjust to major intervals, higher register
-            extended_melody_notes = [note + (2 if note % 12 in [1, 3, 6, 8, 10] else 0) for note in extended_melody_notes]
-            extended_melody_notes = [note + 12 if note < 60 else note for note in extended_melody_notes]
-        elif request.mood == "sad":
-            # Adjust to minor intervals, lower register
-            extended_melody_notes = [note - 12 if note > 72 else note for note in extended_melody_notes]
-        elif request.mood == "energetic":
-            # Add rhythmic activity
-            extended_melody_rhythm = [r / 2 for r in extended_melody_rhythm]
+        # Apply mood-based adjustments using constants
+        if request.mood:
+            from ..constants import apply_mood_adjustments
+            extended_melody_notes = apply_mood_adjustments(extended_melody_notes, request.mood)
+            
+            # Special case for energetic mood: increase rhythmic activity
+            if request.mood == "energetic":
+                extended_melody_rhythm = [r / 2 for r in extended_melody_rhythm]
 
         return Melody(
             notes=extended_melody_notes,
@@ -472,6 +442,7 @@ class CompleteComposer:
         self, song_structure: SongStructure, melodic_variations: Dict[str, Melody]
     ) -> List[Dict[str, Any]]:
         """Create detailed section data."""
+        from ..constants import get_default_melody_notes, get_default_rhythm_pattern
 
         sections = []
         verse_count = 0
@@ -500,8 +471,8 @@ class CompleteComposer:
                     "key": section.key,
                     "melody": (
                         {
-                            "notes": section_melody.notes if section_melody else [60, 62, 64, 65],
-                            "rhythm": section_melody.rhythm if section_melody else [0.25, 0.25, 0.25, 0.25],
+                            "notes": section_melody.notes if section_melody else get_default_melody_notes(),
+                            "rhythm": section_melody.rhythm if section_melody else get_default_rhythm_pattern(),
                         }
                         if section_melody
                         else None
