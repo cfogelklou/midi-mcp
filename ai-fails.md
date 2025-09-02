@@ -2,6 +2,8 @@
 
 This document lists issues, inconsistencies, and areas for improvement identified during the architectural review of the music composition system. These are primarily aimed at improving the robustness, maintainability, and overall quality of the codebase.
 
+After each step of this document, please do ./run_all_tests and fix any failing tests (or disable them with a comment if they require massive refactoring)
+
 ## 0. Create or update the "help" tool to add all of the other tools
 - The AI agent should be able to call "help" for any of the other tools
 - Help will return the function of the tool, and the expected input parameters, and expected outputs.

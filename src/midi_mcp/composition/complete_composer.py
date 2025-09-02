@@ -241,52 +241,15 @@ class CompleteComposer:
                             for chord in progression_pattern
                         ]
             
-            # If still no chords from genre data, use genre-appropriate defaults
+            # If still no chords from genre data, use fallback progressions from constants
             if not base_chords:
-                if request.genre == "ambient":
-                    base_chords = [
-                        {"symbol": "Cm", "root": 60, "duration": 4},   # i
-                        {"symbol": "Bb", "root": 70, "duration": 4},   # VII
-                        {"symbol": "Ab", "root": 68, "duration": 4},   # VI
-                        {"symbol": "Bb", "root": 70, "duration": 4},   # VII
-                    ]
-                elif request.genre == "blues":
-                    base_chords = [
-                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                        {"symbol": "A7", "root": 69, "duration": 4},  # IV7
-                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                        {"symbol": "B7", "root": 71, "duration": 4},  # V7
-                        {"symbol": "A7", "root": 69, "duration": 4},  # IV7
-                        {"symbol": "E7", "root": 64, "duration": 4},  # I7
-                        {"symbol": "B7", "root": 71, "duration": 4},  # V7
-                    ]
-                elif request.genre in ["rock", "pop"]:
-                    base_chords = [
-                        {"symbol": "C", "root": 60, "duration": 4},  # I
-                        {"symbol": "G", "root": 67, "duration": 4},  # V
-                        {"symbol": "Am", "root": 57, "duration": 4},  # vi
-                        {"symbol": "F", "root": 65, "duration": 4},  # IV
-                    ]
-                elif request.genre == "jazz":
-                    base_chords = [
-                        {"symbol": "Cmaj7", "root": 60, "duration": 4},  # Imaj7
-                        {"symbol": "Am7", "root": 57, "duration": 4},   # vi7
-                        {"symbol": "Dm7", "root": 62, "duration": 4},   # ii7
-                        {"symbol": "G7", "root": 67, "duration": 4},    # V7
-                    ]
-                elif request.genre == "hip_hop":
-                    base_chords = [
-                        {"symbol": "Dm", "root": 62, "duration": 8},  # ii (longer duration)
-                        {"symbol": "G", "root": 67, "duration": 8},   # V
-                    ]
-                else:
-                    # Generic progression for any other genre
-                    base_chords = [
-                        {"symbol": "C", "root": 60, "duration": 4},  # I
-                        {"symbol": "G", "root": 67, "duration": 4},  # V
-                        {"symbol": "Am", "root": 57, "duration": 4},  # vi
-                        {"symbol": "F", "root": 65, "duration": 4},  # IV
+                from ..constants import get_genre_fallback_progression
+                roman_progression = get_genre_fallback_progression(request.genre)
+                base_chords = [
+                    {"symbol": self._convert_roman_to_chord(chord, request.key), 
+                     "root": self._get_chord_root_from_roman(chord, request.key), 
+                     "duration": 4}
+                    for chord in roman_progression
                     ]
 
         # Extend the harmonic progression to fill the target duration
@@ -488,21 +451,13 @@ class CompleteComposer:
     def _apply_texture_orchestration(self, arrangement: Arrangement, song_structure: SongStructure) -> Dict[str, Any]:
         """Apply texture orchestration to the arrangement."""
 
-        # Create dynamic plan based on song structure
+        # Create dynamic plan based on song structure using constants
+        from ..constants import get_section_dynamic
         dynamic_plan = []
         for section in song_structure.sections:
-            if section.type.value == "intro":
-                dynamic_plan.append("p")
-            elif section.type.value == "verse":
-                dynamic_plan.append("mp")
-            elif section.type.value == "chorus":
-                dynamic_plan.append("f")
-            elif section.type.value == "bridge":
-                dynamic_plan.append("mf")
-            elif section.type.value == "outro":
-                dynamic_plan.append("pp")
-            else:
-                dynamic_plan.append("mf")
+            section_type = section.type.value if hasattr(section.type, 'value') else str(section.type)
+            dynamic_level = get_section_dynamic(section_type)
+            dynamic_plan.append(dynamic_level)
 
         # Apply orchestration
         composition_dict = {
@@ -564,8 +519,9 @@ class CompleteComposer:
         # Extract key words from description
         description_words = re.findall(r"\b\w+\b", request.description.lower())
 
-        # Filter out common words
-        stop_words = {"a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "about"}
+        # Filter out common words using constants
+        from ..constants import TITLE_STOP_WORDS
+        stop_words = TITLE_STOP_WORDS
         key_words = [word for word in description_words if word not in stop_words and len(word) > 2]
 
         if key_words:

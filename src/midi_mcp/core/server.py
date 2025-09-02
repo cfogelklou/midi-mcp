@@ -145,6 +145,102 @@ class MCPServer(MCPServerInterface):
             return [TextContent(type="text", text=f"MIDI MCP Server Status:\n{status}")]
 
         self.tool_registry.register("server_status", status_tool, server_status)
+
+        # Help tool
+        help_tool = Tool(
+            name="help",
+            description="Get comprehensive help information about available tools",
+            inputSchema={
+                "type": "object", 
+                "properties": {
+                    "tool_name": {
+                        "type": "string",
+                        "description": "Specific tool to get help for (optional)"
+                    },
+                    "category": {
+                        "type": "string", 
+                        "description": "Tool category to list (optional: server, midi_devices, midi_files, music_theory, composition)"
+                    }
+                },
+                "required": []
+            },
+        )
+
+        @self.app.tool(name="help")
+        async def help_tool_handler(tool_name: str = None, category: str = None) -> List[TextContent]:
+            """Get comprehensive help information about available tools."""
+            from ..constants import TOOL_DEFINITIONS, TOOL_CATEGORIES, TOOL_HELP_BY_CATEGORY
+            
+            if tool_name:
+                # Get help for specific tool
+                if tool_name in TOOL_DEFINITIONS:
+                    tool_info = TOOL_DEFINITIONS[tool_name]
+                    help_text = f"# {tool_name}\n\n"
+                    help_text += f"**Category**: {TOOL_CATEGORIES.get(tool_info['category'], 'Unknown')}\n\n"
+                    help_text += f"**Description**: {tool_info['description']}\n\n"
+                    
+                    if tool_info.get('parameters'):
+                        help_text += "**Parameters**:\n"
+                        for param, desc in tool_info['parameters'].items():
+                            help_text += f"- `{param}`: {desc}\n"
+                        help_text += "\n"
+                    
+                    help_text += f"**Returns**: {tool_info['returns']}\n\n"
+                    
+                    if tool_info.get('examples'):
+                        help_text += "**Examples**:\n"
+                        for example in tool_info['examples']:
+                            help_text += f"```\n{example}\n```\n"
+                    
+                    return [TextContent(type="text", text=help_text)]
+                else:
+                    return [TextContent(type="text", text=f"Tool '{tool_name}' not found. Use 'help()' to see all available tools.")]
+            
+            elif category:
+                # Get help for specific category
+                if category in TOOL_HELP_BY_CATEGORY:
+                    help_text = f"# {TOOL_CATEGORIES.get(category, category.title())} Tools\n\n"
+                    
+                    for tool_name, tool_info in TOOL_HELP_BY_CATEGORY[category].items():
+                        help_text += f"## {tool_name}\n"
+                        help_text += f"{tool_info['description']}\n"
+                        
+                        if tool_info.get('parameters'):
+                            param_count = len(tool_info['parameters'])
+                            help_text += f"*{param_count} parameter{'s' if param_count != 1 else ''}*\n"
+                        
+                        help_text += "\n"
+                    
+                    return [TextContent(type="text", text=help_text)]
+                else:
+                    valid_categories = ", ".join(TOOL_CATEGORIES.keys())
+                    return [TextContent(type="text", text=f"Category '{category}' not found. Valid categories: {valid_categories}")]
+            
+            else:
+                # Get overview of all tools
+                help_text = "# MIDI MCP Server - Available Tools\n\n"
+                
+                for cat_key, cat_name in TOOL_CATEGORIES.items():
+                    help_text += f"## {cat_name}\n"
+                    
+                    if cat_key in TOOL_HELP_BY_CATEGORY:
+                        for tool_name, tool_info in TOOL_HELP_BY_CATEGORY[cat_key].items():
+                            help_text += f"- **{tool_name}**: {tool_info['description']}\n"
+                    
+                    help_text += "\n"
+                
+                help_text += "## Usage\n"
+                help_text += "- `help('tool_name')` - Get detailed help for a specific tool\n"
+                help_text += "- `help(category='category_name')` - Get help for tools in a category\n"
+                help_text += "- `help()` - Show this overview\n\n"
+                
+                help_text += "## Available Categories\n"
+                for cat_key, cat_name in TOOL_CATEGORIES.items():
+                    help_text += f"- `{cat_key}`: {cat_name}\n"
+                
+                return [TextContent(type="text", text=help_text)]
+
+        self.tool_registry.register("help", help_tool, help_tool_handler)
         self.logger.debug("Registered default tools")
 
     def _register_midi_tools(self) -> None:

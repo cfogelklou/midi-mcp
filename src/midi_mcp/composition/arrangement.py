@@ -46,82 +46,18 @@ class EnsembleArranger:
 
     def _initialize_ensembles(self) -> Dict[str, EnsembleDefinition]:
         """Initialize standard ensemble definitions."""
-        return {
-            "piano_solo": EnsembleDefinition(
-                name="Piano Solo",
-                instruments=["piano"],
-                typical_ranges={
-                    "piano": (21, 108),  # A0-C8 (full piano range)
-                },
-                texture_capabilities=["melody", "harmony", "accompaniment", "solo"],
-                style_characteristics={
-                    "voice_leading": "flexible",
-                    "texture_density": "variable",
-                    "dynamic_range": "wide",
-                },
-            ),
-            "string_quartet": EnsembleDefinition(
-                name="String Quartet",
-                instruments=["violin_1", "violin_2", "viola", "cello"],
-                typical_ranges={
-                    "violin_1": (55, 103),  # G3-G7
-                    "violin_2": (55, 98),  # G3-D7
-                    "viola": (48, 91),  # C3-G6
-                    "cello": (36, 84),  # C2-C6
-                },
-                texture_capabilities=["homophonic", "polyphonic", "contrapuntal"],
-                style_characteristics={"voice_leading": "strict", "texture_density": "medium", "dynamic_range": "wide"},
-            ),
-            "jazz_combo": EnsembleDefinition(
-                name="Jazz Combo",
-                instruments=["piano", "bass", "drums", "trumpet", "saxophone"],
-                typical_ranges={
-                    "piano": (21, 108),  # A0-C8
-                    "bass": (28, 67),  # E1-G4
-                    "drums": (35, 81),  # Kick to cymbal
-                    "trumpet": (58, 94),  # Bb3-Bb6
-                    "saxophone": (49, 94),  # Db3-Bb6
-                },
-                texture_capabilities=["swing", "walking_bass", "comping", "solo_sections"],
-                style_characteristics={
-                    "voice_leading": "flexible",
-                    "texture_density": "variable",
-                    "dynamic_range": "moderate",
-                },
-            ),
-            "rock_band": EnsembleDefinition(
-                name="Rock Band",
-                instruments=["electric_guitar", "bass_guitar", "drums", "vocals"],
-                typical_ranges={
-                    "electric_guitar": (40, 84),  # E2-C6
-                    "bass_guitar": (28, 67),  # E1-G4
-                    "drums": (35, 81),  # Kick to cymbal
-                    "vocals": (60, 84),  # C4-C6
-                },
-                texture_capabilities=["power_chords", "riffs", "rhythmic"],
-                style_characteristics={
-                    "voice_leading": "loose",
-                    "texture_density": "dense",
-                    "dynamic_range": "high_energy",
-                },
-            ),
-            "symphony_orchestra": EnsembleDefinition(
-                name="Symphony Orchestra",
-                instruments=["strings", "woodwinds", "brass", "percussion"],
-                typical_ranges={
-                    "strings": (28, 103),  # Full string range
-                    "woodwinds": (47, 98),  # Bassoon to piccolo
-                    "brass": (34, 94),  # Tuba to trumpet
-                    "percussion": (28, 108),  # Full range
-                },
-                texture_capabilities=["orchestral", "symphonic", "massive"],
-                style_characteristics={
-                    "voice_leading": "sophisticated",
-                    "texture_density": "very_dense",
-                    "dynamic_range": "extreme",
-                },
-            ),
-        }
+        from ..constants import ENSEMBLE_DEFINITIONS
+        
+        ensemble_defs = {}
+        for ensemble_type, definition in ENSEMBLE_DEFINITIONS.items():
+            ensemble_defs[ensemble_type] = EnsembleDefinition(
+                name=definition["name"],
+                instruments=definition["instruments"],
+                typical_ranges=definition["typical_ranges"], 
+                texture_capabilities=definition["texture_capabilities"],
+                style_characteristics=definition["style_characteristics"]
+            )
+        return ensemble_defs
 
     def arrange_for_ensemble(
         self, composition: Union[Dict[str, Any], Composition], ensemble_type: str, arrangement_style: str = "balanced"
@@ -143,15 +79,12 @@ class EnsembleArranger:
 
             ensemble = self.ensembles[ensemble_type]
 
-            # Extract composition elements - handle both Dict and Composition types
-            if isinstance(composition, dict):
-                melody = composition.get("melody", {})
-                harmony = composition.get("harmony", [])
-                structure = composition.get("structure", {})
-            else:  # Composition object
-                melody = composition.melody if hasattr(composition, "melody") else {}
-                harmony = composition.harmony if hasattr(composition, "harmony") else []
-                structure = composition.structure if hasattr(composition, "structure") else {}
+            # Extract composition elements using normalized input
+            from ..constants import normalize_composition_input
+            normalized_comp = normalize_composition_input(composition)
+            melody = normalized_comp["melody"]
+            harmony = normalized_comp["harmony"]
+            structure = normalized_comp["structure"]
 
             # Create instrument parts
             instrument_parts = []
