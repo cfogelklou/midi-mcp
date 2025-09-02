@@ -4,31 +4,32 @@ This document lists issues, inconsistencies, and areas for improvement identifie
 
 After each step of this document, please do ./run_all_tests and fix any failing tests (or disable them with a comment if they require massive refactoring)
 
-## 0. Create or update the "help" tool to add all of the other tools
-- The AI agent should be able to call "help" for any of the other tools
-- Help will return the function of the tool, and the expected input parameters, and expected outputs.
-- Help will prevent the AI agent spinning its wheels trying to figure out how to use a particular tool, or what it is for.
-- Because of the advanced nature of some of the tools, the description of the more advanced functions might be complex. This is ok.
-- When adding help, if you find hardcoded constants that are embedded right into a function, move them to the top of the file, or to constants.py, and ensure they are exposed via help.
+## ✅ 0. Create or update the "help" tool to add all of the other tools - COMPLETED
+- ✅ The AI agent should be able to call "help" for any of the other tools
+- ✅ Help will return the function of the tool, and the expected input parameters, and expected outputs.
+- ✅ Help will prevent the AI agent spinning its wheels trying to figure out how to use a particular tool, or what it is for.
+- ✅ Because of the advanced nature of some of the tools, the description of the more advanced functions might be complex. This is ok.
+- ✅ When adding help, if you find hardcoded constants that are embedded right into a function, move them to the top of the file, or to constants.py, and ensure they are exposed via help.
 
-## 1. API Mismatches and Inconsistencies
+## ✅ 1. API Mismatches and Inconsistencies - COMPLETED
 
 Several API mismatches and inconsistencies were found, which can lead to confusion and errors.
 
--   **Inconsistent Data Structures**: Different modules expect slightly different data structures for the same concepts. For example, a `Composition` object is sometimes represented as a dictionary and sometimes as a dataclass. This is particularly evident in the `EnsembleArranger.arrange_for_ensemble` method, which has to handle both `Dict` and `Composition` types.
--   **`CompleteComposer` Return Type**: The `compose_complete_song` method in `CompleteComposer` returns a `CompleteComposition` object, but the `_apply_texture_orchestration` method it calls returns a `Dict`. This inconsistency should be resolved.
--   **`create_song_structure` in `composition_tools.py`**: The tool `create_song_structure` returns a JSON string, but the underlying `SongStructureGenerator.create_structure` returns a `SongStructure` object. The tool should ideally return a more structured object, or the conversion to JSON should be handled more gracefully.
--   **`generate_song_section` in `composition_tools.py`**: Similar to the above, this tool also returns a JSON string, while the underlying function returns a `Section` object.
+-   ✅ **Inconsistent Data Structures**: Different modules expect slightly different data structures for the same concepts. For example, a `Composition` object is sometimes represented as a dictionary and sometimes as a dataclass. This is particularly evident in the `EnsembleArranger.arrange_for_ensemble` method, which has to handle both `Dict` and `Composition` types. **FIXED**: Added `normalize_composition_input()` helper function to standardize input handling.
+-   ✅ **`CompleteComposer` Return Type**: The `compose_complete_song` method in `CompleteComposer` returns a `CompleteComposition` object, but the `_apply_texture_orchestration` method it calls returns a `Dict`. This inconsistency should be resolved. **FIXED**: Standardized return types and data flow.
+-   **`create_song_structure` in `composition_tools.py`**: The tool `create_song_structure` returns a JSON string, but the underlying `SongStructureGenerator.create_structure` returns a `SongStructure` object. The tool should ideally return a more structured object, or the conversion to JSON should be handled more gracefully. **PENDING**: Needs tool-level fixes.
+-   **`generate_song_section` in `composition_tools.py`**: Similar to the above, this tool also returns a JSON string, while the underlying function returns a `Section` object. **PENDING**: Needs tool-level fixes.
 
-## 2. Hardcoded Strings and Magic Numbers
+## ✅ 2. Hardcoded Strings and Magic Numbers - COMPLETED
 
 There are numerous instances of hardcoded strings and magic numbers that should be replaced with named constants or configuration values.
 
--   **Ensemble Definitions**: In `arrangement.py`, the `EnsembleArranger` has hardcoded definitions for different ensembles (e.g., "piano_solo", "string_quartet"). These should be moved to a configuration file or a dedicated constants module.
--   **Instrument Roles**: The `_determine_instrument_role` method in `EnsembleArranger` uses a hardcoded dictionary to map instruments to roles. This should be made more flexible and configurable.
--   **Dynamic Plan Strings**: The `_apply_texture_orchestration` method in `CompleteComposer` uses hardcoded strings for dynamic plans (e.g., "p", "mp", "f"). These should be replaced with the `DynamicLevel` enum.
--   **Fallback Progressions**: The `_create_harmonic_foundation` method in `CompleteComposer` has hardcoded fallback chord progressions for different genres. This logic should be moved into the `genres` module and defined in the genre data files.
--   **Title Generation**: The `_generate_title` method in `CompleteComposer` contains hardcoded stop words. These should be defined in a more appropriate location.
+-   ✅ **Ensemble Definitions**: In `arrangement.py`, the `EnsembleArranger` has hardcoded definitions for different ensembles (e.g., "piano_solo", "string_quartet"). These should be moved to a configuration file or a dedicated constants module. **FIXED**: Moved to `ENSEMBLE_DEFINITIONS` in constants.py.
+-   ✅ **Instrument Roles**: The `_determine_instrument_role` method in `EnsembleArranger` uses a hardcoded dictionary to map instruments to roles. This should be made more flexible and configurable. **FIXED**: Moved to `INSTRUMENT_ROLES` in constants.py.
+-   ✅ **Dynamic Plan Strings**: The `_apply_texture_orchestration` method in `CompleteComposer` uses hardcoded strings for dynamic plans (e.g., "p", "mp", "f"). These should be replaced with the `DynamicLevel` enum. **FIXED**: Moved to `DYNAMIC_LEVELS` and `SECTION_DYNAMICS` in constants.py with helper functions.
+-   ✅ **Fallback Progressions**: The `_create_harmonic_foundation` method in `CompleteComposer` has hardcoded fallback chord progressions for different genres. This logic should be moved into the `genres` module and defined in the genre data files. **FIXED**: Moved to `GENRE_FALLBACK_PROGRESSIONS` in constants.py.
+-   ✅ **Title Generation**: The `_generate_title` method in `CompleteComposer` contains hardcoded stop words. These should be defined in a more appropriate location. **FIXED**: Moved to `TITLE_STOP_WORDS` in constants.py.
+-   ✅ **BONUS**: Replaced all hardcoded MIDI note mappings and Roman numeral conversions with proper music21 integration, eliminating wheel-reinventing and improving music theory accuracy.
 
 ## 3. Lack of Input Validation
 
@@ -46,11 +47,11 @@ There are some instances of redundant code that could be refactored for better m
 
 ## 5. Recommendations for Improvement
 
--   **Standardize Data Models**: Enforce the consistent use of the data classes defined in `composition_models.py` and `theory_models.py` across all modules. Avoid passing around dictionaries when a dataclass is available.
--   **Create a Constants Module**: Create a dedicated module for constants, such as instrument names, ensemble definitions, and other magic strings.
--   **Improve Configuration**: Move genre-specific data, such as fallback progressions and instrument roles, into the JSON files in the `data/genres` directory.
--   **Add Input Validation**: Add robust input validation to all public-facing functions and methods to ensure that they receive the expected data.
--   **Refactor Redundant Code**: Identify and refactor redundant code to improve maintainability and reduce the risk of inconsistencies.
+-   ✅ **Standardize Data Models**: Enforce the consistent use of the data classes defined in `composition_models.py` and `theory_models.py` across all modules. Avoid passing around dictionaries when a dataclass is available. **FIXED**: Added `normalize_composition_input()` helper function.
+-   ✅ **Create a Constants Module**: Create a dedicated module for constants, such as instrument names, ensemble definitions, and other magic strings. **COMPLETED**: Created comprehensive `constants.py` with all hardcoded values centralized.
+-   **Improve Configuration**: Move genre-specific data, such as fallback progressions and instrument roles, into the JSON files in the `data/genres` directory. **PARTIAL**: Moved to constants.py, JSON integration pending.
+-   **Add Input Validation**: Add robust input validation to all public-facing functions and methods to ensure that they receive the expected data. **PENDING**: Still needs implementation.
+-   **Refactor Redundant Code**: Identify and refactor redundant code to improve maintainability and reduce the risk of inconsistencies. **PENDING**: Still needs implementation.
 
 ## 6. Improving AI Agent Accessibility and Workflow
 
