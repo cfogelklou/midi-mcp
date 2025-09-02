@@ -4,6 +4,8 @@ This document provides guidelines for all AI agents contributing to this codebas
 
 ## General Principles
 
+When working on the mcp server, if you create any new hardcoded constants, place them in constants.py. If such constants are necessary inputs for an API function, then ensure you add the function to the "help" command and provide its list of accepted input parameters.
+
 *   **Clarity and Simplicity:** Write code that is easy to understand. Avoid unnecessary complexity.
 *   **Modularity:** Keep functions and classes focused on a single responsibility.
 *   **DRY (Don't Repeat Yourself):** Avoid duplicating code. Use functions, classes, and modules to promote reuse.
@@ -54,7 +56,6 @@ Every Python file must begin with a header that includes the following informati
 
 ## Commits
 
-*   **Atomic Commits:** Each commit should represent a single logical change.
-*   **Clear Commit Messages:** Write clear and concise commit messages that explain the "what" and "why" of the change.
+*   The user will handle git versioning.
 
 By following these guidelines, we can create a high-quality, maintainable, and collaborative codebase.
